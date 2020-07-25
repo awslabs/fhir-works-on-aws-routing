@@ -1,6 +1,6 @@
 {
   "name": "aws-fhir-routing",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "FHIR Solution hosted on AWS Lambda",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -18,8 +18,8 @@
     "local": "node ."
   },
   "dependencies": {
-    "ajv": "^6.11.0",
     "@awslabs/aws-fhir-interface": "^0.7.4",
+    "ajv": "^6.11.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "flat": "^5.0.0",
