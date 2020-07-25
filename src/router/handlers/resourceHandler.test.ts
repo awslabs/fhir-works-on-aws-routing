@@ -7,7 +7,7 @@
 /* eslint-disable max-classes-per-file */
 // eslint-disable-next-line import/extensions
 import uuidv4 from 'uuid/v4';
-import { GenericResponse }, {
+import {
     SearchResponse,
     Persistence,
     CreateResourceRequest,
@@ -17,18 +17,21 @@ import { GenericResponse }, {
     DeleteResourceRequest,
     PatchResourceRequest,
     ConditionalDeleteResourceRequest,
+    GenericResponse,
+    stubs,
 } from '@awslabs/aws-fhir-interface';
 import ResourceHandler from './resourceHandler';
 import invalidPatient from '../../../sampleData/invalidV4Patient.json';
 import validPatient from '../../../sampleData/validV4Patient.json';
-import { SEARCH_PAGINATION_PARAMS } from '../../constants';
 import OperationsGenerator from '../operationsGenerator';
-import ElasticSearchService from '../../search/elasticSearchService';
-import DynamoDbDataService from '../../persistence/dataServices/__mocks__/dynamoDbDataService';
 
-import stubs from '../../stubs';
+import ElasticSearchService from '../__mocks__/elasticSearchService';
+import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 
-jest.mock('../../search/elasticSearchService');
+const enum SEARCH_PAGINATION_PARAMS {
+    PAGES_OFFSET = '_getpagesoffset',
+    COUNT = '_count',
+}
 
 describe('SUCCESS CASES: Testing create, read, update, delete of resources', () => {
     const resourceHandler = new ResourceHandler(

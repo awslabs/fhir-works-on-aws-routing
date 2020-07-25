@@ -3,52 +3,15 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import * as AWS from 'aws-sdk';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWSMock from 'aws-sdk-mock';
-// eslint-disable-next-line import/extensions
-import { QueryInput } from 'aws-sdk/clients/dynamodb';
 // eslint-disable-next-line import/extensions
 import get from 'lodash/get';
 import { BatchReadWriteRequest } from '@awslabs/aws-fhir-interface';
+import DynamoDbDataService from '../__mocks__/DynamoDbDataService';
 import BundleParser from './bundleParser';
-import DynamoDbDataService from '../../persistence/dataServices/dynamoDbDataService';
-import { DynamoDBConverter } from '../../persistence/dataServices/dynamoDb';
-import DynamoDbUtil from '../../persistence/dataServices/dynamoDbUtil';
 import { resourceTypeWithUuidRegExp, uuidRegExp } from '../../regExpressions';
 
 describe('parseResource', () => {
     const serverUrl = 'https://API_URL.com';
-
-    let dynamoDbDataService: DynamoDbDataService;
-    beforeEach(() => {
-        expect.hasAssertions();
-        AWSMock.setSDKInstance(AWS);
-        // READ items (Success)
-        AWSMock.mock('DynamoDB', 'query', (params: QueryInput, callback: Function) => {
-            const resourceType = get(params, "ExpressionAttributeValues[':hkey'].S", '');
-            const id = get(params, "ExpressionAttributeValues[':rkey'].S", '');
-            if (id === '47135b80-b721-430b-9d4b-1557edc64947_' && resourceType === 'Patient') {
-                callback(null, {
-                    Items: [
-                        DynamoDBConverter.marshall({
-                            id: DynamoDbUtil.generateFullId(id, '1'),
-                            resourceType,
-                            meta: { versionId: '1', lastUpdate: new Date().toUTCString() },
-                        }),
-                    ],
-                });
-            } else {
-                callback(null, {});
-            }
-        });
-        const dynamoDb = new AWS.DynamoDB();
-        dynamoDbDataService = new DynamoDbDataService(dynamoDb);
-    });
-
-    afterEach(() => {
-        AWSMock.restore();
-    });
 
     const runTest = (expectedRequests: BatchReadWriteRequest[], actualRequests: BatchReadWriteRequest[]) => {
         actualRequests.sort((a, b) => {
@@ -248,7 +211,7 @@ describe('parseResource', () => {
                 },
             ],
         };
-        const actualRequests = await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+        const actualRequests = await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
 
         const expectedRequests: BatchReadWriteRequest[] = [
             {
@@ -591,7 +554,7 @@ describe('parseResource', () => {
             },
         ];
 
-        const actualRequests = await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+        const actualRequests = await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
 
         runTest(expectedRequests, actualRequests);
     });
@@ -700,7 +663,7 @@ describe('parseResource', () => {
             },
         ];
 
-        const actualRequests = await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+        const actualRequests = await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
 
         runTest(expectedRequests, actualRequests);
     });
@@ -736,7 +699,7 @@ describe('parseResource', () => {
             ],
         };
         try {
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             expect(e.name).toEqual('Error');
             expect(e.message).toEqual(
@@ -774,7 +737,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -800,7 +763,7 @@ describe('parseResource', () => {
         bundleRequestJson.entry[0].resource = bundleRequestJson;
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -825,7 +788,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -849,7 +812,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -873,7 +836,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -897,7 +860,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -921,7 +884,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -945,7 +908,7 @@ describe('parseResource', () => {
         };
         try {
             // OPERATE
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             // CHECK
             expect(e.name).toEqual('Error');
@@ -1011,7 +974,7 @@ describe('parseResource', () => {
                 },
             ],
         };
-        const actualRequests = await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+        const actualRequests = await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
 
         const expectedRequests: BatchReadWriteRequest[] = [
             {
@@ -1102,7 +1065,7 @@ describe('parseResource', () => {
             ],
         };
         try {
-            await BundleParser.parseResource(bundleRequestJson, dynamoDbDataService, serverUrl);
+            await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
         } catch (e) {
             expect(e.name).toEqual('Error');
             expect(e.message).toEqual(

@@ -4,12 +4,16 @@
  */
 
 /* eslint-disable class-methods-use-this */
-import BadRequestError from '@awslabs/aws-fhir-interface';
-import InternalServerError from '@awslabs/aws-fhir-interface';
-import { BatchReadWriteRequest, Bundle } from '@awslabs/aws-fhir-interface';
-import { Authorization } from '@awslabs/aws-fhir-interface';
-import { FhirVersion } from '@awslabs/aws-fhir-interface';
-import { GenericResource, Resources } from '@awslabs/aws-fhir-interface';
+import {
+    BadRequestError,
+    InternalServerError,
+    BatchReadWriteRequest,
+    Bundle,
+    Authorization,
+    FhirVersion,
+    GenericResource,
+    Resources,
+} from '@awslabs/aws-fhir-interface';
 import Validator from '../validation/validator';
 import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import OperationsGenerator from '../operationsGenerator';

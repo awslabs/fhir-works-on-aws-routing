@@ -4,7 +4,8 @@
  */
 
 import express, { Router } from 'express';
-import BadRequestError, {
+import {
+    BadRequestError,
     Authorization,
     cleanAuthHeader,
     Bundle,

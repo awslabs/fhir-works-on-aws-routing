@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { FhirVersion } from 'src/router/routes/node_modules/@awslabs/aws-fhir-interface';
+import { FhirVersion } from '@awslabs/aws-fhir-interface';
 import { makeGenericResources, makeResource } from './cap.rest.resource.template';
 import makeSecurity from './cap.rest.security.template';
 import makeRest from './cap.rest.template';

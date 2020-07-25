@@ -5,17 +5,13 @@
 
 // eslint-disable-next-line import/extensions
 import uuidv4 from 'uuid/v4';
-import { clone, GenericResource } from '@awslabs/aws-fhir-interface';
-import DynamoDbDataService from '../../persistence/dataServices/__mocks__/dynamoDbDataService';
-import DynamoDbBundleService from '../../persistence/dataServices/__mocks__/dynamoDbBundleService';
+import { clone, GenericResource, stubs } from '@awslabs/aws-fhir-interface';
+import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
+import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
 import BundleHandler from './bundleHandler';
 import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import OperationsGenerator from '../operationsGenerator';
 import { uuidRegExp, utcTimeRegExp } from '../../regExpressions';
-import RBACHandler from '../../authorization/RBACHandler';
-import RBACRules from '../../authorization/RBACRules';
-
-import stubs from '../../stubs';
 
 const sampleBundleRequestJSON = {
     resourceType: 'Bundle',
@@ -23,14 +19,8 @@ const sampleBundleRequestJSON = {
     entry: [],
 };
 
-const noGroupsAccessToken: string =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlIiwibmFtZSI6Im5vdCByZWFsIiwiaWF0IjoxNTE2MjM5MDIyfQ.kCA912Pb__JP54WjgZOazu1x8w5KU-kL0iRwQEVFNPw';
-const nonPractAndAuditorAccessToken: string =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlIiwiY29nbml0bzpncm91cHMiOlsibm9uLXByYWN0aXRpb25lciIsImF1ZGl0b3IiXSwibmFtZSI6Im5vdCByZWFsIiwiaWF0IjoxNTE2MjM5MDIyfQ.HBNrpqQZPvj43qv1QNFr5u9PoHrtqK4ApsRpN2t7Rz8';
-const practitionerAccessToken: string =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmYWtlIiwiY29nbml0bzpncm91cHMiOlsicHJhY3RpdGlvbmVyIl0sIm5hbWUiOiJub3QgcmVhbCIsImlhdCI6MTUxNjIzOTAyMn0.bhZZ2O8Vph5aiPfs1n34Enw0075Tt4Cnk2FL2C3mHaQ';
+const practitionerAccessToken: string = 'accesstoken';
 
-const authService = new RBACHandler(RBACRules);
 const genericResource: GenericResource = {
     operations: ['read'],
     versions: ['3.0.1', '4.0.1'],
@@ -44,7 +34,7 @@ const bundleHandlerR4 = new BundleHandler(
     DynamoDbBundleService,
     'https://API_URL.com',
     '4.0.1',
-    authService,
+    stubs.passThroughAuthz,
     genericResource,
     resources,
 );
@@ -52,7 +42,7 @@ const bundleHandlerR3 = new BundleHandler(
     DynamoDbBundleService,
     'https://API_URL.com',
     '3.0.1',
-    authService,
+    stubs.passThroughAuthz,
     genericResource,
     resources,
 );
@@ -371,7 +361,7 @@ describe('AUTHZ Cases: Validation of Bundle request is allowed', () => {
                 },
             },
         ]);
-        const actualResult = await bundleHandlerR4.processTransaction(bundleRequestJSON, nonPractAndAuditorAccessToken);
+        const actualResult = await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
         // We don't care for the results just that we are able to process them
         expect(actualResult).toBeTruthy();
     });
@@ -382,7 +372,7 @@ describe('AUTHZ Cases: Validation of Bundle request is allowed', () => {
             const bundleRequestJSON = clone(sampleBundleRequestJSON);
             bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, nonPractAndAuditorAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
@@ -402,7 +392,7 @@ describe('AUTHZ Cases: Validation of Bundle request is allowed', () => {
                 },
             ]);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, nonPractAndAuditorAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
@@ -415,7 +405,7 @@ describe('AUTHZ Cases: Validation of Bundle request is allowed', () => {
             const bundleRequestJSON = clone(sampleBundleRequestJSON);
             bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, noGroupsAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);

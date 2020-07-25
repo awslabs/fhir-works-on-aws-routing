@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Auth } from 'src/router/routes/node_modules/@awslabs/aws-fhir-interface';
+import { Auth } from '@awslabs/aws-fhir-interface';
 
 export default function makeSecurity(authConfig: Auth) {
     if (authConfig.strategy.service) {

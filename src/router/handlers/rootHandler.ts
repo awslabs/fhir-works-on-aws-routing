@@ -3,8 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import InternalServerError, { Search, History } from '@awslabs/aws-fhir-interface';
-
+import { Search, History, InternalServerError } from '@awslabs/aws-fhir-interface';
 import OperationsGenerator from '../operationsGenerator';
 import BundleGenerator from '../bundle/bundleGenerator';
 
