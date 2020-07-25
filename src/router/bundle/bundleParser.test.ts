@@ -6,7 +6,7 @@
 // eslint-disable-next-line import/extensions
 import get from 'lodash/get';
 import { BatchReadWriteRequest } from '@awslabs/aws-fhir-interface';
-import DynamoDbDataService from '../__mocks__/DynamoDbDataService';
+import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import BundleParser from './bundleParser';
 import { resourceTypeWithUuidRegExp, uuidRegExp } from '../../regExpressions';
 

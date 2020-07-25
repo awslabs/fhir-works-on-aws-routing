@@ -1,4 +1,4 @@
-import { FhirConfig, stubs } from 'aws-fhir-interface';
+import { FhirConfig, stubs } from '@awslabs/aws-fhir-interface';
 
 const config: FhirConfig = {
     orgName: 'Organization Name',

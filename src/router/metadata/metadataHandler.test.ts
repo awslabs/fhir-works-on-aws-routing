@@ -16,7 +16,7 @@ import ConfigHandler from '../../configHandler';
 const r4Validator = new Validator('4.0.1');
 const r3Validator = new Validator('3.0.1');
 
-export const SUPPORTED_R4_RESOURCES = [
+const SUPPORTED_R4_RESOURCES = [
     'Account',
     'ActivityDefinition',
     'AdverseEvent',
@@ -164,7 +164,7 @@ export const SUPPORTED_R4_RESOURCES = [
     'VisionPrescription',
 ];
 
-export const SUPPORTED_R3_RESOURCES = [
+const SUPPORTED_R3_RESOURCES = [
     'Account',
     'ActivityDefinition',
     'AdverseEvent',

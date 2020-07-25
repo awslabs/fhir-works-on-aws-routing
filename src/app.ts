@@ -26,6 +26,8 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     app.use(
         express.json({
             type: ['application/json', 'application/fhir+json', 'application/json-patch+json'],
+            // 6MB is the maximum payload that Lambda accepts
+            limit: '6mb',
         }),
     );
 
@@ -53,6 +55,8 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     app.use('/metadata', metadataRoute.router);
 
     // Generic Resource Support
+    // Make a list of resources to make
+    const genericFhirResources: string[] = configHandler.getGenericResources(fhirVersion);
     if (fhirConfig.profile.genericResource) {
         const genericOperations: TypeOperation[] = configHandler.getGenericOperations(fhirVersion);
 
@@ -65,9 +69,6 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         );
 
         const genericRoute: GenericResourceRoute = new GenericResourceRoute(genericOperations, genericResourceHandler);
-
-        // Make a list of resources to make
-        const genericFhirResources: string[] = configHandler.getGenericResources(fhirVersion);
 
         // Set up Resource for each generic resource
         genericFhirResources.forEach(async (resourceType: string) => {
@@ -103,6 +104,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
             fhirConfig.profile.systemSearch,
             fhirConfig.profile.systemHistory,
             fhirConfig.auth.authorization,
+            genericFhirResources,
             fhirConfig.profile.genericResource,
             fhirConfig.profile.resources,
         );
