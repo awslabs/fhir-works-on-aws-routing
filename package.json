@@ -63,5 +63,9 @@
       "\\.(ts)$": "ts-jest"
     },
     "testRegex": ".test.ts"
-  }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": "git://github.com/awslabs/aws-fhir-routing.git"
 }
