@@ -1,5 +1,5 @@
 {
-  "name": "aws-fhir-routing",
+  "name": "@awslabs/aws-fhir-routing",
   "version": "0.7.3",
   "description": "FHIR Solution hosted on AWS Lambda",
   "main": "lib/index.js",
