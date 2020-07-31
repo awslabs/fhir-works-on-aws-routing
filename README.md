@@ -29,7 +29,7 @@ This package is dependent on a type of each subcomponent:
 - Finally a deployment component to deploy this to AWS
   - Example: [aws-fhir-solution](https://github.com/awslabs/aws-fhir-solution)
 
-**NOTE:** if your use-case does not require one of the above features, please configuration the incoming configuration and the router will adjust accordingly
+**NOTE:** if your use-case does not require one of the above features/components, please set the your configuration as such and the router will route accordingly
 
 ## Known issues
 
