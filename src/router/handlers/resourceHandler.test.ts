@@ -5,7 +5,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-classes-per-file */
-// eslint-disable-next-line import/extensions
+
 import uuidv4 from 'uuid/v4';
 import {
     SearchResponse,

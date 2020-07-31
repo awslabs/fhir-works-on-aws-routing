@@ -15,7 +15,7 @@ import {
     Resources,
     TypeOperation,
 } from '@awslabs/aws-fhir-interface';
-// eslint-disable-next-line import/extensions
+
 import isEmpty from 'lodash/isEmpty';
 import Validator from '../validation/validator';
 import { MAX_BUNDLE_ENTRIES } from '../../constants';

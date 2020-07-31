@@ -1,6 +1,7 @@
 import { FhirConfig, stubs } from '@awslabs/aws-fhir-interface';
 
 const config: FhirConfig = {
+    configVersion: 1,
     orgName: 'Organization Name',
     auth: {
         strategy: {
@@ -15,7 +16,7 @@ const config: FhirConfig = {
         level: 'warn',
     },
     profile: {
-        version: '4.0.1',
+        fhirVersion: '4.0.1',
         systemOperations: ['search-system', 'batch', 'history-system'],
         bundle: stubs.bundle,
         systemSearch: stubs.search,
@@ -23,28 +24,28 @@ const config: FhirConfig = {
         resources: {
             AllergyIntolerance: {
                 operations: ['create', 'update'],
-                versions: ['3.0.1'],
+                fhirVersions: ['3.0.1'],
                 persistence: stubs.persistence,
                 typeSearch: stubs.search,
                 typeHistory: stubs.history,
             },
             Organization: {
                 operations: ['create', 'update', 'patch'],
-                versions: ['3.0.1', '4.0.1'],
+                fhirVersions: ['3.0.1', '4.0.1'],
                 persistence: stubs.persistence,
                 typeSearch: stubs.search,
                 typeHistory: stubs.history,
             },
             Account: {
                 operations: ['create', 'update'],
-                versions: ['4.0.1'],
+                fhirVersions: ['4.0.1'],
                 persistence: stubs.persistence,
                 typeSearch: stubs.search,
                 typeHistory: stubs.history,
             },
             Patient: {
                 operations: ['create', 'update', 'search-type'],
-                versions: ['4.0.1'],
+                fhirVersions: ['4.0.1'],
                 persistence: stubs.persistence,
                 typeSearch: stubs.search,
                 typeHistory: stubs.history,

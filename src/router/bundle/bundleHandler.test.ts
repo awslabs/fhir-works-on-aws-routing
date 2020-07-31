@@ -3,7 +3,6 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-// eslint-disable-next-line import/extensions
 import uuidv4 from 'uuid/v4';
 import { clone, GenericResource, stubs, FhirVersion, Resources } from '@awslabs/aws-fhir-interface';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
@@ -25,7 +24,7 @@ const practitionerAccessToken: string = 'accesstoken';
 
 const genericResource: GenericResource = {
     operations: ['create', 'read', 'update', 'delete'],
-    versions: ['3.0.1', '4.0.1'],
+    fhirVersions: ['3.0.1', '4.0.1'],
     persistence: DynamoDbDataService,
     typeHistory: stubs.history,
     typeSearch: stubs.search,
@@ -663,7 +662,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             // BUILD
             const genericResourceReadOnly: GenericResource = {
                 operations: ['read'],
-                versions: [version],
+                fhirVersions: [version],
                 persistence: DynamoDbDataService,
                 typeHistory: stubs.history,
                 typeSearch: stubs.search,
@@ -701,7 +700,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             // BUILD
             const genericResourceExcludePatient: GenericResource = {
                 operations: ['create', 'read', 'update', 'delete'],
-                versions: [version],
+                fhirVersions: [version],
                 persistence: DynamoDbDataService,
                 typeHistory: stubs.history,
                 typeSearch: stubs.search,
@@ -746,7 +745,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             // BUILD
             const genericResourceExcludePatient: GenericResource = {
                 operations: ['create', 'read', 'update', 'delete'],
-                versions: [version],
+                fhirVersions: [version],
                 persistence: DynamoDbDataService,
                 typeHistory: stubs.history,
                 typeSearch: stubs.search,
@@ -760,7 +759,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             const patientResource: Resources = {
                 Patient: {
                     operations: ['create'],
-                    versions: [version],
+                    fhirVersions: [version],
                     persistence: DynamoDbDataService,
                     typeSearch: stubs.search,
                     typeHistory: stubs.history,
@@ -790,7 +789,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             // BUILD
             const genericResourceNoExclusion: GenericResource = {
                 operations: ['create', 'read', 'update', 'delete'],
-                versions: [version],
+                fhirVersions: [version],
                 persistence: DynamoDbDataService,
                 typeHistory: stubs.history,
                 typeSearch: stubs.search,

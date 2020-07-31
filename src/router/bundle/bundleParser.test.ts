@@ -3,7 +3,6 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-// eslint-disable-next-line import/extensions
 import get from 'lodash/get';
 import { BatchReadWriteRequest } from '@awslabs/aws-fhir-interface';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
