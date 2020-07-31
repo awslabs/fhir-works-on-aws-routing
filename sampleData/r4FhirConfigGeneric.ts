@@ -1,6 +1,7 @@
 import { FhirConfig, stubs } from '@awslabs/aws-fhir-interface';
 
 const config: FhirConfig = {
+    configVersion: 1,
     orgName: 'Organization Name',
     auth: {
         strategy: {},
@@ -13,14 +14,14 @@ const config: FhirConfig = {
         level: 'error',
     },
     profile: {
-        version: '4.0.1',
+        fhirVersion: '4.0.1',
         systemOperations: [],
         bundle: stubs.bundle,
         systemSearch: stubs.search,
         systemHistory: stubs.history,
         genericResource: {
             operations: ['create', 'read', 'update', 'delete', 'vread', 'history-instance'],
-            versions: ['4.0.1'],
+            fhirVersions: ['4.0.1'],
             persistence: stubs.persistence,
             typeSearch: stubs.search,
             typeHistory: stubs.history,

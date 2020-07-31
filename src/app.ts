@@ -7,7 +7,7 @@ import express from 'express';
 import {
     cleanAuthHeader,
     getRequestInformation,
-    FhirVersion,
+    ConfigVersion,
     TypeOperation,
     FhirConfig,
 } from '@awslabs/aws-fhir-interface';
@@ -17,9 +17,14 @@ import MetadataRoute from './router/routes/metadataRoute';
 import ResourceHandler from './router/handlers/resourceHandler';
 import RootRoute from './router/routes/rootRoute';
 
+const configVersionSupported: ConfigVersion = 1;
+
 export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]) {
+    if (configVersionSupported !== fhirConfig.configVersion) {
+        throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
+    }
     const configHandler: ConfigHandler = new ConfigHandler(fhirConfig, supportedGenericResources);
-    const fhirVersion: FhirVersion = fhirConfig.profile.version;
+    const { fhirVersion } = fhirConfig.profile;
     const serverUrl: string = fhirConfig.server.url;
     const app = express();
     app.use(express.urlencoded({ extended: true }));
