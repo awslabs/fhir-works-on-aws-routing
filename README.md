@@ -4,7 +4,7 @@
 
 Please visit [aws-fhir-solution](https://github.com/awslabs/aws-fhir-solution) for overall vision of the project and for more context.
 
-This package is an implementation of the search interface. It queries the Elastic Search Service to find the results. This also means that it assumes the ES cluster will be up to date and indexed by ResourceType. This assumption is achieved by the DynamoDB stream to ES lambda built in the [persistence component](https://github.com/awslabs/aws-fhir-persistence-ddb). To use and deploy this component (with the other default components) please follow the overall [README](https://github.com/awslabs/aws-fhir-solution)
+This package is an implementation of the routing of the fhir interface. It is responsible for taking a FHIR based request and routing it to the correct sub-component. The behavior and routing logic of this router is dependent on the fhir configuration. To use and deploy this component (with the other default components) please follow the overall [README](https://github.com/awslabs/aws-fhir-solution)
 
 ## Usage
 
@@ -12,14 +12,24 @@ For usage please add this package to your `package.json` file and install as a d
 
 ## Dependency tree
 
-This package is dependent on:
+This package is dependent on a type of each subcomponent:
 
 - [interface component](https://github.com/awslabs/aws-fhir-interface)
   - This package defines the interface we are trying to use
-- [persistence component](https://github.com/awslabs/aws-fhir-persistence-ddb)
-  - This package is responsible for the DynamoDB to ES sync
-- [deployment component](https://github.com/awslabs/aws-fhir-solution)
-  - This package deploys this and all the default components
+- An **authorization** component that is responsible for saying if the request is allowed or not
+  - Example: [aws-fhir-authz-rbac](https://github.com/awslabs/aws-fhir-authz-rbac)
+- A **persistence** component that is responsible for handing CRUD based requests
+  - Example: [aws-fhir-persistence-ddb](https://github.com/awslabs/aws-fhir-persistence-ddb)
+- A **bundle** based component that is responsible for handling batches & transactions
+  - Example: [aws-fhir-persistence-ddb](https://github.com/awslabs/aws-fhir-persistence-ddb)
+- A **search** component that is responsible for handling the search based requests
+  - Example: [aws-fhir-search-es](https://github.com/awslabs/aws-fhir-search-es)
+- A **history** component that is responsible for handling the historical search requests
+  - No example
+- Finally a deployment component to deploy this to AWS
+  - Example: [aws-fhir-solution](https://github.com/awslabs/aws-fhir-solution)
+
+**NOTE:** if your use-case does not require one of the above features, please configuration the incoming configuration and the router will adjust accordingly
 
 ## Known issues
 
