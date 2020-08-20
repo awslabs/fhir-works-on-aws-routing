@@ -12,7 +12,7 @@ import {
     generateMeta,
     GenericResponse,
     clone,
-} from '@awslabs/aws-fhir-interface';
+} from '@awslabs/fhir-works-on-aws-interface';
 import validPatient from '../../../sampleData/validV4Patient.json';
 
 const DynamoDbDataService: Persistence = class {
@@ -23,7 +23,6 @@ const DynamoDbDataService: Persistence = class {
         resourceCopy.id = request.id || 'id';
         resourceCopy.meta = generateMeta('1');
         return {
-            success: true,
             message: 'Resource created',
             resource: resourceCopy,
         };
@@ -34,7 +33,6 @@ const DynamoDbDataService: Persistence = class {
         resourceCopy.id = request.id;
         resourceCopy.meta = generateMeta('2');
         return {
-            success: true,
             message: 'Resource updated',
             resource: resourceCopy,
         };
@@ -45,7 +43,6 @@ const DynamoDbDataService: Persistence = class {
         resourceCopy.id = request.id;
         resourceCopy.meta = generateMeta('2');
         return {
-            success: true,
             message: 'Resource patched',
             resource: resourceCopy,
         };
@@ -56,7 +53,6 @@ const DynamoDbDataService: Persistence = class {
         resourceCopy.id = request.id;
         resourceCopy.meta = generateMeta('1');
         return {
-            success: true,
             message: 'Resource found',
             resource: resourceCopy,
         };
@@ -67,7 +63,6 @@ const DynamoDbDataService: Persistence = class {
         resourceCopy.id = request.id;
         resourceCopy.meta = generateMeta(request.vid);
         return {
-            success: true,
             message: 'Resource found',
             resource: resourceCopy,
         };
@@ -75,7 +70,6 @@ const DynamoDbDataService: Persistence = class {
 
     static async deleteResource(request: DeleteResourceRequest): Promise<GenericResponse> {
         return {
-            success: true,
             message: `Successfully deleted ResourceType: ${request.resourceType}, Id: ${request.id}`,
             resource: { count: 3 },
         };
@@ -87,7 +81,6 @@ const DynamoDbDataService: Persistence = class {
         versionId: string,
     ): Promise<GenericResponse> {
         return {
-            success: true,
             message: `Successfully deleted ResourceType: ${resourceType}, Id: ${id}, VersionId: ${versionId}`,
             resource: { count: 1 },
         };

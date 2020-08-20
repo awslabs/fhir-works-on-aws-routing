@@ -1,4 +1,4 @@
-import { Search, SearchResponse, GlobalSearchRequest, TypeSearchRequest } from '@awslabs/aws-fhir-interface';
+import { Search, SearchResponse, GlobalSearchRequest, TypeSearchRequest } from '@awslabs/fhir-works-on-aws-interface';
 
 const ElasticSearchService: Search = class {
     /*

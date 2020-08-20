@@ -3,8 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, InternalServerError } from '@awslabs/aws-fhir-interface';
-import OperationsGenerator from '../operationsGenerator';
+import { Search, History } from '@awslabs/fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 
 export default class RootHandler {
@@ -25,11 +24,6 @@ export default class RootHandler {
             queryParams,
             baseUrl: this.serverUrl,
         });
-        if (!searchResponse.success) {
-            const errorMessage = searchResponse.result.message;
-            const processingError = OperationsGenerator.generateProcessingError(errorMessage, errorMessage);
-            throw new InternalServerError(processingError);
-        }
         return BundleGenerator.generateBundle(this.serverUrl, queryParams, searchResponse.result, 'searchset');
     }
 
@@ -38,11 +32,6 @@ export default class RootHandler {
             queryParams,
             baseUrl: this.serverUrl,
         });
-        if (!historyResponse.success) {
-            const errorMessage = historyResponse.result.message;
-            const processingError = OperationsGenerator.generateProcessingError(errorMessage, errorMessage);
-            throw new InternalServerError(processingError);
-        }
         return BundleGenerator.generateBundle(this.serverUrl, queryParams, historyResponse.result, 'history');
     }
 }

@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { FhirConfig, FhirVersion, TypeOperation } from '@awslabs/aws-fhir-interface';
+import { FhirConfig, FhirVersion, TypeOperation } from '@awslabs/fhir-works-on-aws-interface';
 
 export default class ConfigHandler {
     readonly config: FhirConfig;

@@ -1,4 +1,4 @@
-import { FhirConfig, stubs } from '@awslabs/aws-fhir-interface';
+import { FhirConfig, stubs } from '@awslabs/fhir-works-on-aws-interface';
 
 const config: FhirConfig = {
     configVersion: 1,

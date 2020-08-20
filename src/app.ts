@@ -10,12 +10,13 @@ import {
     ConfigVersion,
     TypeOperation,
     FhirConfig,
-} from '@awslabs/aws-fhir-interface';
+} from '@awslabs/fhir-works-on-aws-interface';
 import GenericResourceRoute from './router/routes/genericResourceRoute';
 import ConfigHandler from './configHandler';
 import MetadataRoute from './router/routes/metadataRoute';
 import ResourceHandler from './router/handlers/resourceHandler';
 import RootRoute from './router/routes/rootRoute';
+import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from './router/routes/errorHandling';
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -59,6 +60,24 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler);
     app.use('/metadata', metadataRoute.router);
 
+    // Special Resources
+    if (fhirConfig.profile.resources) {
+        Object.entries(fhirConfig.profile.resources).forEach(async resourceEntry => {
+            const { operations, persistence, typeSearch, typeHistory } = resourceEntry[1];
+
+            const resourceHandler: ResourceHandler = new ResourceHandler(
+                persistence,
+                typeSearch,
+                typeHistory,
+                fhirVersion,
+                serverUrl,
+            );
+
+            const route: GenericResourceRoute = new GenericResourceRoute(operations, resourceHandler);
+            app.use(`/${resourceEntry[0]}`, route.router);
+        });
+    }
+
     // Generic Resource Support
     // Make a list of resources to make
     const genericFhirResources: string[] = configHandler.getGenericResources(fhirVersion);
@@ -81,24 +100,6 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         });
     }
 
-    // Special Resources
-    if (fhirConfig.profile.resources) {
-        Object.entries(fhirConfig.profile.resources).forEach(async resourceEntry => {
-            const { operations, persistence, typeSearch, typeHistory } = resourceEntry[1];
-
-            const resourceHandler: ResourceHandler = new ResourceHandler(
-                persistence,
-                typeSearch,
-                typeHistory,
-                fhirVersion,
-                serverUrl,
-            );
-
-            const route: GenericResourceRoute = new GenericResourceRoute(operations, resourceHandler);
-            app.use(`/${resourceEntry[0]}`, route.router);
-        });
-    }
-
     // Root Post (Bundle/Global Search)
     if (fhirConfig.profile.systemOperations.length > 0) {
         const rootRoute = new RootRoute(
@@ -116,13 +117,9 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         app.use('/', rootRoute.router);
     }
 
-    // Handle errors
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-        const statusCode = err.statusCode || 500;
-        console.error('Error', err);
-        res.status(statusCode).send(err.errorDetail);
-    });
+    app.use(applicationErrorMapper);
+    app.use(httpErrorHandler);
+    app.use(unknownErrorHandler);
 
     return app;
 }
