@@ -4,12 +4,18 @@
  */
 
 import uuidv4 from 'uuid/v4';
-import { clone, GenericResource, stubs, FhirVersion, Resources } from '@awslabs/aws-fhir-interface';
+import {
+    clone,
+    GenericResource,
+    stubs,
+    FhirVersion,
+    Resources,
+    InvalidResourceError,
+} from '@awslabs/fhir-works-on-aws-interface';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
 import BundleHandler from './bundleHandler';
 import { MAX_BUNDLE_ENTRIES } from '../../constants';
-import OperationsGenerator from '../operationsGenerator';
 import { uuidRegExp, utcTimeRegExp } from '../../regExpressions';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
 import ConfigHandler from '../../configHandler';
@@ -393,11 +399,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
-            expect(e.errorDetail).toEqual(
-                OperationsGenerator.generatInputValidationError(
-                    'Currently this server only support transaction Bundles',
-                ),
-            );
+            expect(e.message).toEqual('Currently this server only support transaction Bundles');
         }
     });
 
@@ -417,13 +419,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
 
             await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
         } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.statusCode).toEqual(400);
-            expect(e.errorDetail).toEqual(
-                OperationsGenerator.generatInputValidationError(
-                    'data.entry[0].request should NOT have additional properties',
-                ),
-            );
+            expect(e).toEqual(new InvalidResourceError('data.entry[0].request should NOT have additional properties'));
         }
     });
 
@@ -446,11 +442,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
 
             await bundleHandlerR3.processTransaction(bundleRequestJSON, practitionerAccessToken);
         } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.statusCode).toEqual(400);
-            expect(e.errorDetail).toEqual(
-                OperationsGenerator.generatInputValidationError("data should have required property 'resourceType'"),
-            );
+            expect(e).toEqual(new InvalidResourceError("data should have required property 'resourceType'"));
         }
     });
 
@@ -471,9 +463,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
-            expect(e.errorDetail).toEqual(
-                OperationsGenerator.generateError('We currently do not support SEARCH entries in the Bundle'),
-            );
+            expect(e.message).toEqual('We currently do not support SEARCH entries in the Bundle');
         }
     });
 
@@ -494,9 +484,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
-            expect(e.errorDetail).toEqual(
-                OperationsGenerator.generateError('We currently do not support V_READ entries in the Bundle'),
-            );
+            expect(e.message).toEqual('We currently do not support V_READ entries in the Bundle');
         }
     });
 
@@ -517,10 +505,8 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
-            expect(e.errorDetail).toEqual(
-                OperationsGenerator.generateError(
-                    `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${bundleRequestJSON.entry.length} entries in this Bundle`,
-                ),
+            expect(e.message).toEqual(
+                `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${bundleRequestJSON.entry.length} entries in this Bundle`,
             );
         }
     });
@@ -655,8 +641,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
     // validator.ts doesn't validate Fhir V3 correctly, therefore the tests below will fail if we try to run them with
     // Fhir v3.
-    const fhirVersions: FhirVersion[] = ['4.0.1'];
-    fhirVersions.forEach((version: FhirVersion) => {
+    const fhirfhirVersions: FhirVersion[] = ['4.0.1'];
+    fhirfhirVersions.forEach((version: FhirVersion) => {
         const supportedResource = version === '4.0.1' ? SUPPORTED_R4_RESOURCES : SUPPORTED_R3_RESOURCES;
         test(`FhirVersion: ${version}. Failed to operate on Bundle because server does not support Generic Resource for Patient  with operation Create`, async () => {
             // BUILD
@@ -688,11 +674,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
                 // CHECK
                 expect(e.name).toEqual('BadRequestError');
                 expect(e.statusCode).toEqual(400);
-                expect(e.errorDetail).toEqual(
-                    OperationsGenerator.generateError(
-                        'Server does not support these resource and operations: {Patient: create}',
-                    ),
-                );
+                expect(e.message).toEqual('Server does not support these resource and operations: {Patient: create}');
             }
         });
 
@@ -731,11 +713,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
                 // CHECK
                 expect(e.name).toEqual('BadRequestError');
                 expect(e.statusCode).toEqual(400);
-                expect(e.errorDetail).toEqual(
-                    OperationsGenerator.generateError(
-                        'Server does not support these resource and operations: {Patient: create}',
-                    ),
-                );
+                expect(e.message).toEqual('Server does not support these resource and operations: {Patient: create}');
             }
         });
 

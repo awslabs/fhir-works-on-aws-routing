@@ -4,7 +4,7 @@
  */
 
 import express, { Router } from 'express';
-import { FhirVersion } from '@awslabs/aws-fhir-interface';
+import { CapabilityMode, FhirVersion } from '@awslabs/fhir-works-on-aws-interface';
 import MetadataHandler from '../metadata/metadataHandler';
 import ConfigHandler from '../../configHandler';
 
@@ -25,9 +25,12 @@ export default class MetadataRoute {
     private init() {
         // READ
         this.router.get('/', async (req: express.Request, res: express.Response) => {
-            // TODO have this be dynamic
-            const response = await this.metadataHandler.generateCapabilityStatement(this.fhirVersion);
-            res.send(response);
+            const mode: CapabilityMode = (req.query.mode as CapabilityMode) || 'full';
+            const response = await this.metadataHandler.capabilities({
+                fhirVersion: this.fhirVersion,
+                mode,
+            });
+            res.send(response.resource);
         });
     }
 }

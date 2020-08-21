@@ -5,8 +5,6 @@
 
 /* eslint-disable class-methods-use-this */
 import {
-    BadRequestError,
-    InternalServerError,
     BatchReadWriteRequest,
     Bundle,
     Authorization,
@@ -14,12 +12,11 @@ import {
     GenericResource,
     Resources,
     TypeOperation,
-} from '@awslabs/aws-fhir-interface';
-
+} from '@awslabs/fhir-works-on-aws-interface';
+import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
 import Validator from '../validation/validator';
 import { MAX_BUNDLE_ENTRIES } from '../../constants';
-import OperationsGenerator from '../operationsGenerator';
 import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
@@ -59,10 +56,7 @@ export default class BundleHandler implements BundleHandlerInterface {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async processBatch(bundleRequestJson: any, accessToken: string) {
-        const invalidInput = OperationsGenerator.generatInputValidationError(
-            'Currently this server only support transaction Bundles',
-        );
-        throw new BadRequestError(invalidInput);
+        throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
 
     resourcesInBundleThatServerDoesNotSupport(
@@ -103,11 +97,7 @@ export default class BundleHandler implements BundleHandlerInterface {
     async processTransaction(bundleRequestJson: any, accessToken: string) {
         const startTime = new Date();
 
-        const validationResponse = this.validator.validate('Bundle', bundleRequestJson);
-        if (!validationResponse.success) {
-            const invalidInput = OperationsGenerator.generatInputValidationError(validationResponse.message);
-            throw new BadRequestError(invalidInput);
-        }
+        this.validator.validate('Bundle', bundleRequestJson);
 
         let requests: BatchReadWriteRequest[];
         try {
@@ -118,7 +108,6 @@ export default class BundleHandler implements BundleHandlerInterface {
                 resourcesServerDoesNotSupport.forEach(({ resource, operations }) => {
                     message += `${resource}: ${operations},`;
                 });
-                // Remove the last comma
                 message = message.substring(0, message.length - 1);
                 throw new Error(`Server does not support these resource and operations: {${message}}`);
             }
@@ -132,8 +121,7 @@ export default class BundleHandler implements BundleHandlerInterface {
                 throw new Error('Cannot process bundle');
             }
         } catch (e) {
-            const error = OperationsGenerator.generateError(e.message);
-            throw new BadRequestError(error);
+            throw new createError.BadRequest(e.message);
         }
 
         const isAllowed: boolean = await this.authService.isBundleRequestAuthorized({
@@ -141,23 +129,21 @@ export default class BundleHandler implements BundleHandlerInterface {
             requests,
         });
         if (!isAllowed) {
-            throw new BadRequestError('Forbidden');
+            throw new createError.Forbidden('Forbidden');
         }
 
         if (requests.length > MAX_BUNDLE_ENTRIES) {
-            const invalidInput = OperationsGenerator.generateError(
+            throw new createError.BadRequest(
                 `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${requests.length} entries in this Bundle`,
             );
-            throw new BadRequestError(invalidInput);
         }
 
         const bundleServiceResponse = await this.bundleService.transaction({ requests, startTime });
         if (!bundleServiceResponse.success) {
-            const error = OperationsGenerator.generateError(bundleServiceResponse.message);
             if (bundleServiceResponse.errorType === 'SYSTEM_ERROR') {
-                throw new InternalServerError(error);
+                throw new createError.InternalServerError(bundleServiceResponse.message);
             } else if (bundleServiceResponse.errorType === 'USER_ERROR') {
-                throw new BadRequestError(error);
+                throw new createError.BadRequest(bundleServiceResponse.message);
             }
         }
 

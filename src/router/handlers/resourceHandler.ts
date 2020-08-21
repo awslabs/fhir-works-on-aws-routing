@@ -3,15 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Search,
-    History,
-    Persistence,
-    NotFoundError,
-    BadRequestError,
-    InternalServerError,
-    FhirVersion,
-} from '@awslabs/aws-fhir-interface';
+import { Search, History, Persistence, FhirVersion } from '@awslabs/fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
@@ -43,44 +35,22 @@ export default class ResourceHandler implements CrudHandlerInterface {
     }
 
     async create(resourceType: string, resource: any) {
-        const validationResponse = this.validator.validate(resourceType, resource);
-        if (!validationResponse.success) {
-            const invalidInput = OperationsGenerator.generatInputValidationError(validationResponse.message);
-            throw new BadRequestError(invalidInput);
-        }
+        this.validator.validate(resourceType, resource);
 
         const createResponse = await this.dataService.createResource({ resourceType, resource });
-        if (!createResponse.success) {
-            const serverError = OperationsGenerator.generateError(createResponse.message);
-            throw new InternalServerError(serverError);
-        }
-
         return createResponse.resource;
     }
 
     async update(resourceType: string, id: string, resource: any) {
-        const validationResponse = this.validator.validate(resourceType, resource);
-        if (!validationResponse.success) {
-            const invalidInput = OperationsGenerator.generatInputValidationError(validationResponse.message);
-            throw new BadRequestError(invalidInput);
-        }
+        this.validator.validate(resourceType, resource);
 
         const updateResponse = await this.dataService.updateResource({ resourceType, id, resource });
-        if (!updateResponse.success) {
-            const serverError = OperationsGenerator.generateError(updateResponse.message);
-            throw new InternalServerError(serverError);
-        }
-
         return updateResponse.resource;
     }
 
     async patch(resourceType: string, id: string, resource: any) {
         // TODO Add request validation around patching
         const patchResponse = await this.dataService.patchResource({ resourceType, id, resource });
-        if (!patchResponse.success) {
-            const serverError = OperationsGenerator.generateError(patchResponse.message);
-            throw new InternalServerError(serverError);
-        }
 
         return patchResponse.resource;
     }
@@ -91,11 +61,6 @@ export default class ResourceHandler implements CrudHandlerInterface {
             queryParams,
             baseUrl: this.serverUrl,
         });
-        if (!searchResponse.success) {
-            const errorMessage = searchResponse.result.message;
-            const processingError = OperationsGenerator.generateProcessingError(errorMessage, errorMessage);
-            throw new InternalServerError(processingError);
-        }
         return BundleGenerator.generateBundle(
             this.serverUrl,
             queryParams,
@@ -111,11 +76,6 @@ export default class ResourceHandler implements CrudHandlerInterface {
             queryParams,
             baseUrl: this.serverUrl,
         });
-        if (!historyResponse.success) {
-            const errorMessage = historyResponse.result.message;
-            const processingError = OperationsGenerator.generateProcessingError(errorMessage, errorMessage);
-            throw new InternalServerError(processingError);
-        }
         return BundleGenerator.generateBundle(
             this.serverUrl,
             queryParams,
@@ -132,11 +92,6 @@ export default class ResourceHandler implements CrudHandlerInterface {
             queryParams,
             baseUrl: this.serverUrl,
         });
-        if (!historyResponse.success) {
-            const errorMessage = historyResponse.result.message;
-            const processingError = OperationsGenerator.generateProcessingError(errorMessage, errorMessage);
-            throw new InternalServerError(processingError);
-        }
         return BundleGenerator.generateBundle(
             this.serverUrl,
             queryParams,
@@ -149,31 +104,16 @@ export default class ResourceHandler implements CrudHandlerInterface {
 
     async read(resourceType: string, id: string) {
         const getResponse = await this.dataService.readResource({ resourceType, id });
-        if (!getResponse.success) {
-            const errorDetail = OperationsGenerator.generateResourceNotFoundError(resourceType, id);
-            throw new NotFoundError(errorDetail);
-        }
-
         return getResponse.resource;
     }
 
     async vRead(resourceType: string, id: string, vid: string) {
         const getResponse = await this.dataService.vReadResource({ resourceType, id, vid });
-        if (!getResponse.success) {
-            const errorDetail = OperationsGenerator.generateHistoricResourceNotFoundError(resourceType, id, vid);
-            throw new NotFoundError(errorDetail);
-        }
-
         return getResponse.resource;
     }
 
     async delete(resourceType: string, id: string) {
-        const deleteResponse = await this.dataService.deleteResource({ resourceType, id });
-        if (!deleteResponse.success) {
-            const resourceNotFound = OperationsGenerator.generateResourceNotFoundError(resourceType, id);
-            throw new NotFoundError(resourceNotFound);
-        }
-
+        await this.dataService.deleteResource({ resourceType, id });
         return OperationsGenerator.generateSuccessfulDeleteOperation();
     }
 }

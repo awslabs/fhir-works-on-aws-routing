@@ -5,7 +5,6 @@
 
 import express, { Router } from 'express';
 import {
-    BadRequestError,
     Authorization,
     cleanAuthHeader,
     Bundle,
@@ -15,11 +14,10 @@ import {
     History,
     GenericResource,
     Resources,
-} from '@awslabs/aws-fhir-interface';
+} from '@awslabs/fhir-works-on-aws-interface';
+import createError from 'http-errors';
 import BundleHandler from '../bundle/bundleHandler';
-
 import RootHandler from '../handlers/rootHandler';
-
 import RouteHelper from './routeHelper';
 
 export default class RootRoute {
@@ -77,10 +75,10 @@ export default class RootRoute {
                             );
                             res.send(response);
                         } else {
-                            throw new BadRequestError('This root path can only process a Bundle');
+                            throw new createError.BadRequest('This root path can only process a Bundle');
                         }
                     } else {
-                        throw new BadRequestError('This root path can only process a Bundle');
+                        throw new createError.BadRequest('This root path can only process a Bundle');
                     }
                 }),
             );
