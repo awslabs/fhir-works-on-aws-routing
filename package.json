@@ -1,7 +1,7 @@
 {
-  "name": "@awslabs/aws-fhir-routing",
+  "name": "@awslabs/fhir-works-on-aws-routing",
   "version": "0.9.1",
-  "description": "FHIR Solution hosted on AWS Lambda",
+  "description": "FHIR Works on AWS routing implementation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "amzn",
@@ -69,5 +69,5 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
-  "repository": "git://github.com/awslabs/aws-fhir-routing.git"
+  "repository": "git://github.com/awslabs/fhir-works-on-aws-routing.git"
 }
