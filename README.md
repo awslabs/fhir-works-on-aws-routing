@@ -4,11 +4,18 @@
 
 Please visit [fhir-works-on-aws-deployment](https://github.com/awslabs/fhir-works-on-aws-deployment) for overall vision of the project and for more context.
 
-This package is an implementation of the routing of the fhir interface. It is responsible for taking a FHIR based request and routing it to the correct sub-component. The behavior and routing logic of this router is dependent on the fhir configuration. To use and deploy this component (with the other default components) please follow the overall [README](https://github.com/awslabs/fhir-works-on-aws-deployment)
+This package is an implementation of the routing of the [FHIR Works interface](https://github.com/awslabs/fhir-works-on-aws-interface). It is responsible for taking a FHIR based HTTP request and routing it to the correct sub-component. It also does all the resource validatation by way of [JSON schemas](src\router\validation\schemas). Finally, This component is responsible for generating the [Capability Statement](https://www.hl7.org/fhir/capabilitystatement.html), which is used to describe what this FHRI API can do. To use and deploy this component (with the other 'out of the box' components) please follow the overall [README](https://github.com/awslabs/fhir-works-on-aws-deployment)
+
+## Infrastructure
+
+This package assumes certain infrastructure:
+
+- API Gateway - We expect all the routing to invoke this function
+- Lambda - We expect the input to be entering our function in a certain way
 
 ## Usage
 
-For usage please add this package to your `package.json` file and install as a dependency. For usage examples please see the [deployment component](https://github.com/awslabs/fhir-works-on-aws-deployment)
+For usage please add this package to your `package.json` file and install as a dependency. For usage examples please see the deployment component's [package.json](https://github.com/awslabs/fhir-works-on-aws-deployment/blob/mainline/package.json)
 
 ## Dependency tree
 
