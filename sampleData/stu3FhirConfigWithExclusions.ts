@@ -25,7 +25,7 @@ const config: FhirConfig = {
         genericResource: {
             operations: ['read', 'create', 'update', 'vread', 'search-type'],
             excludedR4Resources: ['Organization', 'Account', 'Patient'],
-            excludedR3Resources: ['ActivityDefinition', 'AllergyIntolerance'],
+            excludedSTU3Resources: ['ActivityDefinition', 'AllergyIntolerance'],
             fhirVersions: ['4.0.1', '3.0.1'],
             persistence: stubs.persistence,
             typeSearch: stubs.search,
