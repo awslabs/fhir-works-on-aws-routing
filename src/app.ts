@@ -25,7 +25,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
     }
     const configHandler: ConfigHandler = new ConfigHandler(fhirConfig, supportedGenericResources);
-    const { fhirVersion } = fhirConfig.profile;
+    const { fhirVersion, genericResource } = fhirConfig.profile;
     const serverUrl: string = fhirConfig.server.url;
     const app = express();
     app.use(express.urlencoded({ extended: true }));
@@ -63,31 +63,32 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     // Special Resources
     if (fhirConfig.profile.resources) {
         Object.entries(fhirConfig.profile.resources).forEach(async resourceEntry => {
-            const { operations, persistence, typeSearch, typeHistory } = resourceEntry[1];
+            const { operations, persistence, typeSearch, typeHistory, fhirVersions } = resourceEntry[1];
+            if (fhirVersions.includes(fhirVersion)) {
+                const resourceHandler: ResourceHandler = new ResourceHandler(
+                    persistence,
+                    typeSearch,
+                    typeHistory,
+                    fhirVersion,
+                    serverUrl,
+                );
 
-            const resourceHandler: ResourceHandler = new ResourceHandler(
-                persistence,
-                typeSearch,
-                typeHistory,
-                fhirVersion,
-                serverUrl,
-            );
-
-            const route: GenericResourceRoute = new GenericResourceRoute(operations, resourceHandler);
-            app.use(`/${resourceEntry[0]}`, route.router);
+                const route: GenericResourceRoute = new GenericResourceRoute(operations, resourceHandler);
+                app.use(`/${resourceEntry[0]}`, route.router);
+            }
         });
     }
 
     // Generic Resource Support
     // Make a list of resources to make
     const genericFhirResources: string[] = configHandler.getGenericResources(fhirVersion);
-    if (fhirConfig.profile.genericResource) {
+    if (genericResource && genericResource.fhirVersions.includes(fhirVersion)) {
         const genericOperations: TypeOperation[] = configHandler.getGenericOperations(fhirVersion);
 
         const genericResourceHandler: ResourceHandler = new ResourceHandler(
-            fhirConfig.profile.genericResource.persistence,
-            fhirConfig.profile.genericResource.typeSearch,
-            fhirConfig.profile.genericResource.typeHistory,
+            genericResource.persistence,
+            genericResource.typeSearch,
+            genericResource.typeHistory,
             fhirVersion,
             serverUrl,
         );
@@ -111,7 +112,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
             fhirConfig.profile.systemHistory,
             fhirConfig.auth.authorization,
             genericFhirResources,
-            fhirConfig.profile.genericResource,
+            genericResource,
             fhirConfig.profile.resources,
         );
         app.use('/', rootRoute.router);

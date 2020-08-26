@@ -23,7 +23,7 @@ export default class ConfigHandler {
         const { genericResource } = this.config.profile;
         if (genericResource && genericResource.fhirVersions.includes(fhirVersion)) {
             if (fhirVersion === '3.0.1') {
-                return genericResource.excludedR3Resources || [];
+                return genericResource.excludedSTU3Resources || [];
             }
             if (fhirVersion === '4.0.1') {
                 return genericResource.excludedR4Resources || [];

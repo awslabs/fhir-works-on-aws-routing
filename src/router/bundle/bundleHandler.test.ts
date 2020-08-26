@@ -185,7 +185,7 @@ const SUPPORTED_R4_RESOURCES = [
     'VisionPrescription',
 ];
 
-const SUPPORTED_R3_RESOURCES = [
+const SUPPORTED_STU3_RESOURCES = [
     'Account',
     'ActivityDefinition',
     'AdverseEvent',
@@ -326,12 +326,12 @@ const bundleHandlerR4 = new BundleHandler(
     resources,
 );
 
-const bundleHandlerR3 = new BundleHandler(
+const bundleHandlerSTU3 = new BundleHandler(
     DynamoDbBundleService,
     'https://API_URL.com',
     '3.0.1',
     stubs.passThroughAuthz,
-    getSupportedGenericResources(genericResource, SUPPORTED_R3_RESOURCES, '3.0.1'),
+    getSupportedGenericResources(genericResource, SUPPORTED_STU3_RESOURCES, '3.0.1'),
     genericResource,
     resources,
 );
@@ -440,7 +440,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
 
             delete bundleRequestJSON.resourceType;
 
-            await bundleHandlerR3.processTransaction(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerAccessToken);
         } catch (e) {
             expect(e).toEqual(new InvalidResourceError("data should have required property 'resourceType'"));
         }
@@ -643,7 +643,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
     // Fhir v3.
     const fhirfhirVersions: FhirVersion[] = ['4.0.1'];
     fhirfhirVersions.forEach((version: FhirVersion) => {
-        const supportedResource = version === '4.0.1' ? SUPPORTED_R4_RESOURCES : SUPPORTED_R3_RESOURCES;
+        const supportedResource = version === '4.0.1' ? SUPPORTED_R4_RESOURCES : SUPPORTED_STU3_RESOURCES;
         test(`FhirVersion: ${version}. Failed to operate on Bundle because server does not support Generic Resource for Patient  with operation Create`, async () => {
             // BUILD
             const genericResourceReadOnly: GenericResource = {
@@ -690,7 +690,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             if (version === '4.0.1') {
                 genericResourceExcludePatient.excludedR4Resources = ['Patient'];
             } else {
-                genericResourceExcludePatient.excludedR3Resources = ['Patient'];
+                genericResourceExcludePatient.excludedSTU3Resources = ['Patient'];
             }
 
             const bundleHandlerExcludePatient = new BundleHandler(
@@ -731,7 +731,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             if (version === '4.0.1') {
                 genericResourceExcludePatient.excludedR4Resources = ['Patient'];
             } else {
-                genericResourceExcludePatient.excludedR3Resources = ['Patient'];
+                genericResourceExcludePatient.excludedSTU3Resources = ['Patient'];
             }
 
             const patientResource: Resources = {

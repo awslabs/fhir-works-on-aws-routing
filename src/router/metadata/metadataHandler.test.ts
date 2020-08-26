@@ -7,13 +7,13 @@ import MetadataHandler from './metadataHandler';
 import { makeOperation } from './cap.rest.resource.template';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
 import r4FhirConfigWithExclusions from '../../../sampleData/r4FhirConfigWithExclusions';
-import r3FhirConfigWithExclusions from '../../../sampleData/r3FhirConfigWithExclusions';
+import stu3FhirConfigWithExclusions from '../../../sampleData/stu3FhirConfigWithExclusions';
 import r4FhirConfigNoGeneric from '../../../sampleData/r4FhirConfigNoGeneric';
 import Validator from '../validation/validator';
 import ConfigHandler from '../../configHandler';
 
 const r4Validator = new Validator('4.0.1');
-const r3Validator = new Validator('3.0.1');
+const stu3Validator = new Validator('3.0.1');
 
 const SUPPORTED_R4_RESOURCES = [
     'Account',
@@ -163,7 +163,7 @@ const SUPPORTED_R4_RESOURCES = [
     'VisionPrescription',
 ];
 
-const SUPPORTED_R3_RESOURCES = [
+const SUPPORTED_STU3_RESOURCES = [
     'Account',
     'ActivityDefinition',
     'AdverseEvent',
@@ -288,9 +288,9 @@ describe('ERROR: test cases', () => {
         // Ensures that for each test, we test the assertions in the catch block
         expect.hasAssertions();
     });
-    test('R3: Asking for V4 when only supports V3', async () => {
+    test('STU3: Asking for V4 when only supports V3', async () => {
         // BUILD
-        const configHandler: ConfigHandler = new ConfigHandler(r3FhirConfigWithExclusions, SUPPORTED_R3_RESOURCES);
+        const configHandler: ConfigHandler = new ConfigHandler(stu3FhirConfigWithExclusions, SUPPORTED_STU3_RESOURCES);
         const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
         try {
             // OPERATE
@@ -319,12 +319,12 @@ describe('ERROR: test cases', () => {
     });
 });
 
-test('R3: FHIR Config V3 with 2 exclusions and search', async () => {
-    const configHandler: ConfigHandler = new ConfigHandler(r3FhirConfigWithExclusions, SUPPORTED_R3_RESOURCES);
+test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
+    const configHandler: ConfigHandler = new ConfigHandler(stu3FhirConfigWithExclusions, SUPPORTED_STU3_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const response = await metadataHandler.capabilities({ fhirVersion: '3.0.1', mode: 'full' });
-    const { genericResource } = r3FhirConfigWithExclusions.profile;
-    const excludedResources = genericResource ? genericResource.excludedR3Resources || [] : [];
+    const { genericResource } = stu3FhirConfigWithExclusions.profile;
+    const excludedResources = genericResource ? genericResource.excludedSTU3Resources || [] : [];
     const expectedSubset = {
         acceptUnknown: 'no',
         fhirVersion: '3.0.1',
@@ -332,7 +332,9 @@ test('R3: FHIR Config V3 with 2 exclusions and search', async () => {
     expect(response.resource).toBeDefined();
     expect(response.resource).toMatchObject(expectedSubset);
     expect(response.resource.rest.length).toEqual(1);
-    expect(response.resource.rest[0].resource.length).toEqual(SUPPORTED_R3_RESOURCES.length - excludedResources.length);
+    expect(response.resource.rest[0].resource.length).toEqual(
+        SUPPORTED_STU3_RESOURCES.length - excludedResources.length,
+    );
     // see if just READ is chosen for generic
     let isExcludedResourceFound = false;
     response.resource.rest[0].resource.forEach((resource: any) => {
@@ -355,10 +357,10 @@ test('R3: FHIR Config V3 with 2 exclusions and search', async () => {
     expect(isExcludedResourceFound).toBeFalsy();
 
     expect(response.resource.rest[0].interaction).toEqual(
-        makeOperation(r3FhirConfigWithExclusions.profile.systemOperations),
+        makeOperation(stu3FhirConfigWithExclusions.profile.systemOperations),
     );
     expect(response.resource.rest[0].searchParam).toBeUndefined();
-    expect(r3Validator.validate('CapabilityStatement', response.resource)).toEqual({
+    expect(stu3Validator.validate('CapabilityStatement', response.resource)).toEqual({
         message: 'Success',
     });
 });
@@ -428,7 +430,7 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
     });
 });
 
-test('R4: FHIR Config V4 no generic set-up & mix of R3 & R4', async () => {
+test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigNoGeneric, SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const configResource: any = r4FhirConfigNoGeneric.profile.resources;
@@ -439,10 +441,10 @@ test('R4: FHIR Config V4 no generic set-up & mix of R3 & R4', async () => {
     expect(response.resource.rest.length).toEqual(1);
     expect(response.resource.rest[0].resource.length).toEqual(3);
     // see if just READ is chosen for generic
-    let isR3ResourceFound = false;
+    let isSTU3ResourceFound = false;
     response.resource.rest[0].resource.forEach((resource: any) => {
         if (resource.type === 'AllergyIntolerance') {
-            isR3ResourceFound = true;
+            isSTU3ResourceFound = true;
         }
         const expectedResourceSubset = {
             interaction: makeOperation(configResource[resource.type].operations),
@@ -455,7 +457,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of R3 & R4', async () => {
             expect(resource.searchParam).toBeUndefined();
         }
     });
-    expect(isR3ResourceFound).toBeFalsy();
+    expect(isSTU3ResourceFound).toBeFalsy();
     expect(response.resource.rest[0].interaction).toEqual(
         makeOperation(r4FhirConfigNoGeneric.profile.systemOperations),
     );
