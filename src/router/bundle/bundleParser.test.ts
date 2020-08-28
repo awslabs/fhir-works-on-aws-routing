@@ -3,8 +3,8 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { BatchReadWriteRequest, ResourceNotFoundError } from '@awslabs/fhir-works-on-aws-interface';
-import { ReadResourceRequest } from '@awslabs/fhir-works-on-aws-interface/lib/persistence';
+import { BatchReadWriteRequest, ResourceNotFoundError } from 'fhir-works-on-aws-interface';
+import { ReadResourceRequest } from 'fhir-works-on-aws-interface/lib/persistence';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import BundleParser from './bundleParser';
 import { resourceTypeWithUuidRegExp, uuidRegExp } from '../../regExpressions';

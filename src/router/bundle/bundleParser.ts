@@ -15,7 +15,7 @@ import {
     TypeOperation,
     SystemOperation,
     getRequestInformation,
-} from '@awslabs/fhir-works-on-aws-interface';
+} from 'fhir-works-on-aws-interface';
 
 import {
     captureFullUrlParts,

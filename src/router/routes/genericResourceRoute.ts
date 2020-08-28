@@ -4,7 +4,7 @@
  */
 
 import express, { Router } from 'express';
-import { TypeOperation } from '@awslabs/fhir-works-on-aws-interface';
+import { TypeOperation } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import CrudHandlerInterface from '../handlers/CrudHandlerInterface';
 import RouteHelper from './routeHelper';

@@ -11,7 +11,7 @@ import {
     FhirVersion,
     Resources,
     InvalidResourceError,
-} from '@awslabs/fhir-works-on-aws-interface';
+} from 'fhir-works-on-aws-interface';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
 import BundleHandler from './bundleHandler';

@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Capabilities, CapabilitiesRequest, FhirVersion, GenericResponse } from '@awslabs/fhir-works-on-aws-interface';
+import { Capabilities, CapabilitiesRequest, FhirVersion, GenericResponse } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import { makeGenericResources, makeResource } from './cap.rest.resource.template';
 import makeSecurity from './cap.rest.security.template';

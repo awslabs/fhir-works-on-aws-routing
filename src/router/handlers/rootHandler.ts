@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History } from '@awslabs/fhir-works-on-aws-interface';
+import { Search, History } from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 
 export default class RootHandler {

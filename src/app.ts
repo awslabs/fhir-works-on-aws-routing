@@ -10,7 +10,7 @@ import {
     ConfigVersion,
     TypeOperation,
     FhirConfig,
-} from '@awslabs/fhir-works-on-aws-interface';
+} from 'fhir-works-on-aws-interface';
 import GenericResourceRoute from './router/routes/genericResourceRoute';
 import ConfigHandler from './configHandler';
 import MetadataRoute from './router/routes/metadataRoute';

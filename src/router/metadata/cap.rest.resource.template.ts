@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { TypeOperation, SystemOperation } from '@awslabs/fhir-works-on-aws-interface';
+import { TypeOperation, SystemOperation } from 'fhir-works-on-aws-interface';
 
 function makeResourceObject(
     resourceType: string,
