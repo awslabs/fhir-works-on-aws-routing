@@ -5,7 +5,7 @@
 
 import uuidv4 from 'uuid/v4';
 import URL from 'url';
-import { SearchResult, BatchReadWriteResponse } from '@awslabs/fhir-works-on-aws-interface';
+import { SearchResult, BatchReadWriteResponse } from 'fhir-works-on-aws-interface';
 
 type LinkType = 'self' | 'previous' | 'next' | 'first' | 'last';
 

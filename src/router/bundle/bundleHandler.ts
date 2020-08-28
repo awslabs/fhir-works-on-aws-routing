@@ -12,7 +12,7 @@ import {
     GenericResource,
     Resources,
     TypeOperation,
-} from '@awslabs/fhir-works-on-aws-interface';
+} from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
 import Validator from '../validation/validator';

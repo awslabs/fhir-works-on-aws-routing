@@ -1,10 +1,6 @@
 import express from 'express';
 import createError from 'http-errors';
-import {
-    InvalidResourceError,
-    ResourceNotFoundError,
-    ResourceVersionNotFoundError,
-} from '@awslabs/fhir-works-on-aws-interface';
+import { InvalidResourceError, ResourceNotFoundError, ResourceVersionNotFoundError } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
 export const applicationErrorMapper = (

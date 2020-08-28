@@ -14,7 +14,7 @@ import {
     History,
     GenericResource,
     Resources,
-} from '@awslabs/fhir-works-on-aws-interface';
+} from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import BundleHandler from '../bundle/bundleHandler';
 import RootHandler from '../handlers/rootHandler';

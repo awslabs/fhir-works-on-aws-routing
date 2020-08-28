@@ -22,7 +22,7 @@ import {
     ResourceNotFoundError,
     ResourceVersionNotFoundError,
     InvalidResourceError,
-} from '@awslabs/fhir-works-on-aws-interface';
+} from 'fhir-works-on-aws-interface';
 import ResourceHandler from './resourceHandler';
 import invalidPatient from '../../../sampleData/invalidV4Patient.json';
 import validPatient from '../../../sampleData/validV4Patient.json';
