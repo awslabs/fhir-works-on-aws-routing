@@ -85,6 +85,10 @@ export default class BundleParser {
         if (operation === 'patch') {
             throw new Error('We currently do not support PATCH entries in the Bundle');
         }
+        // @ts-ignore
+        if (operation === 'export') {
+            throw new Error('We currently do not support EXPORT entries in the Bundle');
+        }
         return operation;
     }
 

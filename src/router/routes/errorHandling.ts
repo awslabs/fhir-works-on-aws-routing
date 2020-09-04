@@ -1,6 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import { InvalidResourceError, ResourceNotFoundError, ResourceVersionNotFoundError } from 'fhir-works-on-aws-interface';
+import { TooManyRequestsError } from 'fhir-works-on-aws-interface/lib/errors/TooManyRequestsError';
 import OperationsGenerator from '../operationsGenerator';
 
 export const applicationErrorMapper = (
@@ -22,12 +23,23 @@ export const applicationErrorMapper = (
         next(new createError.BadRequest(`Failed to parse request body as JSON resource. Error was: ${err.message}`));
         return;
     }
+    if (err instanceof TooManyRequestsError) {
+        next(
+            new createError.TooManyRequests(
+                'There is currently too many concurrent export requests. Please try again later',
+            ),
+        );
+        return;
+    }
     next(err);
 };
 
 export const httpErrorHandler = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (createError.isHttpError(err)) {
         console.error('HttpError', err);
+        // TODO: Make this value configurable
+        const FIFTEEN_MINUTES_IN_SECONDS = 60 * 15;
+        res.header('Retry-After', FIFTEEN_MINUTES_IN_SECONDS.toString(10));
         res.status(err.statusCode).send(OperationsGenerator.generateError(err.message));
         return;
     }

@@ -17,6 +17,7 @@ import MetadataRoute from './router/routes/metadataRoute';
 import ResourceHandler from './router/handlers/resourceHandler';
 import RootRoute from './router/routes/rootRoute';
 import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from './router/routes/errorHandling';
+import ExportRoute from './router/routes/exportRoute';
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -41,12 +42,16 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
             const requestInformation = getRequestInformation(req.method, req.path);
+            console.log('requestInformation', requestInformation);
             const accessToken: string = cleanAuthHeader(req.headers.authorization);
             const isAllowed: boolean = fhirConfig.auth.authorization.isAuthorized({
                 ...requestInformation,
                 accessToken,
             });
+            // const isAllowed = true;
             if (isAllowed) {
+                const requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(accessToken);
+                res.locals.requesterUserId = requesterUserId;
                 next();
             } else {
                 res.status(403).json({ message: 'Forbidden' });
@@ -59,6 +64,12 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     // Metadata
     const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler);
     app.use('/metadata', metadataRoute.router);
+
+    // Export
+    if (fhirConfig.profile.genericResource?.persistence) {
+        const exportRoute = new ExportRoute(fhirConfig.profile.genericResource?.persistence);
+        app.use('/', exportRoute.router);
+    }
 
     // Special Resources
     if (fhirConfig.profile.resources) {
