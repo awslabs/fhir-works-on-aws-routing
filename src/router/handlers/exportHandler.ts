@@ -12,6 +12,7 @@ export default class ExportHandler {
         this.dataService = dataService;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     async initiateExportRequest(
         requesterUserId: string,
         requestGranularity: ExportRequestGranularity,
@@ -30,8 +31,18 @@ export default class ExportHandler {
         }
 
         console.log('initiateExportRequest', initiateExportRequest);
-        // await this.dataService.initiateExport(initiateExportRequest);
+        // const jobId = await this.dataService.initiateExport(initiateExportRequest);
 
-        return initiateExportRequest;
+        const jobId = 10;
+        return jobId;
+    }
+
+    async getExportJobStatus(jobId: string) {
+        const response = await this.dataService.getExportStatus(jobId);
+        return response;
+    }
+
+    async cancelExport(jobId: string) {
+        await this.dataService.cancelExport(jobId);
     }
 }
