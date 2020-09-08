@@ -130,7 +130,6 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
         return httpErrorHandler(err, req, res, next, fhirConfig.defaultRetryRequestInSeconds);
     });
-    // app.use(httpErrorHandler);
     app.use(unknownErrorHandler);
 
     return app;

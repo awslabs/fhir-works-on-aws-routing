@@ -27,6 +27,7 @@ const config: FhirConfig = {
             typeHistory: stubs.history,
         },
     },
+    defaultRetryRequestInSeconds: 15 * 60,
 };
 
 export default config;

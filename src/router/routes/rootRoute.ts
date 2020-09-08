@@ -3,7 +3,6 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
 import {
     Authorization,
@@ -20,7 +19,6 @@ import createError from 'http-errors';
 import BundleHandler from '../bundle/bundleHandler';
 import RootHandler from '../handlers/rootHandler';
 import RouteHelper from './routeHelper';
-import ExportHandler from '../handlers/exportHandler';
 
 export default class RootRoute {
     readonly router: Router;

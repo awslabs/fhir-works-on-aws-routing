@@ -6,7 +6,6 @@
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
 import { ExportType, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
-import { BadRequestError } from 'fhir-works-on-aws-interface/lib/errors/BadRequestsError';
 import isString from 'lodash/isString';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';

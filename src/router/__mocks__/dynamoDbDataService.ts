@@ -12,6 +12,8 @@ import {
     generateMeta,
     GenericResponse,
     clone,
+    InitiateExportRequest,
+    GetExportStatusResponse,
 } from 'fhir-works-on-aws-interface';
 import validPatient from '../../../sampleData/validV4Patient.json';
 
@@ -103,6 +105,18 @@ const DynamoDbDataService: Persistence = class {
         queryParams: any,
     ): Promise<GenericResponse> {
         throw new Error('Method not implemented.');
+    }
+
+    static initiateExport(request: InitiateExportRequest): Promise<string> {
+        throw new Error('Method not implemented.');
+    }
+
+    static cancelExport(jobId: string): Promise<void> {
+        throw new Error('Method not implemented');
+    }
+
+    static getExportStatus(jobId: string): Promise<GetExportStatusResponse> {
+        throw new Error('Method not implemented');
     }
 };
 export default DynamoDbDataService;
