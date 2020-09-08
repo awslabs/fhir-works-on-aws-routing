@@ -39,12 +39,18 @@ export const applicationErrorMapper = (
     next(err);
 };
 
-export const httpErrorHandler = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const httpErrorHandler = (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+    retryAgainInSeconds: number,
+) => {
+    if (err instanceof createError.TooManyRequests) {
+        res.header('Retry-After', retryAgainInSeconds.toString(10));
+    }
     if (createError.isHttpError(err)) {
         console.error('HttpError', err);
-        // TODO: Make this value configurable
-        const FIFTEEN_MINUTES_IN_SECONDS = 60 * 15;
-        res.header('Retry-After', FIFTEEN_MINUTES_IN_SECONDS.toString(10));
         res.status(err.statusCode).send(OperationsGenerator.generateError(err.message));
         return;
     }

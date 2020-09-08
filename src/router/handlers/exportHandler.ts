@@ -16,24 +16,26 @@ export default class ExportHandler {
     async initiateExportRequest(
         requesterUserId: string,
         requestGranularity: ExportRequestGranularity,
-        requestQueryParams: { _outputFormat: string; _since: number; _type: string },
+        outputFormat?: string,
+        since?: number,
+        type?: string,
         groupId?: string,
     ) {
         const initiateExportRequest: InitiateExportRequest = {
             requesterUserId,
             requestGranularity,
             transactionTime: Math.floor(Date.now() / 1000),
-            requestQueryParams,
+            outputFormat,
+            since,
+            type,
         };
 
         if (groupId) {
             initiateExportRequest.groupId = groupId;
         }
 
-        console.log('initiateExportRequest', initiateExportRequest);
-        // const jobId = await this.dataService.initiateExport(initiateExportRequest);
+        const jobId = await this.dataService.initiateExport(initiateExportRequest);
 
-        const jobId = 10;
         return jobId;
     }
 
