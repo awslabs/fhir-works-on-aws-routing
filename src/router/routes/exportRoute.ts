@@ -5,7 +5,7 @@
 
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
-import { ExportRequestGranularity, Persistence } from 'fhir-works-on-aws-interface';
+import { ExportType, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
 import { BadRequestError } from 'fhir-works-on-aws-interface/lib/errors/BadRequestsError';
 import isString from 'lodash/isString';
 import RouteHelper from './routeHelper';
@@ -26,11 +26,7 @@ export default class ExportRoute {
         this.init();
     }
 
-    async initiateExportRequests(
-        req: express.Request,
-        res: express.Response,
-        requestGranularity: ExportRequestGranularity,
-    ) {
+    async initiateExportRequests(req: express.Request, res: express.Response, requestGranularity: ExportType) {
         const requestQueryParams: any = {};
         // eslint-disable-next-line no-unused-expressions
         isString(req.query._outputFormat) ? (requestQueryParams._outputFormat = req.query._outputFormat) : '';
@@ -43,13 +39,25 @@ export default class ExportRoute {
             throw new BadRequestError('We only support exporting resources into ndjson formatted file');
         }
         const { requesterUserId } = res.locals;
-        const groupId = req.params.id;
-        const jobId = await this.exportHandler.initiateExportRequest(
+
+        const initiateExportRequest: InitiateExportRequest = {
             requesterUserId,
             requestGranularity,
-            requestQueryParams,
-            groupId,
-        );
+            transactionTime: Math.floor(Date.now() / 1000),
+        };
+
+        const groupId = req.params.id;
+
+        // eslint-disable-next-line no-unused-expressions
+        isString(groupId) ? (initiateExportRequest.groupId = groupId) : '';
+        // eslint-disable-next-line no-unused-expressions
+        isString(req.query._outputFormat) ? (initiateExportRequest.outputFormat = req.query._outputFormat) : '';
+        // eslint-disable-next-line no-unused-expressions
+        Number(req.query._since) ? (initiateExportRequest.since = Number(req.query._since)) : '';
+        // eslint-disable-next-line no-unused-expressions
+        isString(req.query._type) ? (initiateExportRequest.type = req.query._type) : '';
+
+        const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
         const exportStatusUrl = `${this.serverUrl}/$export/${jobId}`;
         res.header('Content-Location', exportStatusUrl)
@@ -62,7 +70,7 @@ export default class ExportRoute {
         this.router.get(
             '/\\$export',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const requestGranularity: ExportRequestGranularity = 'system';
+                const requestGranularity: ExportType = 'system';
                 await this.initiateExportRequests(req, res, requestGranularity);
             }),
         );

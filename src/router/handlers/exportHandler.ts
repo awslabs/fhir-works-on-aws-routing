@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { ExportRequestGranularity, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
+import { GetExportStatusResponse, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
 
 export default class ExportHandler {
     private dataService: Persistence;
@@ -13,38 +13,15 @@ export default class ExportHandler {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    async initiateExportRequest(
-        requesterUserId: string,
-        requestGranularity: ExportRequestGranularity,
-        outputFormat?: string,
-        since?: number,
-        type?: string,
-        groupId?: string,
-    ) {
-        const initiateExportRequest: InitiateExportRequest = {
-            requesterUserId,
-            requestGranularity,
-            transactionTime: Math.floor(Date.now() / 1000),
-            outputFormat,
-            since,
-            type,
-        };
-
-        if (groupId) {
-            initiateExportRequest.groupId = groupId;
-        }
-
-        const jobId = await this.dataService.initiateExport(initiateExportRequest);
-
-        return jobId;
+    async initiateExport(initiateExportRequest: InitiateExportRequest): Promise<string> {
+        return this.dataService.initiateExport(initiateExportRequest);
     }
 
-    async getExportJobStatus(jobId: string) {
-        const response = await this.dataService.getExportStatus(jobId);
-        return response;
+    async getExportJobStatus(jobId: string): Promise<GetExportStatusResponse> {
+        return this.dataService.getExportStatus(jobId);
     }
 
-    async cancelExport(jobId: string) {
+    async cancelExport(jobId: string): Promise<void> {
         await this.dataService.cancelExport(jobId);
     }
 }
