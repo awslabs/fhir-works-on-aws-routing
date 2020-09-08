@@ -8,6 +8,7 @@ import express, { Router } from 'express';
 import { ExportType, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
 import { BadRequestError } from 'fhir-works-on-aws-interface/lib/errors/BadRequestsError';
 import isString from 'lodash/isString';
+import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';
 
@@ -27,16 +28,8 @@ export default class ExportRoute {
     }
 
     async initiateExportRequests(req: express.Request, res: express.Response, requestGranularity: ExportType) {
-        const requestQueryParams: any = {};
-        // eslint-disable-next-line no-unused-expressions
-        isString(req.query._outputFormat) ? (requestQueryParams._outputFormat = req.query._outputFormat) : '';
-        // eslint-disable-next-line no-unused-expressions
-        Number(req.query._since) ? (requestQueryParams._since = Number(req.query._since)) : '';
-        // eslint-disable-next-line no-unused-expressions
-        isString(req.query._type) ? (requestQueryParams._type = req.query._type) : '';
-
-        if (requestQueryParams._outputFormat && requestQueryParams._outputFormat !== 'ndjson') {
-            throw new BadRequestError('We only support exporting resources into ndjson formatted file');
+        if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
+            throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
         }
         const { requesterUserId } = res.locals;
 
@@ -44,18 +37,11 @@ export default class ExportRoute {
             requesterUserId,
             requestGranularity,
             transactionTime: Math.floor(Date.now() / 1000),
+            outputFormat: isString(req.query._outputFormat) ? req.query._outputFormat : undefined,
+            since: Number(req.query._since) ? Number(req.query._since) : undefined,
+            type: isString(req.query._type) ? req.query._type : undefined,
+            groupId: isString(req.params.id) ? req.params.id : undefined,
         };
-
-        const groupId = req.params.id;
-
-        // eslint-disable-next-line no-unused-expressions
-        isString(groupId) ? (initiateExportRequest.groupId = groupId) : '';
-        // eslint-disable-next-line no-unused-expressions
-        isString(req.query._outputFormat) ? (initiateExportRequest.outputFormat = req.query._outputFormat) : '';
-        // eslint-disable-next-line no-unused-expressions
-        Number(req.query._since) ? (initiateExportRequest.since = Number(req.query._since)) : '';
-        // eslint-disable-next-line no-unused-expressions
-        isString(req.query._type) ? (initiateExportRequest.type = req.query._type) : '';
 
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
@@ -76,11 +62,11 @@ export default class ExportRoute {
         );
 
         this.router.get('/Patient/\\$export', () => {
-            throw new BadRequestError('We currently do not support Patient export');
+            throw new createHttpError.BadRequest('We currently do not support Patient export');
         });
 
         this.router.get('/Group/:id/\\$export', () => {
-            throw new BadRequestError('We currently do not support Group export');
+            throw new createHttpError.BadRequest('We currently do not support Group export');
         });
 
         // Export Job Status

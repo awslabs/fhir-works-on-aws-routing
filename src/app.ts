@@ -63,7 +63,6 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     app.use('/metadata', metadataRoute.router);
 
     // Export
-
     if (fhirConfig.profile.genericResource?.persistence) {
         const exportRoute = new ExportRoute(serverUrl, fhirConfig.profile.genericResource?.persistence);
         app.use('/', exportRoute.router);

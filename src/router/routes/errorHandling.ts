@@ -2,7 +2,6 @@ import express from 'express';
 import createError from 'http-errors';
 import { InvalidResourceError, ResourceNotFoundError, ResourceVersionNotFoundError } from 'fhir-works-on-aws-interface';
 import { TooManyRequestsError } from 'fhir-works-on-aws-interface/lib/errors/TooManyRequestsError';
-import { BadRequestError } from 'fhir-works-on-aws-interface/lib/errors/BadRequestsError';
 import OperationsGenerator from '../operationsGenerator';
 
 export const applicationErrorMapper = (
@@ -22,10 +21,6 @@ export const applicationErrorMapper = (
     }
     if (err instanceof InvalidResourceError) {
         next(new createError.BadRequest(`Failed to parse request body as JSON resource. Error was: ${err.message}`));
-        return;
-    }
-    if (err instanceof BadRequestError) {
-        next(new createError.BadRequest(err.message));
         return;
     }
     if (err instanceof TooManyRequestsError) {
