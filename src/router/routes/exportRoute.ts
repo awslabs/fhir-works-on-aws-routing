@@ -6,10 +6,10 @@
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
 import { ExportType, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
-import isString from 'lodash/isString';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';
+import ExportRouteHelper from './exportRouteHelper';
 
 export default class ExportRoute {
     readonly router: Router;
@@ -27,21 +27,11 @@ export default class ExportRoute {
     }
 
     async initiateExportRequests(req: express.Request, res: express.Response, requestGranularity: ExportType) {
-        if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
-            throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
-        }
-        const { requesterUserId } = res.locals;
-
-        const initiateExportRequest: InitiateExportRequest = {
-            requesterUserId,
+        const initiateExportRequest: InitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(
+            req,
+            res,
             requestGranularity,
-            transactionTime: Math.floor(Date.now() / 1000),
-            outputFormat: isString(req.query._outputFormat) ? req.query._outputFormat : undefined,
-            since: Number(req.query._since) ? Number(req.query._since) : undefined,
-            type: isString(req.query._type) ? req.query._type : undefined,
-            groupId: isString(req.params.id) ? req.params.id : undefined,
-        };
-
+        );
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
         const exportStatusUrl = `${this.serverUrl}/$export/${jobId}`;
