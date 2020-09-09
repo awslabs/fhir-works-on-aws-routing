@@ -15,7 +15,7 @@ describe('buildInitiateExportRequest', () => {
         const req = mockRequest({
             query: {
                 _outputFormat: 'ndjson',
-                _since: 1599158340,
+                _since: '2020-09-01T00:00:00Z',
                 _type: 'Patient',
             },
         });
@@ -25,7 +25,7 @@ describe('buildInitiateExportRequest', () => {
             requesterUserId: 'abcd-1234',
             exportType: 'system',
             outputFormat: 'ndjson',
-            since: 1599158340,
+            since: 1598918400,
             type: 'Patient',
         });
         expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
@@ -37,7 +37,7 @@ describe('buildInitiateExportRequest', () => {
         const req = mockRequest({
             query: {
                 _outputFormat: 'ndjson',
-                _since: 1599158340,
+                _since: '2020-09-01T00:00:00Z',
                 _type: 'Patient',
             },
             params: {
@@ -50,7 +50,7 @@ describe('buildInitiateExportRequest', () => {
             requesterUserId: 'abcd-1234',
             exportType: 'group',
             outputFormat: 'ndjson',
-            since: 1599158340,
+            since: 1598918400,
             type: 'Patient',
             groupId: '1',
         });
@@ -96,6 +96,26 @@ describe('buildInitiateExportRequest', () => {
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.message).toEqual('We only support exporting resources into ndjson formatted file');
+        }
+    });
+    test('Group Export request with non-supported since', () => {
+        expect.hasAssertions();
+        const req = mockRequest({
+            query: {
+                _since: '2020-10-12',
+            },
+            params: {
+                id: '1',
+            },
+        });
+
+        try {
+            ExportRouteHelper.buildInitiateExportRequest(req, mockedResponse, 'group');
+        } catch (e) {
+            expect(e.name).toEqual('BadRequestError');
+            expect(e.message).toEqual(
+                "Query '_since' should be in the FHIR Instant format: YYYY-MM-DDThh:mm:ssZ. Exp. 2020-09-01T00:00:00Z",
+            );
         }
     });
 });
