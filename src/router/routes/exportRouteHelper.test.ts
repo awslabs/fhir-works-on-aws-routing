@@ -9,6 +9,8 @@ describe('buildInitiateExportRequest', () => {
         },
     });
 
+    const TEN_DIGIT_NUMBER_REG_EXPRESSION = /\d{10}/;
+
     test('System Export request with query parameters', () => {
         const req = mockRequest({
             query: {
@@ -21,12 +23,14 @@ describe('buildInitiateExportRequest', () => {
         const actualInitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(req, mockedResponse, 'system');
         expect(actualInitiateExportRequest).toMatchObject({
             requesterUserId: 'abcd-1234',
-            requestGranularity: 'system',
+            exportType: 'system',
             outputFormat: 'ndjson',
             since: 1599158340,
             type: 'Patient',
         });
-        expect(actualInitiateExportRequest.transactionTime).toEqual(expect.any(Number));
+        expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
+            expect.stringMatching(TEN_DIGIT_NUMBER_REG_EXPRESSION),
+        );
     });
 
     test('Group Export request with query parameters', () => {
@@ -44,13 +48,15 @@ describe('buildInitiateExportRequest', () => {
         const actualInitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(req, mockedResponse, 'group');
         expect(actualInitiateExportRequest).toMatchObject({
             requesterUserId: 'abcd-1234',
-            requestGranularity: 'group',
+            exportType: 'group',
             outputFormat: 'ndjson',
             since: 1599158340,
             type: 'Patient',
             groupId: '1',
         });
-        expect(actualInitiateExportRequest.transactionTime).toEqual(expect.any(Number));
+        expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
+            expect.stringMatching(TEN_DIGIT_NUMBER_REG_EXPRESSION),
+        );
     });
 
     test('Group Export request without query parameters', () => {
@@ -63,13 +69,15 @@ describe('buildInitiateExportRequest', () => {
         const actualInitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(req, mockedResponse, 'group');
         expect(actualInitiateExportRequest).toMatchObject({
             requesterUserId: 'abcd-1234',
-            requestGranularity: 'group',
+            exportType: 'group',
             outputFormat: undefined,
             since: undefined,
             type: undefined,
             groupId: '1',
         });
-        expect(actualInitiateExportRequest.transactionTime).toEqual(expect.any(Number));
+        expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
+            expect.stringMatching(TEN_DIGIT_NUMBER_REG_EXPRESSION),
+        );
     });
 
     test('Group Export request with non-supported outputFormat', () => {

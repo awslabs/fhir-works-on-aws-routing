@@ -12,7 +12,6 @@ export default class ExportHandler {
         this.bulkDataAccess = bulkDataAccess;
     }
 
-    // eslint-disable-next-line class-methods-use-this
     async initiateExport(initiateExportRequest: InitiateExportRequest): Promise<string> {
         return this.bulkDataAccess.initiateExport(initiateExportRequest);
     }
