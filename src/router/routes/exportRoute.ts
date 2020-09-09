@@ -5,7 +5,7 @@
 
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
-import { ExportType, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
+import { BulkDataAccess, ExportType, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';
@@ -18,19 +18,19 @@ export default class ExportRoute {
 
     private serverUrl: string;
 
-    constructor(serverUrl: string, persistence: Persistence) {
+    constructor(serverUrl: string, bulkDataAccess: BulkDataAccess) {
         this.router = express.Router();
         this.serverUrl = serverUrl;
         // @ts-ignore
-        this.exportHandler = new ExportHandler(persistence);
+        this.exportHandler = new ExportHandler(bulkDataAccess);
         this.init();
     }
 
-    async initiateExportRequests(req: express.Request, res: express.Response, requestGranularity: ExportType) {
+    async initiateExportRequests(req: express.Request, res: express.Response, exportType: ExportType) {
         const initiateExportRequest: InitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(
             req,
             res,
-            requestGranularity,
+            exportType,
         );
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
@@ -45,8 +45,8 @@ export default class ExportRoute {
         this.router.get(
             '/\\$export',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const requestGranularity: ExportType = 'system';
-                await this.initiateExportRequests(req, res, requestGranularity);
+                const exportType: ExportType = 'system';
+                await this.initiateExportRequests(req, res, exportType);
             }),
         );
 

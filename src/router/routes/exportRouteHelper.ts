@@ -5,7 +5,7 @@ import createHttpError from 'http-errors';
 import isString from 'lodash/isString';
 
 export default class ExportRouteHelper {
-    static buildInitiateExportRequest(req: express.Request, res: express.Response, requestGranularity: ExportType) {
+    static buildInitiateExportRequest(req: express.Request, res: express.Response, exportType: ExportType) {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
             throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
         }
@@ -13,7 +13,7 @@ export default class ExportRouteHelper {
 
         const initiateExportRequest: InitiateExportRequest = {
             requesterUserId,
-            requestGranularity,
+            exportType,
             transactionTime: Math.floor(Date.now() / 1000),
             outputFormat: isString(req.query._outputFormat) ? req.query._outputFormat : undefined,
             since: Number(req.query._since) ? Number(req.query._since) : undefined,

@@ -63,8 +63,8 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     app.use('/metadata', metadataRoute.router);
 
     // Export
-    if (fhirConfig.profile.genericResource?.persistence) {
-        const exportRoute = new ExportRoute(serverUrl, fhirConfig.profile.genericResource?.persistence);
+    if (fhirConfig.profile.export) {
+        const exportRoute = new ExportRoute(serverUrl, fhirConfig.profile.export);
         app.use('/', exportRoute.router);
     }
 
@@ -127,9 +127,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     }
 
     app.use(applicationErrorMapper);
-    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-        return httpErrorHandler(err, req, res, next, fhirConfig.defaultRetryRequestInSeconds);
-    });
+    app.use(httpErrorHandler);
     app.use(unknownErrorHandler);
 
     return app;

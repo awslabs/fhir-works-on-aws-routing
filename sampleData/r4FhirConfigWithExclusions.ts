@@ -44,7 +44,6 @@ const config: FhirConfig = {
             },
         },
     },
-    defaultRetryRequestInSeconds: 15 * 60,
 };
 
 export default config;

@@ -3,25 +3,25 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { GetExportStatusResponse, InitiateExportRequest, Persistence } from 'fhir-works-on-aws-interface';
+import { BulkDataAccess, GetExportStatusResponse, InitiateExportRequest } from 'fhir-works-on-aws-interface';
 
 export default class ExportHandler {
-    private dataService: Persistence;
+    private bulkDataAccess: BulkDataAccess;
 
-    constructor(dataService: Persistence) {
-        this.dataService = dataService;
+    constructor(bulkDataAccess: BulkDataAccess) {
+        this.bulkDataAccess = bulkDataAccess;
     }
 
     // eslint-disable-next-line class-methods-use-this
     async initiateExport(initiateExportRequest: InitiateExportRequest): Promise<string> {
-        return this.dataService.initiateExport(initiateExportRequest);
+        return this.bulkDataAccess.initiateExport(initiateExportRequest);
     }
 
     async getExportJobStatus(jobId: string): Promise<GetExportStatusResponse> {
-        return this.dataService.getExportStatus(jobId);
+        return this.bulkDataAccess.getExportStatus(jobId);
     }
 
     async cancelExport(jobId: string): Promise<void> {
-        await this.dataService.cancelExport(jobId);
+        await this.bulkDataAccess.cancelExport(jobId);
     }
 }
