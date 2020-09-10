@@ -23,12 +23,9 @@ export default class ExportRouteHelper {
         const initiateExportRequest: InitiateExportRequest = {
             requesterUserId,
             exportType,
-            transactionTime: Math.floor(Date.now() / 1000),
+            transactionTime: new Date().toISOString(),
             outputFormat: isString(req.query._outputFormat) ? req.query._outputFormat : undefined,
-            since:
-                isString(req.query._since) && utcTimeRegExp.test(req.query._since)
-                    ? new Date(req.query._since).getTime() / 1000
-                    : undefined,
+            since: isString(req.query._since) && utcTimeRegExp.test(req.query._since) ? req.query._since : undefined,
             type: isString(req.query._type) ? req.query._type : undefined,
             groupId: isString(req.params.id) ? req.params.id : undefined,
         };

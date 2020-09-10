@@ -1,6 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { mockRequest, mockResponse } from 'mock-req-res';
 import ExportRouteHelper from './exportRouteHelper';
+import { utcTimeRegExp } from '../../regExpressions';
 
 describe('buildInitiateExportRequest', () => {
     const mockedResponse = mockResponse({
@@ -8,8 +9,6 @@ describe('buildInitiateExportRequest', () => {
             requesterUserId: 'abcd-1234',
         },
     });
-
-    const TEN_DIGIT_NUMBER_REG_EXPRESSION = /\d{10}/;
 
     test('System Export request with query parameters', () => {
         const req = mockRequest({
@@ -23,14 +22,12 @@ describe('buildInitiateExportRequest', () => {
         const actualInitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(req, mockedResponse, 'system');
         expect(actualInitiateExportRequest).toMatchObject({
             requesterUserId: 'abcd-1234',
+            transactionTime: expect.stringMatching(utcTimeRegExp),
             exportType: 'system',
             outputFormat: 'ndjson',
-            since: 1598918400,
+            since: '2020-09-01T00:00:00Z',
             type: 'Patient',
         });
-        expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
-            expect.stringMatching(TEN_DIGIT_NUMBER_REG_EXPRESSION),
-        );
     });
 
     test('Group Export request with query parameters', () => {
@@ -48,15 +45,13 @@ describe('buildInitiateExportRequest', () => {
         const actualInitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(req, mockedResponse, 'group');
         expect(actualInitiateExportRequest).toMatchObject({
             requesterUserId: 'abcd-1234',
+            transactionTime: expect.stringMatching(utcTimeRegExp),
             exportType: 'group',
             outputFormat: 'ndjson',
-            since: 1598918400,
+            since: '2020-09-01T00:00:00Z',
             type: 'Patient',
             groupId: '1',
         });
-        expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
-            expect.stringMatching(TEN_DIGIT_NUMBER_REG_EXPRESSION),
-        );
     });
 
     test('Group Export request without query parameters', () => {
@@ -75,9 +70,6 @@ describe('buildInitiateExportRequest', () => {
             type: undefined,
             groupId: '1',
         });
-        expect(actualInitiateExportRequest.transactionTime.toString(10)).toEqual(
-            expect.stringMatching(TEN_DIGIT_NUMBER_REG_EXPRESSION),
-        );
     });
 
     test('Group Export request with non-supported outputFormat', () => {
