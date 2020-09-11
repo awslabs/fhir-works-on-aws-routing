@@ -24,11 +24,7 @@ export const applicationErrorMapper = (
         return;
     }
     if (err instanceof TooManyConcurrentExportRequestsError) {
-        next(
-            new createError.TooManyRequests(
-                'There is currently too many concurrent export requests. Please try again later',
-            ),
-        );
+        next(new createError.TooManyRequests('There is currently too many requests. Please try again later'));
         return;
     }
     next(err);
@@ -36,7 +32,7 @@ export const applicationErrorMapper = (
 
 export const httpErrorHandler = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (err instanceof createError.TooManyRequests) {
-        const RETRY_AGAIN_IN_SECONDS = 15 * 60;
+        const RETRY_AGAIN_IN_SECONDS = 15 * 60; // 15 Minutes
         res.header('Retry-After', RETRY_AGAIN_IN_SECONDS.toString(10));
     }
     if (createError.isHttpError(err)) {
