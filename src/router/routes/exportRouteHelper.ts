@@ -3,7 +3,7 @@ import express from 'express';
 import { ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import isString from 'lodash/isString';
-import { utcTimeRegExp } from '../../regExpressions';
+import { dateTimeWithTimeZoneRegExp } from '../../regExpressions';
 
 export default class ExportRouteHelper {
     static buildInitiateExportRequest(req: express.Request, res: express.Response, exportType: ExportType) {
@@ -12,10 +12,10 @@ export default class ExportRouteHelper {
         }
         if (
             (req.query._since && !isString(req.query._since)) ||
-            (req.query._since && isString(req.query._since) && !utcTimeRegExp.test(req.query._since))
+            (req.query._since && isString(req.query._since) && !dateTimeWithTimeZoneRegExp.test(req.query._since))
         ) {
             throw new createHttpError.BadRequest(
-                "Query '_since' should be in the FHIR Instant format: YYYY-MM-DDThh:mm:ssZ. Exp. 2020-09-01T00:00:00Z",
+                "Query '_since' should be in the FHIR Instant format: YYYY-MM-DDThh:mm:ss.sss+zz:zz (e.g. 2015-02-07T13:28:17.239+02:00 or 2017-01-01T00:00:00Z)",
             );
         }
         const { requesterUserId } = res.locals;
@@ -25,7 +25,10 @@ export default class ExportRouteHelper {
             exportType,
             transactionTime: new Date().toISOString(),
             outputFormat: isString(req.query._outputFormat) ? req.query._outputFormat : undefined,
-            since: isString(req.query._since) && utcTimeRegExp.test(req.query._since) ? req.query._since : undefined,
+            since:
+                isString(req.query._since) && dateTimeWithTimeZoneRegExp.test(req.query._since)
+                    ? new Date(req.query._since).toISOString()
+                    : undefined,
             type: isString(req.query._type) ? req.query._type : undefined,
             groupId: isString(req.params.id) ? req.params.id : undefined,
         };
