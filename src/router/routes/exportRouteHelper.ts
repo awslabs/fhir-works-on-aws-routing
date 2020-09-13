@@ -10,7 +10,7 @@ export default class ExportRouteHelper {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
             throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
         }
-        if (req.header('prefer') && req.header('prefer') !== 'respond-async') {
+        if (req.headers.prefer && req.headers.prefer !== 'respond-async') {
             throw new createHttpError.BadRequest('We only support asyncronous export job request');
         }
         if (
