@@ -33,7 +33,7 @@ export default class ExportRoute {
         );
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
-        const exportStatusUrl = `${this.serverUrl}/$export/${jobId}`;
+        const exportStatusUrl = `${this.serverUrl}/$export/${initiateExportRequest.requesterUserId}/${jobId}`;
         res.header('Content-Location', exportStatusUrl)
             .status(202)
             .send();
@@ -59,17 +59,43 @@ export default class ExportRoute {
 
         // Export Job Status
         this.router.get(
-            '/\\$export/:jobId',
+            '/\\$export/:requesterUserId/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
                 const response = await this.exportHandler.getExportJobStatus(jobId);
-                res.send(response);
+                if (response.jobStatus === 'in-progress') {
+                    res.status(202)
+                        .header('x-progress', 'in-progress')
+                        .send();
+                } else if (response.jobStatus === 'failed') {
+                    throw new createHttpError.InternalServerError(response.errorMessage);
+                } else if (response.jobStatus === 'completed') {
+                    const { outputFormat, since, type, groupId } = response;
+                    const queryParams = { outputFormat, since, type };
+                    const jsonResponse = {
+                        transactionTime: response.transactionTime,
+                        request: ExportRouteHelper.getExportUrl(
+                            this.serverUrl,
+                            response.exportType,
+                            queryParams,
+                            groupId,
+                        ),
+                        requiresAccessToken: false,
+                        output: response.exportedFileUrls,
+                        error: response.errorArray,
+                    };
+                    res.status(200).send(jsonResponse);
+                } else if (response.jobStatus === 'canceled') {
+                    res.send('Export job has been canceled');
+                } else if (response.jobStatus === 'canceling') {
+                    res.send('Export job is being canceled');
+                }
             }),
         );
 
         // Cancel export job
         this.router.delete(
-            '/\\$export/:jobId',
+            '/\\$export/:requesterUserId/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
                 await this.exportHandler.cancelExport(jobId);

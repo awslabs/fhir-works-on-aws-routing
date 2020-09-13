@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { mockRequest, mockResponse } from 'mock-req-res';
+import { ExportType } from 'fhir-works-on-aws-interface';
 import ExportRouteHelper from './exportRouteHelper';
 import { utcTimeRegExp } from '../../regExpressions';
 
@@ -109,5 +110,35 @@ describe('buildInitiateExportRequest', () => {
                 "Query '_since' should be in the FHIR Instant format: YYYY-MM-DDThh:mm:ssZ. Exp. 2020-09-01T00:00:00Z",
             );
         }
+    });
+});
+
+describe('getExportUrl', () => {
+    // TODO: Add tests for subset of params
+    describe('All params', () => {
+        const baseUrl = 'http://API_URL.com';
+        const outputFormat = 'ndjson';
+        const since = '2020-09-02T00:00:00-05:00';
+        const type = 'Patient';
+        const queryParams = { outputFormat, since, type };
+        const groupId = '12';
+        test('System', () => {
+            const result = ExportRouteHelper.getExportUrl(baseUrl, 'system', queryParams, groupId);
+            expect(result).toEqual(
+                'http://api_url.com/$export?_outputFormat=ndjson&_since=2020-09-02T00%3A00%3A00-05%3A00&_type=Patient',
+            );
+        });
+        test('Patient', () => {
+            const result = ExportRouteHelper.getExportUrl(baseUrl, 'patient', queryParams, groupId);
+            expect(result).toEqual(
+                'http://api_url.com/Patient/$export?_outputFormat=ndjson&_since=2020-09-02T00%3A00%3A00-05%3A00&_type=Patient',
+            );
+        });
+        test('Group', () => {
+            const result = ExportRouteHelper.getExportUrl(baseUrl, 'group', queryParams, groupId);
+            expect(result).toEqual(
+                'http://api_url.com/Group/12/$export?_outputFormat=ndjson&_since=2020-09-02T00%3A00%3A00-05%3A00&_type=Patient',
+            );
+        });
     });
 });
