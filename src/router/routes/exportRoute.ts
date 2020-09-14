@@ -33,7 +33,7 @@ export default class ExportRoute {
         );
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
-        const exportStatusUrl = `${this.serverUrl}/$export/${initiateExportRequest.requesterUserId}/${jobId}`;
+        const exportStatusUrl = `${this.serverUrl}/$export/${jobId}`;
         res.header('Content-Location', exportStatusUrl)
             .status(202)
             .send();
@@ -59,10 +59,11 @@ export default class ExportRoute {
 
         // Export Job Status
         this.router.get(
-            '/\\$export/:requesterUserId/:jobId',
+            '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
+                const { requesterUserId } = res.locals;
                 const { jobId } = req.params;
-                const response = await this.exportHandler.getExportJobStatus(jobId);
+                const response = await this.exportHandler.getExportJobStatus(jobId, requesterUserId);
                 if (response.jobStatus === 'in-progress') {
                     res.status(202)
                         .header('x-progress', 'in-progress')
@@ -95,10 +96,11 @@ export default class ExportRoute {
 
         // Cancel export job
         this.router.delete(
-            '/\\$export/:requesterUserId/:jobId',
+            '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
-                await this.exportHandler.cancelExport(jobId);
+                const { requesterUserId } = res.locals;
+                await this.exportHandler.cancelExport(jobId, requesterUserId);
                 res.status(202).send();
             }),
         );

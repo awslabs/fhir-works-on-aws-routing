@@ -16,11 +16,11 @@ export default class ExportHandler {
         return this.bulkDataAccess.initiateExport(initiateExportRequest);
     }
 
-    async getExportJobStatus(jobId: string): Promise<GetExportStatusResponse> {
-        return this.bulkDataAccess.getExportStatus(jobId);
+    async getExportJobStatus(jobId: string, requesterUserId: string): Promise<GetExportStatusResponse> {
+        return this.bulkDataAccess.getExportStatus(jobId, requesterUserId);
     }
 
-    async cancelExport(jobId: string): Promise<void> {
-        await this.bulkDataAccess.cancelExport(jobId);
+    async cancelExport(jobId: string, requesterUserId: string): Promise<void> {
+        await this.bulkDataAccess.cancelExport(jobId, requesterUserId);
     }
 }

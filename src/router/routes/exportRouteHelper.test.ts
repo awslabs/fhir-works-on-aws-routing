@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { mockRequest, mockResponse } from 'mock-req-res';
+import crypto from 'crypto';
 import ExportRouteHelper from './exportRouteHelper';
 import { utcTimeRegExp } from '../../regExpressions';
 
