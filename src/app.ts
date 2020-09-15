@@ -20,7 +20,7 @@ import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from '.
 
 const configVersionSupported: ConfigVersion = 1;
 
-export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]) {
+export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]): any {
     if (configVersionSupported !== fhirConfig.configVersion) {
         throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
     }
