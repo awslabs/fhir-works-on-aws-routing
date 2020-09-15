@@ -2,7 +2,6 @@ import express from 'express';
 import createError from 'http-errors';
 import { InvalidResourceError, ResourceNotFoundError, ResourceVersionNotFoundError } from 'fhir-works-on-aws-interface';
 import { TooManyConcurrentExportRequestsError } from 'fhir-works-on-aws-interface/lib/errors/TooManyConcurrentExportRequestsError';
-import { UnauthorizedAccessError } from 'fhir-works-on-aws-interface/lib/errors/UnauthorizedAccessError';
 import OperationsGenerator from '../operationsGenerator';
 
 export const applicationErrorMapper = (
@@ -26,10 +25,6 @@ export const applicationErrorMapper = (
     }
     if (err instanceof TooManyConcurrentExportRequestsError) {
         next(new createError.TooManyRequests('There is currently too many requests. Please try again later'));
-        return;
-    }
-    if (err instanceof UnauthorizedAccessError) {
-        next(new createError.Forbidden('Forbidden'));
         return;
     }
     next(err);

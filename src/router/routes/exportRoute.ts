@@ -5,7 +5,7 @@
 
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
-import { BulkDataAccess, ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
+import { Authorization, BulkDataAccess, ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';
@@ -18,10 +18,10 @@ export default class ExportRoute {
 
     private serverUrl: string;
 
-    constructor(serverUrl: string, bulkDataAccess: BulkDataAccess) {
+    constructor(serverUrl: string, bulkDataAccess: BulkDataAccess, authService: Authorization) {
         this.router = express.Router();
         this.serverUrl = serverUrl;
-        this.exportHandler = new ExportHandler(bulkDataAccess);
+        this.exportHandler = new ExportHandler(bulkDataAccess, authService);
         this.init();
     }
 

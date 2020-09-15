@@ -3,13 +3,22 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { BulkDataAccess, GetExportStatusResponse, InitiateExportRequest } from 'fhir-works-on-aws-interface';
+import {
+    Authorization,
+    BulkDataAccess,
+    GetExportStatusResponse,
+    InitiateExportRequest,
+} from 'fhir-works-on-aws-interface';
+import createError from 'http-errors';
 
 export default class ExportHandler {
     private bulkDataAccess: BulkDataAccess;
 
-    constructor(bulkDataAccess: BulkDataAccess) {
+    private authService: Authorization;
+
+    constructor(bulkDataAccess: BulkDataAccess, authService: Authorization) {
         this.bulkDataAccess = bulkDataAccess;
+        this.authService = authService;
     }
 
     async initiateExport(initiateExportRequest: InitiateExportRequest): Promise<string> {
@@ -17,10 +26,23 @@ export default class ExportHandler {
     }
 
     async getExportJobStatus(jobId: string, requesterUserId: string): Promise<GetExportStatusResponse> {
-        return this.bulkDataAccess.getExportStatus(jobId, requesterUserId);
+        const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
+        await this.checkIfRequesterHasAccessToJob(jobDetails, requesterUserId);
+        return jobDetails;
     }
 
     async cancelExport(jobId: string, requesterUserId: string): Promise<void> {
-        await this.bulkDataAccess.cancelExport(jobId, requesterUserId);
+        const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
+        await this.checkIfRequesterHasAccessToJob(jobDetails, requesterUserId);
+
+        await this.bulkDataAccess.cancelExport(jobId);
+    }
+
+    private async checkIfRequesterHasAccessToJob(jobDetails: GetExportStatusResponse, requesterUserId: string) {
+        const { jobOwnerId } = jobDetails;
+        const isAllowed: boolean = await this.authService.isAllowedToAccessBulkDataJob(requesterUserId, jobOwnerId);
+        if (!isAllowed) {
+            throw new createError.Forbidden('Forbidden');
+        }
     }
 }
