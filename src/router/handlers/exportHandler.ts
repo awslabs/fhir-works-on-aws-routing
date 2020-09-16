@@ -4,6 +4,7 @@
  */
 
 import {
+    AccessBulkDataJobRequest,
     Authorization,
     BulkDataAccess,
     GetExportStatusResponse,
@@ -34,13 +35,19 @@ export default class ExportHandler {
     async cancelExport(jobId: string, requesterUserId: string): Promise<void> {
         const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
         await this.checkIfRequesterHasAccessToJob(jobDetails, requesterUserId);
+        if (['completed', 'failed'].includes(jobDetails.jobStatus)) {
+            throw new createError.BadRequest(
+                `Job cannot be canceled because job is already in ${jobDetails.jobStatus} state`,
+            );
+        }
 
         await this.bulkDataAccess.cancelExport(jobId);
     }
 
     private async checkIfRequesterHasAccessToJob(jobDetails: GetExportStatusResponse, requesterUserId: string) {
         const { jobOwnerId } = jobDetails;
-        const isAllowed: boolean = await this.authService.isAllowedToAccessBulkDataJob(requesterUserId, jobOwnerId);
+        const accessBulkDataJobRequest: AccessBulkDataJobRequest = { requesterUserId, jobOwnerId };
+        const isAllowed: boolean = await this.authService.isAccessBulkDataJobAllowed(accessBulkDataJobRequest);
         if (!isAllowed) {
             throw new createError.Forbidden('Forbidden');
         }
