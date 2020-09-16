@@ -10,6 +10,9 @@ export default class ExportRouteHelper {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
             throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
         }
+        if (req.headers.prefer && req.headers.prefer !== 'respond-async') {
+            throw new createHttpError.BadRequest('We only support asyncronous export job request');
+        }
         if (
             (req.query._since && !isString(req.query._since)) ||
             (req.query._since && isString(req.query._since) && !dateTimeWithTimeZoneRegExp.test(req.query._since))
@@ -33,5 +36,34 @@ export default class ExportRouteHelper {
             groupId: isString(req.params.id) ? req.params.id : undefined,
         };
         return initiateExportRequest;
+    }
+
+    static getExportUrl(
+        baseUrl: string,
+        exportType: ExportType,
+        queryParams: { outputFormat?: string; since?: string; type?: string },
+        groupId?: string,
+    ) {
+        const { outputFormat, since, type } = queryParams;
+        const url = new URL(baseUrl);
+        if (exportType === 'system') {
+            url.pathname = '/$export';
+        }
+        if (exportType === 'patient') {
+            url.pathname = '/Patient/$export';
+        }
+        if (exportType === 'group') {
+            url.pathname = `/Group/${groupId}/$export`;
+        }
+        if (outputFormat) {
+            url.searchParams.append('_outputFormat', outputFormat);
+        }
+        if (since) {
+            url.searchParams.append('_since', since);
+        }
+        if (type) {
+            url.searchParams.append('_type', type);
+        }
+        return url.toString();
     }
 }

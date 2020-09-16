@@ -64,7 +64,11 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
 
     // Export
     if (fhirConfig.profile.bulkDataAccess) {
-        const exportRoute = new ExportRoute(serverUrl, fhirConfig.profile.bulkDataAccess);
+        const exportRoute = new ExportRoute(
+            serverUrl,
+            fhirConfig.profile.bulkDataAccess,
+            fhirConfig.auth.authorization,
+        );
         app.use('/', exportRoute.router);
     }
 
