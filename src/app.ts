@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import express from 'express';
+import express, { Express } from 'express';
 import {
     cleanAuthHeader,
     getRequestInformation,
@@ -20,7 +20,7 @@ import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from '.
 
 const configVersionSupported: ConfigVersion = 1;
 
-export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]): any {
+export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]): Express {
     if (configVersionSupported !== fhirConfig.configVersion) {
         throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
     }
