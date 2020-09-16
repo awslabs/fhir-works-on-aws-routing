@@ -1,7 +1,11 @@
 import express from 'express';
 import createError from 'http-errors';
-import { InvalidResourceError, ResourceNotFoundError, ResourceVersionNotFoundError } from 'fhir-works-on-aws-interface';
-import { TooManyConcurrentExportRequestsError } from 'fhir-works-on-aws-interface/lib/errors/TooManyConcurrentExportRequestsError';
+import {
+    InvalidResourceError,
+    ResourceNotFoundError,
+    ResourceVersionNotFoundError,
+    TooManyConcurrentExportRequestsError,
+} from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
 export const applicationErrorMapper = (
