@@ -47,6 +47,10 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
                 accessToken,
             });
             if (isAllowed) {
+                res.locals.allowedResourceTypes = fhirConfig.auth.authorization.getAllowedResourceTypesForOperation({
+                    operation: requestInformation.operation,
+                    accessToken,
+                });
                 next();
             } else {
                 res.status(403).json({ message: 'Forbidden' });

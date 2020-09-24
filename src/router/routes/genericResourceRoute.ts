@@ -96,7 +96,11 @@ export default class GenericResourceRoute {
                     // Get the ResourceType looks like '/Patient'
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
-                    const response = await this.handler.typeSearch(resourceType, searchParamQuery);
+                    const response = await this.handler.typeSearch(
+                        resourceType,
+                        searchParamQuery,
+                        res.locals.allowedResourceTypes,
+                    );
                     res.send(response);
                 }),
             );
