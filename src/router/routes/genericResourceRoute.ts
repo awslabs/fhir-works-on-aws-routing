@@ -4,7 +4,7 @@
  */
 
 import express, { Router } from 'express';
-import { TypeOperation } from 'fhir-works-on-aws-interface';
+import { Authorization, cleanAuthHeader, TypeOperation } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import CrudHandlerInterface from '../handlers/CrudHandlerInterface';
 import RouteHelper from './routeHelper';
@@ -16,10 +16,13 @@ export default class GenericResourceRoute {
 
     private handler: CrudHandlerInterface;
 
-    constructor(operations: TypeOperation[], handler: CrudHandlerInterface) {
+    private readonly authService: Authorization;
+
+    constructor(operations: TypeOperation[], handler: CrudHandlerInterface, authService: Authorization) {
         this.operations = operations;
         this.handler = handler;
         this.router = express.Router();
+        this.authService = authService;
         this.init();
     }
 
@@ -96,10 +99,16 @@ export default class GenericResourceRoute {
                     // Get the ResourceType looks like '/Patient'
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
+
+                    const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
+                        operation: 'search-type',
+                        accessToken: cleanAuthHeader(req.headers.authorization),
+                    });
+
                     const response = await this.handler.typeSearch(
                         resourceType,
                         searchParamQuery,
-                        res.locals.allowedResourceTypes,
+                        allowedResourceTypes,
                     );
                     res.send(response);
                 }),

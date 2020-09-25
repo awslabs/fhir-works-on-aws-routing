@@ -365,9 +365,20 @@ describe('Testing search', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, []);
+        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [
+            'Patient',
+            'Practitioner',
+        ]);
 
         // CHECK
+        expect(ElasticSearchService.typeSearch).toHaveBeenCalledWith({
+            allowedResourceTypes: ['Patient', 'Practitioner'],
+            baseUrl: 'https://API_URL.com',
+            queryParams: {
+                name: 'Henry',
+            },
+            resourceType: 'Patient',
+        });
         expect(searchResponse.resourceType).toEqual('Bundle');
         expect(searchResponse.meta).toBeDefined();
         expect(searchResponse.type).toEqual('searchset');

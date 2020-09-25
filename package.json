@@ -31,7 +31,7 @@
     "ajv": "^6.11.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
-    "fhir-works-on-aws-interface": "^1.0.0",
+    "fhir-works-on-aws-interface": "^2.0.0",
     "flat": "^5.0.0",
     "http-errors": "^1.8.0",
     "lodash": "^4.17.15",
