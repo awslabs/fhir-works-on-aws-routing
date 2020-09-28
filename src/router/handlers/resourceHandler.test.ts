@@ -365,9 +365,20 @@ describe('Testing search', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' });
+        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [
+            'Patient',
+            'Practitioner',
+        ]);
 
         // CHECK
+        expect(ElasticSearchService.typeSearch).toHaveBeenCalledWith({
+            allowedResourceTypes: ['Patient', 'Practitioner'],
+            baseUrl: 'https://API_URL.com',
+            queryParams: {
+                name: 'Henry',
+            },
+            resourceType: 'Patient',
+        });
         expect(searchResponse.resourceType).toEqual('Bundle');
         expect(searchResponse.meta).toBeDefined();
         expect(searchResponse.type).toEqual('searchset');
@@ -401,7 +412,7 @@ describe('Testing search', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' });
+        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, []);
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -425,7 +436,7 @@ describe('Testing search', () => {
         ElasticSearchService.typeSearch = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeSearch('Patient', { name: 'Henry' });
+            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, []);
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -453,11 +464,15 @@ describe('Testing search', () => {
             });
 
             // OPERATE
-            const searchResponse: any = await resourceHandler.typeSearch('Patient', {
-                name: 'Henry',
-                [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 0,
-                [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
-            });
+            const searchResponse: any = await resourceHandler.typeSearch(
+                'Patient',
+                {
+                    name: 'Henry',
+                    [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 0,
+                    [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
+                },
+                [],
+            );
 
             // CHECK
             expect(searchResponse.resourceType).toEqual('Bundle');
@@ -505,11 +520,15 @@ describe('Testing search', () => {
             });
 
             // OPERATE
-            const searchResponse: any = await resourceHandler.typeSearch('Patient', {
-                name: 'Henry',
-                [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
-                [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
-            });
+            const searchResponse: any = await resourceHandler.typeSearch(
+                'Patient',
+                {
+                    name: 'Henry',
+                    [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
+                    [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
+                },
+                [],
+            );
 
             // CHECK
             expect(searchResponse.resourceType).toEqual('Bundle');
@@ -557,11 +576,15 @@ describe('Testing search', () => {
                 },
             });
             // OPERATE
-            const searchResponse: any = await resourceHandler.typeSearch('Patient', {
-                name: 'Henry',
-                [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
-                [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
-            });
+            const searchResponse: any = await resourceHandler.typeSearch(
+                'Patient',
+                {
+                    name: 'Henry',
+                    [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
+                    [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
+                },
+                [],
+            );
 
             // CHECK
             expect(searchResponse.resourceType).toEqual('Bundle');

@@ -42,7 +42,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         try {
             const requestInformation = getRequestInformation(req.method, req.path);
             const accessToken: string = cleanAuthHeader(req.headers.authorization);
-            const isAllowed: boolean = fhirConfig.auth.authorization.isAuthorized({
+            const isAllowed: boolean = await fhirConfig.auth.authorization.isAuthorized({
                 ...requestInformation,
                 accessToken,
             });
@@ -73,7 +73,11 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
                     serverUrl,
                 );
 
-                const route: GenericResourceRoute = new GenericResourceRoute(operations, resourceHandler);
+                const route: GenericResourceRoute = new GenericResourceRoute(
+                    operations,
+                    resourceHandler,
+                    fhirConfig.auth.authorization,
+                );
                 app.use(`/${resourceEntry[0]}`, route.router);
             }
         });
@@ -93,7 +97,11 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
             serverUrl,
         );
 
-        const genericRoute: GenericResourceRoute = new GenericResourceRoute(genericOperations, genericResourceHandler);
+        const genericRoute: GenericResourceRoute = new GenericResourceRoute(
+            genericOperations,
+            genericResourceHandler,
+            fhirConfig.auth.authorization,
+        );
 
         // Set up Resource for each generic resource
         genericFhirResources.forEach(async (resourceType: string) => {
