@@ -8,7 +8,7 @@ import { Auth } from 'fhir-works-on-aws-interface';
 export default function makeSecurity(authConfig: Auth) {
     if (authConfig.strategy.service) {
         let security = {
-            cors: false,
+            cors: true,
             service: [
                 {
                     coding: [
