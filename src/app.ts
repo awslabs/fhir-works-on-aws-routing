@@ -4,6 +4,7 @@
  */
 
 import express, { Express } from 'express';
+import cors, { CorsOptions } from 'cors';
 import {
     cleanAuthHeader,
     getRequestInformation,
@@ -36,7 +37,9 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
             limit: '6mb',
         }),
     );
-
+    // Add cors handler before auth to allow pre-flight requests without auth.
+    const corsOptions: CorsOptions = {}; // TODO update fhirConfig.server to supply cors options
+    app.use(cors(corsOptions));
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
