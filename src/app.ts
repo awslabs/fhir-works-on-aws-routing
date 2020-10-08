@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import express from 'express';
+import express, { Express } from 'express';
 import {
     cleanAuthHeader,
     getRequestInformation,
@@ -21,7 +21,7 @@ import ExportRoute from './router/routes/exportRoute';
 
 const configVersionSupported: ConfigVersion = 1;
 
-export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]) {
+export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]): Express {
     if (configVersionSupported !== fhirConfig.configVersion) {
         throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
     }
@@ -43,7 +43,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         try {
             const requestInformation = getRequestInformation(req.method, req.path);
             const accessToken: string = cleanAuthHeader(req.headers.authorization);
-            const isAllowed: boolean = fhirConfig.auth.authorization.isAuthorized({
+            const isAllowed: boolean = await fhirConfig.auth.authorization.isAuthorized({
                 ...requestInformation,
                 accessToken,
             });
@@ -85,7 +85,11 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
                     serverUrl,
                 );
 
-                const route: GenericResourceRoute = new GenericResourceRoute(operations, resourceHandler);
+                const route: GenericResourceRoute = new GenericResourceRoute(
+                    operations,
+                    resourceHandler,
+                    fhirConfig.auth.authorization,
+                );
                 app.use(`/${resourceEntry[0]}`, route.router);
             }
         });
@@ -105,7 +109,11 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
             serverUrl,
         );
 
-        const genericRoute: GenericResourceRoute = new GenericResourceRoute(genericOperations, genericResourceHandler);
+        const genericRoute: GenericResourceRoute = new GenericResourceRoute(
+            genericOperations,
+            genericResourceHandler,
+            fhirConfig.auth.authorization,
+        );
 
         // Set up Resource for each generic resource
         genericFhirResources.forEach(async (resourceType: string) => {
