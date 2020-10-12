@@ -5,7 +5,8 @@ const config: FhirConfig = {
     orgName: 'Organization Name',
     auth: {
         strategy: {
-            oauthUrl: 'http://example.com',
+            oauthAuthorizationUrl: 'http://example.com/authorization',
+            oauthTokenUrl: 'http://example.com/oauth2/token',
             service: 'SMART-on-FHIR',
         },
         authorization: stubs.passThroughAuthz,
