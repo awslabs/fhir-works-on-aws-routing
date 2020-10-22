@@ -47,7 +47,7 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
     }
 
     return {
-        cors: false,
+        cors: hasCORSEnabled,
         description: 'No authentication has been set up',
     };
 }
