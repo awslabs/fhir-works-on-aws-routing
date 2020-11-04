@@ -47,7 +47,9 @@ export const httpErrorHandler = (err: any, req: express.Request, res: express.Re
     if (createError.isHttpError(err)) {
         console.error('HttpError', err);
         const { severity, code } = statusToOutcome[err.statusCode];
-        res.status(err.statusCode).send(OperationsGenerator.generateOperationOutcomeIssue(severity, code, err.message));
+        res.status(err.statusCode).send(
+            OperationsGenerator.generateOperationOutcomeIssue(severity ?? 'error', code ?? 'processing', err.message),
+        );
         return;
     }
     next(err);
