@@ -46,10 +46,8 @@ const statusToOutcome: Record<number, { severity: IssueSeverity; code: IssueCode
 export const httpErrorHandler = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (createError.isHttpError(err)) {
         console.error('HttpError', err);
-        const { severity, code } = statusToOutcome[err.statusCode];
-        res.status(err.statusCode).send(
-            OperationsGenerator.generateOperationOutcomeIssue(severity ?? 'error', code ?? 'processing', err.message),
-        );
+        const { severity, code } = statusToOutcome[err.statusCode] ?? { severity: 'error', code: 'processing' };
+        res.status(err.statusCode).send(OperationsGenerator.generateOperationOutcomeIssue(severity, code, err.message));
         return;
     }
     next(err);
