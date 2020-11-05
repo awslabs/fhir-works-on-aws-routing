@@ -39,21 +39,13 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
 
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        try {
-            const requestInformation = getRequestInformation(req.method, req.path);
-            const accessToken: string = cleanAuthHeader(req.headers.authorization);
-            const isAllowed: boolean = await fhirConfig.auth.authorization.isAuthorized({
-                ...requestInformation,
-                accessToken,
-            });
-            if (isAllowed) {
-                next();
-            } else {
-                res.status(403).json({ message: 'Forbidden' });
-            }
-        } catch (e) {
-            res.status(403).json({ message: `Forbidden. ${e.message}` });
-        }
+        const requestInformation = getRequestInformation(req.method, req.path);
+        const accessToken: string = cleanAuthHeader(req.headers.authorization);
+        await fhirConfig.auth.authorization.isAuthorized({
+            ...requestInformation,
+            accessToken,
+        });
+        next();
     });
 
     // Metadata
