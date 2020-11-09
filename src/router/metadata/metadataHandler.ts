@@ -14,8 +14,11 @@ import ConfigHandler from '../../configHandler';
 export default class MetadataHandler implements Capabilities {
     configHandler: ConfigHandler;
 
-    constructor(handler: ConfigHandler) {
+    readonly hasCORSEnabled: boolean;
+
+    constructor(handler: ConfigHandler, hasCORSEnabled: boolean = false) {
         this.configHandler = handler;
+        this.hasCORSEnabled = hasCORSEnabled;
     }
 
     private generateResources(fhirVersion: FhirVersion) {
@@ -47,7 +50,7 @@ export default class MetadataHandler implements Capabilities {
         }
 
         const generatedResources = this.generateResources(request.fhirVersion);
-        const security = makeSecurity(auth);
+        const security = makeSecurity(auth, this.hasCORSEnabled);
         const rest = makeRest(generatedResources, security, profile.systemOperations);
         const capStatement = makeStatement(rest, orgName, server.url, request.fhirVersion);
 
