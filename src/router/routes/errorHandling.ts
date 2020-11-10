@@ -5,12 +5,8 @@ import {
     isResourceNotFoundError,
     isResourceVersionNotFoundError,
     isUnauthorizedError,
+    isTooManyConcurrentExportRequestsError,
     IssueSeverity,
-    InvalidResourceError,
-    ResourceNotFoundError,
-    ResourceVersionNotFoundError,
-    TooManyConcurrentExportRequestsError,
-} from 'fhir-works-on-aws-interface';
     IssueCode,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
@@ -36,6 +32,10 @@ export const applicationErrorMapper = (
     }
     if (isUnauthorizedError(err)) {
         next(new createError.Forbidden(err.message));
+        return;
+    }
+    if (isTooManyConcurrentExportRequestsError(err)) {
+        next(new createError.TooManyRequests('There is currently too many requests. Please try again later'));
         return;
     }
     next(err);
