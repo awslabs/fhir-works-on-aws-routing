@@ -1,6 +1,6 @@
 {
   "name": "fhir-works-on-aws-routing",
-  "version": "1.1.0",
+  "version": "2.0.0-beta.0",
   "description": "FHIR Works on AWS routing implementation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -32,7 +32,7 @@
     "ajv": "^6.11.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
-    "fhir-works-on-aws-interface": "^2.0.0",
+    "fhir-works-on-aws-interface": "^3.0.0-beta.1",
     "flat": "^5.0.0",
     "http-errors": "^1.8.0",
     "lodash": "^4.17.15",
