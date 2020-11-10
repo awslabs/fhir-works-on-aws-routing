@@ -321,7 +321,7 @@ describe('ERROR: test cases', () => {
 
 test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
     const configHandler: ConfigHandler = new ConfigHandler(stu3FhirConfigWithExclusions, SUPPORTED_STU3_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, true);
     const response = await metadataHandler.capabilities({ fhirVersion: '3.0.1', mode: 'full' });
     const { genericResource } = stu3FhirConfigWithExclusions.profile;
     const excludedResources = genericResource ? genericResource.excludedSTU3Resources || [] : [];
@@ -335,6 +335,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
     expect(response.resource.rest[0].resource.length).toEqual(
         SUPPORTED_STU3_RESOURCES.length - excludedResources.length,
     );
+    expect(response.resource.rest[0].security.cors).toBeTruthy();
     // see if just READ is chosen for generic
     let isExcludedResourceFound = false;
     response.resource.rest[0].resource.forEach((resource: any) => {
@@ -373,6 +374,7 @@ test('R4: FHIR Config V4 without search', async () => {
     expect(response.resource.fhirVersion).toEqual('4.0.1');
     expect(response.resource.rest.length).toEqual(1);
     expect(response.resource.rest[0].resource.length).toEqual(SUPPORTED_R4_RESOURCES.length);
+    expect(response.resource.rest[0].security.cors).toBeFalsy();
     // see if the four CRUD + vRead operations are chosen
     const expectedResourceSubset = {
         interaction: makeOperation(['create', 'read', 'update', 'delete', 'vread', 'history-instance']),
@@ -397,6 +399,7 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
     expect(response.resource.fhirVersion).toEqual('4.0.1');
     expect(response.resource.rest.length).toEqual(1);
     expect(response.resource.rest[0].resource.length).toEqual(SUPPORTED_R4_RESOURCES.length - excludedResources.length);
+    expect(response.resource.rest[0].security.cors).toBeFalsy();
     // see if just READ is chosen for generic
     let isExclusionFound = false;
     response.resource.rest[0].resource.forEach((resource: any) => {
@@ -440,6 +443,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     expect(response.resource.fhirVersion).toEqual('4.0.1');
     expect(response.resource.rest.length).toEqual(1);
     expect(response.resource.rest[0].resource.length).toEqual(3);
+    expect(response.resource.rest[0].security.cors).toBeFalsy();
     // see if just READ is chosen for generic
     let isSTU3ResourceFound = false;
     response.resource.rest[0].resource.forEach((resource: any) => {
