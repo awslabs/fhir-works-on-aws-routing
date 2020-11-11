@@ -40,14 +40,18 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
 
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        const requestInformation = getRequestInformation(req.method, req.path);
-        const accessToken: string = cleanAuthHeader(req.headers.authorization);
-        await fhirConfig.auth.authorization.isAuthorized({
-            ...requestInformation,
-            accessToken,
-        });
-                res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(accessToken);
-        next();
+        try {
+            const requestInformation = getRequestInformation(req.method, req.path);
+            const accessToken: string = cleanAuthHeader(req.headers.authorization);
+            await fhirConfig.auth.authorization.isAuthorized({
+                ...requestInformation,
+                accessToken,
+            });
+            res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(accessToken);
+            next();
+        } catch (e) {
+            next(e);
+        }
     });
 
     // Metadata
