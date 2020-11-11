@@ -37,20 +37,21 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
         }),
     );
 
+    // Metadata; no required AuthZ
+    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler);
+    app.use('/metadata', metadataRoute.router);
+
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const requestInformation = getRequestInformation(req.method, req.path);
-        const accessToken: string = cleanAuthHeader(req.headers.authorization);
+        // Clean auth header (remove 'Bearer ')
+        req.headers.authorization = cleanAuthHeader(req.headers.authorization);
         await fhirConfig.auth.authorization.isAuthorized({
             ...requestInformation,
-            accessToken,
+            accessToken: req.headers.authorization,
         });
         next();
     });
-
-    // Metadata
-    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler);
-    app.use('/metadata', metadataRoute.router);
 
     // Special Resources
     if (fhirConfig.profile.resources) {
