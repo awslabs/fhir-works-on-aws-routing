@@ -56,7 +56,7 @@ export default class BundleHandler implements BundleHandlerInterface {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async processBatch(bundleRequestJson: any, accessToken: string = '') {
+    async processBatch(bundleRequestJson: any, accessToken: string) {
         throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
 
@@ -95,7 +95,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         return bundleEntriesNotSupported;
     }
 
-    async processTransaction(bundleRequestJson: any, accessToken: string = '') {
+    async processTransaction(bundleRequestJson: any, accessToken: string) {
         const startTime = new Date();
 
         this.validator.validate('Bundle', bundleRequestJson);

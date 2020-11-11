@@ -64,11 +64,14 @@ export default class RootRoute {
                         if (req.body.type.toLowerCase() === 'transaction') {
                             const response = await this.bundleHandler.processTransaction(
                                 req.body,
-                                req.headers.authorization,
+                                req.headers.authorization ?? '',
                             );
                             res.send(response);
                         } else if (req.body.type.toLowerCase() === 'batch') {
-                            const response = await this.bundleHandler.processBatch(req.body, req.headers.authorization);
+                            const response = await this.bundleHandler.processBatch(
+                                req.body,
+                                req.headers.authorization ?? '',
+                            );
                             res.send(response);
                         } else {
                             throw new createError.BadRequest('This root path can only process a Bundle');
