@@ -4,6 +4,7 @@
  */
 
 import express, { Express } from 'express';
+import cors, { CorsOptions } from 'cors';
 import {
     cleanAuthHeader,
     getRequestInformation,
@@ -21,13 +22,18 @@ import ExportRoute from './router/routes/exportRoute';
 
 const configVersionSupported: ConfigVersion = 1;
 
-export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGenericResources: string[]): Express {
+export function generateServerlessRouter(
+    fhirConfig: FhirConfig,
+    supportedGenericResources: string[],
+    corsOptions?: CorsOptions,
+): Express {
     if (configVersionSupported !== fhirConfig.configVersion) {
         throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
     }
     const configHandler: ConfigHandler = new ConfigHandler(fhirConfig, supportedGenericResources);
     const { fhirVersion, genericResource } = fhirConfig.profile;
     const serverUrl: string = fhirConfig.server.url;
+    let hasCORSEnabled: boolean = false;
     const app = express();
     app.use(express.urlencoded({ extended: true }));
     app.use(
@@ -37,6 +43,11 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
             limit: '6mb',
         }),
     );
+    // Add cors handler before auth to allow pre-flight requests without auth.
+    if (corsOptions) {
+        app.use(cors(corsOptions));
+        hasCORSEnabled = true;
+    }
 
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -55,7 +66,7 @@ export function generateServerlessRouter(fhirConfig: FhirConfig, supportedGeneri
     });
 
     // Metadata
-    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler);
+    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, hasCORSEnabled);
     app.use('/metadata', metadataRoute.router);
 
     // Export
