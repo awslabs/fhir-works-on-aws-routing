@@ -22,6 +22,8 @@ import {
     ResourceNotFoundError,
     ResourceVersionNotFoundError,
     InvalidResourceError,
+    InitiateExportRequest,
+    GetExportStatusResponse,
 } from 'fhir-works-on-aws-interface';
 import ResourceHandler from './resourceHandler';
 import invalidPatient from '../../../sampleData/invalidV4Patient.json';
@@ -198,6 +200,18 @@ describe('ERROR CASES: Testing create, read, update, delete of resources', () =>
 
         static conditionalPatchResource(request: PatchResourceRequest, queryParams: any): Promise<GenericResponse> {
             throw new Error('Method not implemented.');
+        }
+
+        static initiateExport(request: InitiateExportRequest): Promise<string> {
+            throw new Error('Method not implemented.');
+        }
+
+        static cancelExport(jobId: string): Promise<void> {
+            throw new Error('Method not implemented');
+        }
+
+        static getExportStatus(jobId: string): Promise<GetExportStatusResponse> {
+            throw new Error('Method not implemented');
         }
 
         static conditionalDeleteResource(

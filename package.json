@@ -28,17 +28,17 @@
     "prepublish": "tsc"
   },
   "dependencies": {
+    "@types/express-serve-static-core": "^4.17.2",
     "ajv": "^6.11.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
-    "fhir-works-on-aws-interface": "^3.0.0-beta.1",
+    "fhir-works-on-aws-interface": "^3.0.0",
     "flat": "^5.0.0",
     "http-errors": "^1.8.0",
     "lodash": "^4.17.15",
     "mime-types": "^2.1.26",
     "serverless-http": "^2.3.1",
-    "uuid": "^3.4.0",
-    "@types/express-serve-static-core": "^4.17.2"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@types/errorhandler": "^0.0.32",
@@ -48,6 +48,7 @@
     "@types/jest": "^25.1.1",
     "@types/lodash": "^4.14.157",
     "@types/mime-types": "^2.1.0",
+    "@types/mock-req-res": "^1.1.2",
     "@types/node": "^12",
     "@types/uuid": "^3.4.7",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
@@ -59,7 +60,9 @@
     "eslint-plugin-prettier": "^3.1.2",
     "jest": "^25.1.0",
     "jest-mock-extended": "^1.0.8",
+    "mock-req-res": "^1.2.0",
     "prettier": "^1.19.1",
+    "sinon": "^9.0.3",
     "ts-jest": "^25.1.0",
     "typescript": "^3.7.5"
   },
