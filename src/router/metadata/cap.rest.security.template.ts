@@ -30,11 +30,11 @@ export default function makeSecurity(authConfig: Auth) {
                             extension: [
                                 {
                                     url: 'token',
-                                    valueUri: authConfig.strategy.oauth.oauthTokenUrl,
+                                    valueUri: authConfig.strategy.oauth.tokenUrl,
                                 },
                                 {
                                     url: 'authorize',
-                                    valueUri: authConfig.strategy.oauth.oauthAuthorizationUrl,
+                                    valueUri: authConfig.strategy.oauth.authorizationUrl,
                                 },
                             ],
                         },

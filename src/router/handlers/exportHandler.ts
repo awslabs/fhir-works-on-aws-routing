@@ -47,9 +47,6 @@ export default class ExportHandler {
     private async checkIfRequesterHasAccessToJob(jobDetails: GetExportStatusResponse, requesterUserId: string) {
         const { jobOwnerId } = jobDetails;
         const accessBulkDataJobRequest: AccessBulkDataJobRequest = { requesterUserId, jobOwnerId };
-        const isAllowed: boolean = await this.authService.isAccessBulkDataJobAllowed(accessBulkDataJobRequest);
-        if (!isAllowed) {
-            throw new createError.Forbidden('Forbidden');
-        }
+        await this.authService.isAccessBulkDataJobAllowed(accessBulkDataJobRequest);
     }
 }

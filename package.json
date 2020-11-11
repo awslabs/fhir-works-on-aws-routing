@@ -28,6 +28,7 @@
     "prepublish": "tsc"
   },
   "dependencies": {
+    "@types/express-serve-static-core": "^4.17.2",
     "ajv": "^6.11.0",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
@@ -37,8 +38,7 @@
     "lodash": "^4.17.15",
     "mime-types": "^2.1.26",
     "serverless-http": "^2.3.1",
-    "uuid": "^3.4.0",
-    "@types/express-serve-static-core": "^4.17.2"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@types/errorhandler": "^0.0.32",
