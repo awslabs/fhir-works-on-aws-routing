@@ -36,16 +36,19 @@ export default class GenericResourceRoute {
                     // Get the ResourceType looks like '/Patient'
                     const resourceType = req.baseUrl.substr(1);
                     const { id } = req.params;
-                    let response = await this.handler.read(resourceType, id);
-                    response = this.authService.authorizeAndFilterReadResponse({
+                    const response = await this.handler.read(resourceType, id);
+                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'read',
                         accessToken: req.headers.authorization ?? '',
                         readResponse: response,
                     });
-                    if (response.meta) {
-                        res.set({ ETag: `W/"${response.meta.versionId}"`, 'Last-Modified': response.meta.lastUpdated });
+                    if (updatedReadResponse.meta) {
+                        res.set({
+                            ETag: `W/"${updatedReadResponse.meta.versionId}"`,
+                            'Last-Modified': updatedReadResponse.meta.lastUpdated,
+                        });
                     }
-                    res.send(response);
+                    res.send(updatedReadResponse);
                 }),
             );
         }
@@ -58,16 +61,19 @@ export default class GenericResourceRoute {
                     // Get the ResourceType looks like '/Patient'
                     const resourceType = req.baseUrl.substr(1);
                     const { id, vid } = req.params;
-                    let response = await this.handler.vRead(resourceType, id, vid);
-                    response = this.authService.authorizeAndFilterReadResponse({
+                    const response = await this.handler.vRead(resourceType, id, vid);
+                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'vread',
                         accessToken: req.headers.authorization ?? '',
                         readResponse: response,
                     });
-                    if (response.meta) {
-                        res.set({ ETag: `W/"${response.meta.versionId}"`, 'Last-Modified': response.meta.lastUpdated });
+                    if (updatedReadResponse.meta) {
+                        res.set({
+                            ETag: `W/"${updatedReadResponse.meta.versionId}"`,
+                            'Last-Modified': updatedReadResponse.meta.lastUpdated,
+                        });
                     }
-                    res.send(response);
+                    res.send(updatedReadResponse);
                 }),
             );
         }
@@ -80,13 +86,13 @@ export default class GenericResourceRoute {
                     // Get the ResourceType looks like '/Patient'
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
-                    let response = await this.handler.typeHistory(resourceType, searchParamQuery);
-                    response = this.authService.authorizeAndFilterReadResponse({
+                    const response = await this.handler.typeHistory(resourceType, searchParamQuery);
+                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-type',
                         accessToken: req.headers.authorization ?? '',
                         readResponse: response,
                     });
-                    res.send(response);
+                    res.send(updatedReadResponse);
                 }),
             );
         }
@@ -100,13 +106,13 @@ export default class GenericResourceRoute {
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
                     const { id } = req.params;
-                    let response = await this.handler.instanceHistory(resourceType, id, searchParamQuery);
-                    response = this.authService.authorizeAndFilterReadResponse({
+                    const response = await this.handler.instanceHistory(resourceType, id, searchParamQuery);
+                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-instance',
                         accessToken: req.headers.authorization ?? '',
                         readResponse: response,
                     });
-                    res.send(response);
+                    res.send(updatedReadResponse);
                 }),
             );
         }
@@ -125,13 +131,17 @@ export default class GenericResourceRoute {
                         accessToken: req.headers.authorization ?? '',
                     });
 
-                    let response = await this.handler.typeSearch(resourceType, searchParamQuery, allowedResourceTypes);
-                    response = this.authService.authorizeAndFilterReadResponse({
+                    const response = await this.handler.typeSearch(
+                        resourceType,
+                        searchParamQuery,
+                        allowedResourceTypes,
+                    );
+                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'search-type',
                         accessToken: req.headers.authorization ?? '',
                         readResponse: response,
                     });
-                    res.send(response);
+                    res.send(updatedReadResponse);
                 }),
             );
         }
@@ -145,7 +155,7 @@ export default class GenericResourceRoute {
                     const resourceType = req.baseUrl.substr(1);
                     const { body } = req;
 
-                    this.authService.isWriteRequestAuthorized({
+                    await this.authService.isWriteRequestAuthorized({
                         resourceBody: body,
                         operation: 'create',
                         accessToken: req.headers.authorization ?? '',
@@ -174,7 +184,7 @@ export default class GenericResourceRoute {
                             `Can not update resource with ID[${id}], while the given request payload has an ID[${body.id}]`,
                         );
                     }
-                    this.authService.isWriteRequestAuthorized({
+                    await this.authService.isWriteRequestAuthorized({
                         resourceBody: body,
                         operation: 'update',
                         accessToken: req.headers.authorization ?? '',
@@ -203,7 +213,7 @@ export default class GenericResourceRoute {
                             `Can not update resource with ID[${id}], while the given request payload has an ID[${body.id}]`,
                         );
                     }
-                    this.authService.isWriteRequestAuthorized({
+                    await this.authService.isWriteRequestAuthorized({
                         resourceBody: body,
                         operation: 'patch',
                         accessToken: req.headers.authorization ?? '',
@@ -228,11 +238,12 @@ export default class GenericResourceRoute {
                     const { id } = req.params;
                     const readResponse = await this.handler.read(resourceType, id);
 
-                    this.authService.isWriteRequestAuthorized({
+                    await this.authService.isWriteRequestAuthorized({
                         resourceBody: readResponse,
                         operation: 'delete',
                         accessToken: req.headers.authorization ?? '',
                     });
+
                     const response = await this.handler.delete(resourceType, id);
                     res.send(response);
                 }),
