@@ -53,12 +53,13 @@ export function generateServerlessRouter(
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
             const requestInformation = getRequestInformation(req.method, req.path);
-            const accessToken: string = cleanAuthHeader(req.headers.authorization);
+            // Clean auth header (remove 'Bearer ')
+            req.headers.authorization = cleanAuthHeader(req.headers.authorization);
             await fhirConfig.auth.authorization.isAuthorized({
                 ...requestInformation,
-                accessToken,
+                accessToken: req.headers.authorization,
             });
-            res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(accessToken);
+            res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(req.headers.authorization);
             next();
         } catch (e) {
             next(e);
