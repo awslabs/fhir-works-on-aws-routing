@@ -15,9 +15,9 @@ export default class MetadataRoute {
 
     private metadataHandler: MetadataHandler;
 
-    constructor(fhirVersion: FhirVersion, fhirConfigHandler: ConfigHandler) {
+    constructor(fhirVersion: FhirVersion, fhirConfigHandler: ConfigHandler, hasCORSEnabled: boolean) {
         this.fhirVersion = fhirVersion;
-        this.metadataHandler = new MetadataHandler(fhirConfigHandler);
+        this.metadataHandler = new MetadataHandler(fhirConfigHandler, hasCORSEnabled);
         this.router = express.Router();
         this.init();
     }

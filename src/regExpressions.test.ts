@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { captureFullUrlParts } from './regExpressions';
+import { captureFullUrlParts, dateTimeWithTimeZoneRegExp } from './regExpressions';
 
 describe('captureFullUrlParts', () => {
     test('Capture rootUrl, resourceType, id, versionId', () => {
@@ -51,5 +51,16 @@ describe('captureFullUrlParts', () => {
 
         // @ts-ignore
         expect([...actualMatch]).toEqual([...expectedMatch]);
+    });
+    test('dateTimeWithTimeZoneRegExp', () => {
+        const utcTimeZone = '2020-09-02T00:00:00Z';
+        const estTimeZone = '2020-09-02T00:00:00-05:00';
+        const invalidUtcTimeZone = '2020-09-02T00:00:00R';
+        const timeWithoutTimeZone = '2020-09-02T00:00:00';
+
+        expect(dateTimeWithTimeZoneRegExp.test(utcTimeZone)).toBeTruthy();
+        expect(dateTimeWithTimeZoneRegExp.test(estTimeZone)).toBeTruthy();
+        expect(dateTimeWithTimeZoneRegExp.test(invalidUtcTimeZone)).toBeFalsy();
+        expect(dateTimeWithTimeZoneRegExp.test(timeWithoutTimeZone)).toBeFalsy();
     });
 });

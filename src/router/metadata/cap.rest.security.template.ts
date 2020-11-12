@@ -5,10 +5,10 @@
 
 import { Auth } from 'fhir-works-on-aws-interface';
 
-export default function makeSecurity(authConfig: Auth) {
+export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean = false) {
     if (authConfig.strategy.service) {
         let security = {
-            cors: false,
+            cors: hasCORSEnabled,
             service: [
                 {
                     coding: [
@@ -30,11 +30,11 @@ export default function makeSecurity(authConfig: Auth) {
                             extension: [
                                 {
                                     url: 'token',
-                                    valueUri: authConfig.strategy.oauth.oauthTokenUrl,
+                                    valueUri: authConfig.strategy.oauth.tokenUrl,
                                 },
                                 {
                                     url: 'authorize',
-                                    valueUri: authConfig.strategy.oauth.oauthAuthorizationUrl,
+                                    valueUri: authConfig.strategy.oauth.authorizationUrl,
                                 },
                             ],
                         },
@@ -47,7 +47,7 @@ export default function makeSecurity(authConfig: Auth) {
     }
 
     return {
-        cors: false,
+        cors: hasCORSEnabled,
         description: 'No authentication has been set up',
     };
 }

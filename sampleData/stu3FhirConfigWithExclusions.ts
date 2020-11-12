@@ -6,8 +6,8 @@ const config: FhirConfig = {
     auth: {
         strategy: {
             oauth: {
-                oauthAuthorizationUrl: 'http://example.com/authorization',
-                oauthTokenUrl: 'http://example.com/oauth2/token',
+                authorizationUrl: 'http://example.com/authorization',
+                tokenUrl: 'http://example.com/oauth2/token',
             },
             service: 'OAuth',
         },

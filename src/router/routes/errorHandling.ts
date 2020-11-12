@@ -5,6 +5,7 @@ import {
     isResourceNotFoundError,
     isResourceVersionNotFoundError,
     isUnauthorizedError,
+    isTooManyConcurrentExportRequestsError,
     IssueSeverity,
     IssueCode,
 } from 'fhir-works-on-aws-interface';
@@ -33,6 +34,10 @@ export const applicationErrorMapper = (
         next(new createError.Forbidden(err.message));
         return;
     }
+    if (isTooManyConcurrentExportRequestsError(err)) {
+        next(new createError.TooManyRequests('There is currently too many requests. Please try again later'));
+        return;
+    }
     next(err);
 };
 
@@ -44,6 +49,10 @@ const statusToOutcome: Record<number, { severity: IssueSeverity; code: IssueCode
 };
 
 export const httpErrorHandler = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err instanceof createError.TooManyRequests) {
+        const RETRY_AGAIN_IN_SECONDS = 15 * 60; // 15 Minutes
+        res.header('Retry-After', RETRY_AGAIN_IN_SECONDS.toString(10));
+    }
     if (createError.isHttpError(err)) {
         console.error('HttpError', err);
         const { severity, code } = statusToOutcome[err.statusCode] ?? { severity: 'error', code: 'processing' };
