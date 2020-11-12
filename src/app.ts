@@ -59,7 +59,7 @@ export function generateServerlessRouter(
                 ...requestInformation,
                 accessToken: req.headers.authorization,
             });
-            res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(accessToken);
+            res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(req.headers.authorization);
             next();
         } catch (e) {
             next(e);
