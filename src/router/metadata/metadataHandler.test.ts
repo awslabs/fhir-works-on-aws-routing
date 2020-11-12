@@ -3,6 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
+import { clone, stubs } from 'fhir-works-on-aws-interface';
 import MetadataHandler from './metadataHandler';
 import { makeOperation } from './cap.rest.resource.template';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
@@ -469,4 +470,32 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
         message: 'Success',
     });
+});
+test('R4: FHIR Config V4 with bulkDataAccess', async () => {
+    const r4ConfigWithBulkDataAccess = clone(r4FhirConfigGeneric);
+    r4ConfigWithBulkDataAccess.profile.bulkDataAccess = stubs.bulkDataAccess;
+    const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithBulkDataAccess, SUPPORTED_R4_RESOURCES);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
+
+    expect(response.resource.rest[0].operation).toEqual([
+        {
+            name: 'export',
+            definition:
+                'This FHIR Operation initiates the asynchronous generation of data to which the client is authorized. Currently only system level export is supported. For more information please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-kick-off-request',
+        },
+        {
+            name: 'export-poll-status',
+            definition:
+                'After a bulk data request has been started, the client MAY poll the status URL provided in the Content-Location header. For more details please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-status-request',
+        },
+    ]);
+});
+
+test('R4: FHIR Config V4 without bulkDataAccess', async () => {
+    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric, SUPPORTED_R4_RESOURCES);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
+
+    expect(response.resource.rest[0].operation).toBeUndefined();
 });

@@ -20,7 +20,7 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                 },
             ],
         };
-        if (authConfig.strategy.oauthUrl) {
+        if (authConfig.strategy.oauth) {
             security = {
                 ...security,
                 ...{
@@ -30,11 +30,11 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                             extension: [
                                 {
                                     url: 'token',
-                                    valueUri: `${authConfig.strategy.oauthUrl}/token`,
+                                    valueUri: authConfig.strategy.oauth.tokenUrl,
                                 },
                                 {
                                     url: 'authorize',
-                                    valueUri: `${authConfig.strategy.oauthUrl}/authorize`,
+                                    valueUri: authConfig.strategy.oauth.authorizationUrl,
                                 },
                             ],
                         },

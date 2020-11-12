@@ -5,7 +5,10 @@ const config: FhirConfig = {
     orgName: 'Organization Name',
     auth: {
         strategy: {
-            oauthUrl: 'http://example.com',
+            oauth: {
+                authorizationUrl: 'http://example.com/authorization',
+                tokenUrl: 'http://example.com/oauth2/token',
+            },
             service: 'OAuth',
         },
         authorization: stubs.passThroughAuthz,

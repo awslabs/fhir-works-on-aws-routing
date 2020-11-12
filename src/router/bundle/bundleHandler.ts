@@ -48,10 +48,11 @@ export default class BundleHandler implements BundleHandlerInterface {
         this.bundleService = bundleService;
         this.serverUrl = serverUrl;
         this.authService = authService;
-        this.validator = new Validator(fhirVersion);
+        this.supportedGenericResources = supportedGenericResources;
         this.genericResource = genericResource;
         this.resources = resources;
-        this.supportedGenericResources = supportedGenericResources;
+
+        this.validator = new Validator(fhirVersion);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -124,13 +125,10 @@ export default class BundleHandler implements BundleHandlerInterface {
             throw new createError.BadRequest(e.message);
         }
 
-        const isAllowed: boolean = await this.authService.isBundleRequestAuthorized({
+        await this.authService.isBundleRequestAuthorized({
             accessToken,
             requests,
         });
-        if (!isAllowed) {
-            throw new createError.Forbidden('Forbidden');
-        }
 
         if (requests.length > MAX_BUNDLE_ENTRIES) {
             throw new createError.BadRequest(

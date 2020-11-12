@@ -51,7 +51,7 @@ export default class MetadataHandler implements Capabilities {
 
         const generatedResources = this.generateResources(request.fhirVersion);
         const security = makeSecurity(auth, this.hasCORSEnabled);
-        const rest = makeRest(generatedResources, security, profile.systemOperations);
+        const rest = makeRest(generatedResources, security, profile.systemOperations, !!profile.bulkDataAccess);
         const capStatement = makeStatement(rest, orgName, server.url, request.fhirVersion);
 
         return {
