@@ -6,7 +6,7 @@ import { utcTimeRegExp } from '../../regExpressions';
 describe('buildInitiateExportRequest', () => {
     const mockedResponse = mockResponse({
         locals: {
-            requesterUserId: 'abcd-1234',
+            userIdentity: { sub: 'abcd-1234' },
         },
     });
 

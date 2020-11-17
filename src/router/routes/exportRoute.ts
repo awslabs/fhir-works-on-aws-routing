@@ -61,9 +61,9 @@ export default class ExportRoute {
         this.router.get(
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const { requesterUserId } = res.locals;
+                const { userIdentity } = res.locals;
                 const { jobId } = req.params;
-                const response = await this.exportHandler.getExportJobStatus(jobId, requesterUserId);
+                const response = await this.exportHandler.getExportJobStatus(jobId, userIdentity);
                 if (response.jobStatus === 'in-progress') {
                     res.status(202)
                         .header('x-progress', 'in-progress')
@@ -99,8 +99,8 @@ export default class ExportRoute {
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
-                const { requesterUserId } = res.locals;
-                await this.exportHandler.cancelExport(jobId, requesterUserId);
+                const { userIdentity } = res.locals;
+                await this.exportHandler.cancelExport(jobId, userIdentity);
                 res.status(202).send();
             }),
         );

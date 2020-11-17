@@ -26,7 +26,12 @@ const sampleBundleRequestJSON = {
     entry: [],
 };
 
-const practitionerAccessToken: string = 'accesstoken';
+const practitionerDecoded = {
+    sub: 'fake',
+    'cognito:groups': ['practitioner'],
+    name: 'not real',
+    iat: 1516239022,
+};
 
 const genericResource: GenericResource = {
     operations: ['create', 'read', 'update', 'delete'],
@@ -395,7 +400,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
             // Cloning
             const bundleRequestJSON = clone(sampleBundleRequestJSON);
 
-            await bundleHandlerR4.processBatch(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerR4.processBatch(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
@@ -417,7 +422,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
             const bundleRequestJSON = clone(sampleBundleRequestJSON);
             bundleRequestJSON.entry.push(invalidReadRequest);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
             expect(e).toEqual(new InvalidResourceError('data.entry[0].request should NOT have additional properties'));
         }
@@ -440,7 +445,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
 
             delete bundleRequestJSON.resourceType;
 
-            await bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
             expect(e).toEqual(new InvalidResourceError("data should have required property 'resourceType'"));
         }
@@ -459,7 +464,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
             const bundleRequestJSON = clone(sampleBundleRequestJSON);
             bundleRequestJSON.entry.push(searchRequest);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
@@ -480,7 +485,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
             const bundleRequestJSON = clone(sampleBundleRequestJSON);
             bundleRequestJSON.entry.push(vreadRequest);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
@@ -501,7 +506,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
             bundleRequestJSON.entry.push(readRequest);
         }
         try {
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
+            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
             expect(e.name).toEqual('BadRequestError');
             expect(e.statusCode).toEqual(400);
@@ -518,7 +523,7 @@ describe('SUCCESS Cases: Testing Bundle with CRUD entries', () => {
         const bundleRequestJSON = clone(sampleBundleRequestJSON);
         bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
 
-        const actualResult = await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
+        const actualResult = await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
 
         const expectedResult = {
             resourceType: 'Bundle',
@@ -596,7 +601,7 @@ describe('SUCCESS Cases: Testing Bundle with CRUD entries', () => {
     test('Bundle request is empty', async () => {
         const bundleRequestJSON = clone(sampleBundleRequestJSON);
 
-        const actualResult = await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerAccessToken);
+        const actualResult = await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
 
         expect(actualResult).toMatchObject({
             resourceType: 'Bundle',
@@ -668,7 +673,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
                 // OPERATE
                 await bundleHandlerReadGenericResource.processTransaction(
                     bundleRequestJsonCreatePatient,
-                    practitionerAccessToken,
+                    practitionerDecoded,
                 );
             } catch (e) {
                 // CHECK
@@ -707,7 +712,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
                 // OPERATE
                 await bundleHandlerExcludePatient.processTransaction(
                     bundleRequestJsonCreatePatient,
-                    practitionerAccessToken,
+                    practitionerDecoded,
                 );
             } catch (e) {
                 // CHECK
@@ -757,7 +762,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             // OPERATE
             const result = await bundleHandlerSpecialResourcePatient.processTransaction(
                 bundleRequestJsonCreatePatient,
-                practitionerAccessToken,
+                practitionerDecoded,
             );
 
             // CHECK
@@ -786,7 +791,7 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
             // OPERATE
             const result = await bundleHandlerNoExclusion.processTransaction(
                 bundleRequestJsonCreatePatient,
-                practitionerAccessToken,
+                practitionerDecoded,
             );
 
             // CHECK
