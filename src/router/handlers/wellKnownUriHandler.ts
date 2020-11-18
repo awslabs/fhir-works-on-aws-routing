@@ -1,21 +1,12 @@
 import { SmartStrategy } from 'fhir-works-on-aws-interface';
 import { mapKeys } from 'lodash';
 
-export default class WellKnownUriHandler {
-    private smartStrategy: SmartStrategy;
+export function camelToSnakeCase(str: string) {
+    return str.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
+}
 
-    constructor(smartStrategy: SmartStrategy) {
-        this.smartStrategy = smartStrategy;
-    }
-
-    getWellKnownUriResponse() {
-        return mapKeys(this.smartStrategy, (value, key) => {
-            return this.camelToSnakeCase(key);
-        });
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    camelToSnakeCase(str: string) {
-        return str.replace(/[A-Z]/g, (letter: string) => `_${letter.toLowerCase()}`);
-    }
+export function getWellKnownUriResponse(smartStrategy: SmartStrategy) {
+    return mapKeys(smartStrategy, (value, key) => {
+        return camelToSnakeCase(key);
+    });
 }
