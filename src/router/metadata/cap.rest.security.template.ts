@@ -30,11 +30,11 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                             extension: [
                                 {
                                     url: 'token',
-                                    valueUri: authConfig.strategy.oauth.tokenUrl,
+                                    valueUri: authConfig.strategy.oauth.tokenEndpoint,
                                 },
                                 {
                                     url: 'authorize',
-                                    valueUri: authConfig.strategy.oauth.authorizationUrl,
+                                    valueUri: authConfig.strategy.oauth.authorizationEndpoint,
                                 },
                             ],
                         },
