@@ -75,6 +75,7 @@ export function generateServerlessRouter(
         const wellKnownUriRoute = new WellKnownUriRouteRoute(fhirConfig.auth.strategy.smart);
         app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
     }
+
     // Export
     if (fhirConfig.profile.bulkDataAccess) {
         const exportRoute = new ExportRoute(
