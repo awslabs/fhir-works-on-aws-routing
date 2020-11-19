@@ -20,8 +20,7 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                 },
             ],
         };
-        const { strategy } = authConfig;
-        const { oauthPolicy } = strategy;
+        const { oauthPolicy } = authConfig.strategy;
         if (oauthPolicy) {
             const extension = [
                 {
