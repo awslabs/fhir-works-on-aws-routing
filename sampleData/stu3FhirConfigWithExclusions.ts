@@ -5,7 +5,7 @@ const config: FhirConfig = {
     orgName: 'Organization Name',
     auth: {
         strategy: {
-            oauth: {
+            oauthPolicy: {
                 authorizationEndpoint: 'http://example.com/authorization',
                 tokenEndpoint: 'http://example.com/oauth2/token',
             },

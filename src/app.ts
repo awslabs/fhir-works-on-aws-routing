@@ -11,6 +11,7 @@ import {
     ConfigVersion,
     TypeOperation,
     FhirConfig,
+    SmartStrategy,
 } from 'fhir-works-on-aws-interface';
 import GenericResourceRoute from './router/routes/genericResourceRoute';
 import ConfigHandler from './configHandler';
@@ -71,8 +72,9 @@ export function generateServerlessRouter(
     app.use('/metadata', metadataRoute.router);
 
     // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
-    if (fhirConfig.auth.strategy.smart) {
-        const wellKnownUriRoute = new WellKnownUriRouteRoute(fhirConfig.auth.strategy.smart);
+    const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
+    if (smartStrat.capabilities) {
+        const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
         app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
     }
 

@@ -20,23 +20,50 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                 },
             ],
         };
-        if (authConfig.strategy.oauth) {
+        const { strategy } = authConfig;
+        const { oauthPolicy } = strategy;
+        if (oauthPolicy) {
+            const extension = [
+                {
+                    url: 'token',
+                    valueUri: oauthPolicy.tokenEndpoint,
+                },
+                {
+                    url: 'authorize',
+                    valueUri: oauthPolicy.authorizationEndpoint,
+                },
+            ];
+            if (oauthPolicy.managementEndpoint) {
+                extension.push({
+                    url: 'manage',
+                    valueUri: oauthPolicy.managementEndpoint,
+                });
+            }
+            if (oauthPolicy.introspectionEndpoint) {
+                extension.push({
+                    url: 'introspect',
+                    valueUri: oauthPolicy.introspectionEndpoint,
+                });
+            }
+            if (oauthPolicy.revocationEndpoint) {
+                extension.push({
+                    url: 'revoke',
+                    valueUri: oauthPolicy.revocationEndpoint,
+                });
+            }
+            if (oauthPolicy.registrationEndpoint) {
+                extension.push({
+                    url: 'register',
+                    valueUri: oauthPolicy.registrationEndpoint,
+                });
+            }
             security = {
                 ...security,
                 ...{
                     extension: [
                         {
                             url: 'https://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html',
-                            extension: [
-                                {
-                                    url: 'token',
-                                    valueUri: authConfig.strategy.oauth.tokenEndpoint,
-                                },
-                                {
-                                    url: 'authorize',
-                                    valueUri: authConfig.strategy.oauth.authorizationEndpoint,
-                                },
-                            ],
+                            extension,
                         },
                     ],
                     description: 'Uses OAuth2 as a way to authentication & authorize users',

@@ -5,6 +5,9 @@ describe('camelToSnakeCase', () => {
     test('one word', () => {
         expect(camelToSnakeCase('red')).toEqual('red');
     });
+    test('one word: mis-capitalized', () => {
+        expect(camelToSnakeCase('Red')).toEqual('red');
+    });
     test('two words', () => {
         expect(camelToSnakeCase('redAnimal')).toEqual('red_animal');
     });
