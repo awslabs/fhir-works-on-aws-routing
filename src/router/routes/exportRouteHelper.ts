@@ -21,10 +21,10 @@ export default class ExportRouteHelper {
                 "Query '_since' should be in the FHIR Instant format: YYYY-MM-DDThh:mm:ss.sss+zz:zz (e.g. 2015-02-07T13:28:17.239+02:00 or 2017-01-01T00:00:00Z)",
             );
         }
-        const { requesterUserId } = res.locals;
+        const { userIdentity } = res.locals;
 
         const initiateExportRequest: InitiateExportRequest = {
-            requesterUserId,
+            requesterUserId: userIdentity.sub,
             exportType,
             transactionTime: new Date().toISOString(),
             outputFormat: isString(req.query._outputFormat) ? req.query._outputFormat : undefined,

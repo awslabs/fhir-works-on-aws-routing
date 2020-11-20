@@ -39,7 +39,7 @@ export default class GenericResourceRoute {
                     const response = await this.handler.read(resourceType, id);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'read',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                         readResponse: response,
                     });
                     if (updatedReadResponse.meta) {
@@ -64,7 +64,7 @@ export default class GenericResourceRoute {
                     const response = await this.handler.vRead(resourceType, id, vid);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'vread',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                         readResponse: response,
                     });
                     if (updatedReadResponse.meta) {
@@ -89,7 +89,7 @@ export default class GenericResourceRoute {
                     const response = await this.handler.typeHistory(resourceType, searchParamQuery);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-type',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
@@ -109,7 +109,7 @@ export default class GenericResourceRoute {
                     const response = await this.handler.instanceHistory(resourceType, id, searchParamQuery);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-instance',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
@@ -128,7 +128,7 @@ export default class GenericResourceRoute {
 
                     const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
                         operation: 'search-type',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                     });
 
                     const response = await this.handler.typeSearch(
@@ -138,7 +138,7 @@ export default class GenericResourceRoute {
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'search-type',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
@@ -158,7 +158,7 @@ export default class GenericResourceRoute {
                     await this.authService.isWriteRequestAuthorized({
                         resourceBody: body,
                         operation: 'create',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                     });
 
                     const response = await this.handler.create(resourceType, body);
@@ -187,7 +187,7 @@ export default class GenericResourceRoute {
                     await this.authService.isWriteRequestAuthorized({
                         resourceBody: body,
                         operation: 'update',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                     });
 
                     const response = await this.handler.update(resourceType, id, body);
@@ -216,7 +216,7 @@ export default class GenericResourceRoute {
                     await this.authService.isWriteRequestAuthorized({
                         resourceBody: body,
                         operation: 'patch',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                     });
 
                     const response = await this.handler.patch(resourceType, id, body);
@@ -241,7 +241,7 @@ export default class GenericResourceRoute {
                     await this.authService.isWriteRequestAuthorized({
                         resourceBody: readResponse,
                         operation: 'delete',
-                        accessToken: req.headers.authorization ?? '',
+                        userIdentity: res.locals.userIdentity,
                     });
 
                     const response = await this.handler.delete(resourceType, id);

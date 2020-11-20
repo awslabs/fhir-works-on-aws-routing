@@ -11,6 +11,7 @@ import {
     ConfigVersion,
     TypeOperation,
     FhirConfig,
+    SmartStrategy,
 } from 'fhir-works-on-aws-interface';
 import GenericResourceRoute from './router/routes/genericResourceRoute';
 import ConfigHandler from './configHandler';
@@ -19,6 +20,7 @@ import ResourceHandler from './router/handlers/resourceHandler';
 import RootRoute from './router/routes/rootRoute';
 import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from './router/routes/errorHandling';
 import ExportRoute from './router/routes/exportRoute';
+import WellKnownUriRouteRoute from './router/routes/wellKnownUriRoute';
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -55,11 +57,10 @@ export function generateServerlessRouter(
             const requestInformation = getRequestInformation(req.method, req.path);
             // Clean auth header (remove 'Bearer ')
             req.headers.authorization = cleanAuthHeader(req.headers.authorization);
-            await fhirConfig.auth.authorization.isAuthorized({
+            res.locals.userIdentity = await fhirConfig.auth.authorization.verifyAccessToken({
                 ...requestInformation,
                 accessToken: req.headers.authorization,
             });
-            res.locals.requesterUserId = fhirConfig.auth.authorization.getRequesterUserId(req.headers.authorization);
             next();
         } catch (e) {
             next(e);
@@ -69,6 +70,13 @@ export function generateServerlessRouter(
     // Metadata
     const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, hasCORSEnabled);
     app.use('/metadata', metadataRoute.router);
+
+    // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
+    const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
+    if (smartStrat.capabilities) {
+        const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
+        app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
+    }
 
     // Export
     if (fhirConfig.profile.bulkDataAccess) {

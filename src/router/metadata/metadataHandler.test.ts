@@ -499,3 +499,116 @@ test('R4: FHIR Config V4 without bulkDataAccess', async () => {
 
     expect(response.resource.rest[0].operation).toBeUndefined();
 });
+
+test('R4: FHIR Config V4 with all Oauth Policy endpoints', async () => {
+    const r4ConfigWithOauthEndpoints = clone(r4FhirConfigGeneric);
+    r4ConfigWithOauthEndpoints.auth.strategy = {
+        service: 'OAuth',
+        oauthPolicy: {
+            tokenEndpoint: 'http://fhir-server.com/token',
+            authorizationEndpoint: 'http://fhir-server.com/authorize',
+            managementEndpoint: 'http://fhir-server.com/manage',
+            introspectionEndpoint: 'http://fhir-server.com/introspect',
+            revocationEndpoint: 'http://fhir-server.com/revoke',
+            registrationEndpoint: 'http://fhir-server.com/register',
+        },
+    };
+    const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithOauthEndpoints, SUPPORTED_R4_RESOURCES);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
+
+    expect(response.resource.rest[0].security).toEqual({
+        cors: false,
+        description: 'Uses OAuth2 as a way to authentication & authorize users',
+        extension: [
+            {
+                extension: [
+                    {
+                        url: 'token',
+                        valueUri: 'http://fhir-server.com/token',
+                    },
+                    {
+                        url: 'authorize',
+                        valueUri: 'http://fhir-server.com/authorize',
+                    },
+                    {
+                        url: 'manage',
+                        valueUri: 'http://fhir-server.com/manage',
+                    },
+                    {
+                        url: 'introspect',
+                        valueUri: 'http://fhir-server.com/introspect',
+                    },
+                    {
+                        url: 'revoke',
+                        valueUri: 'http://fhir-server.com/revoke',
+                    },
+                    {
+                        url: 'register',
+                        valueUri: 'http://fhir-server.com/register',
+                    },
+                ],
+                url: 'https://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html',
+            },
+        ],
+        service: [
+            {
+                coding: [
+                    {
+                        code: 'OAuth',
+                        system: 'https://www.hl7.org/fhir/codesystem-restful-security-service.html',
+                    },
+                ],
+            },
+        ],
+    });
+});
+
+test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
+    const r4ConfigWithOauthEndpoints = clone(r4FhirConfigGeneric);
+    r4ConfigWithOauthEndpoints.auth.strategy = {
+        service: 'OAuth',
+        oauthPolicy: {
+            tokenEndpoint: 'http://fhir-server.com/token',
+            authorizationEndpoint: 'http://fhir-server.com/authorize',
+            managementEndpoint: 'http://fhir-server.com/manage',
+        },
+    };
+    const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithOauthEndpoints, SUPPORTED_R4_RESOURCES);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
+
+    expect(response.resource.rest[0].security).toEqual({
+        cors: false,
+        description: 'Uses OAuth2 as a way to authentication & authorize users',
+        extension: [
+            {
+                extension: [
+                    {
+                        url: 'token',
+                        valueUri: 'http://fhir-server.com/token',
+                    },
+                    {
+                        url: 'authorize',
+                        valueUri: 'http://fhir-server.com/authorize',
+                    },
+                    {
+                        url: 'manage',
+                        valueUri: 'http://fhir-server.com/manage',
+                    },
+                ],
+                url: 'https://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html',
+            },
+        ],
+        service: [
+            {
+                coding: [
+                    {
+                        code: 'OAuth',
+                        system: 'https://www.hl7.org/fhir/codesystem-restful-security-service.html',
+                    },
+                ],
+            },
+        ],
+    });
+});

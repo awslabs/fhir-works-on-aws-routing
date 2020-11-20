@@ -12,6 +12,7 @@ import {
     GenericResource,
     Resources,
     TypeOperation,
+    KeyValueMap,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
@@ -56,7 +57,7 @@ export default class BundleHandler implements BundleHandlerInterface {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async processBatch(bundleRequestJson: any, accessToken: string) {
+    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap) {
         throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
 
@@ -95,7 +96,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         return bundleEntriesNotSupported;
     }
 
-    async processTransaction(bundleRequestJson: any, accessToken: string) {
+    async processTransaction(bundleRequestJson: any, userIdentity: KeyValueMap) {
         const startTime = new Date();
 
         this.validator.validate('Bundle', bundleRequestJson);
@@ -126,7 +127,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         }
 
         await this.authService.isBundleRequestAuthorized({
-            accessToken,
+            userIdentity,
             requests,
         });
 
