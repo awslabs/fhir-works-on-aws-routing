@@ -51,6 +51,17 @@ export function generateServerlessRouter(
         hasCORSEnabled = true;
     }
 
+    // Metadata
+    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, hasCORSEnabled);
+    app.use('/metadata', metadataRoute.router);
+
+    // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
+    const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
+    if (smartStrat.capabilities) {
+        const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
+        app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
+    }
+
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
@@ -66,17 +77,6 @@ export function generateServerlessRouter(
             next(e);
         }
     });
-
-    // Metadata
-    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, hasCORSEnabled);
-    app.use('/metadata', metadataRoute.router);
-
-    // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
-    const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
-    if (smartStrat.capabilities) {
-        const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
-        app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
-    }
 
     // Export
     if (fhirConfig.profile.bulkDataAccess) {
