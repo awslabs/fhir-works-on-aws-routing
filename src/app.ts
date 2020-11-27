@@ -55,11 +55,13 @@ export function generateServerlessRouter(
     const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, hasCORSEnabled);
     app.use('/metadata', metadataRoute.router);
 
-    // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
-    const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
-    if (smartStrat.capabilities) {
-        const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
-        app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
+    if (fhirConfig.auth.strategy.service === 'SMART-on-FHIR') {
+        // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
+        const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
+        if (smartStrat.capabilities) {
+            const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
+            app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
+        }
     }
 
     // AuthZ
