@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - chore: Explicity check if Auth strategy is SMART-on-FHIR before adding the well-known route
-- fix: metadata and well-known endpoint so that AuthZ is not envoked (expected behavior)
+- fix: metadata and well-known endpoint so that AuthZ is not invoked (expected behavior)
 
 ## [3.0.0] - 2020-11-20
 
