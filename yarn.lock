@@ -1999,10 +1999,10 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
-fhir-works-on-aws-interface@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-4.0.0.tgz#4d857dc62a867fba596a02fd481034a94ca93ac0"
-  integrity sha512-7onyEoHuwd+xQoMl6OlugCSahhtrYDNgmy4tYgcsGzTpnbDhQKpDbJUizW1vrpH9t/mPstSYxsBSc1WQ0rl2EA==
+fhir-works-on-aws-interface@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-5.0.0.tgz#b22a02ef7277836a4c73638abd6ef4647577c6dc"
+  integrity sha512-/zHOibdUPXGIUy/p+aA1xqVkJr/NQb4h9GWUAtefhBJcO4OWuBkyqKBKSJtsuATiPWMe/4YSTo9lrRNY7RrH1g==
 
 figures@^3.0.0:
   version "3.2.0"
