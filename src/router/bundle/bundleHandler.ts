@@ -13,6 +13,8 @@ import {
     Resources,
     TypeOperation,
     KeyValueMap,
+    UnauthorizedError,
+    isUnauthorizedError,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
@@ -145,6 +147,34 @@ export default class BundleHandler implements BundleHandlerInterface {
                 throw new createError.BadRequest(bundleServiceResponse.message);
             }
         }
+
+        const authAndFilterReadPromises = requests.map((request, index) => {
+            if (['read', 'vread', 'history-type', 'history-instance', 'search-type'].includes(request.operation)) {
+                return this.authService.authorizeAndFilterReadResponse({
+                    operation: request.operation,
+                    userIdentity,
+                    readResponse: bundleServiceResponse.batchReadWriteResponses[index].resource,
+                });
+            }
+            return Promise.resolve();
+        });
+
+        let readResponses: any[] = [];
+        try {
+            readResponses = await Promise.all(authAndFilterReadPromises);
+        } catch (e) {
+            if (isUnauthorizedError(e)) {
+                throw new UnauthorizedError('You do not have permission to read an entry within the Bundle');
+            }
+        }
+
+        requests.forEach((request, index) => {
+            const responseEntry = bundleServiceResponse.batchReadWriteResponses[index];
+            if (['read', 'vread', 'history-type', 'history-instance', 'search-type'].includes(request.operation)) {
+                responseEntry.resource = readResponses[index];
+            }
+            bundleServiceResponse.batchReadWriteResponses[index] = responseEntry;
+        });
 
         return BundleGenerator.generateTransactionBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
     }

@@ -11,7 +11,10 @@ import {
     FhirVersion,
     Resources,
     InvalidResourceError,
+    Authorization,
+    UnauthorizedError,
 } from 'fhir-works-on-aws-interface';
+import { AccessBulkDataJobRequest } from 'fhir-works-on-aws-interface/src/authorization';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
 import BundleHandler from './bundleHandler';
@@ -618,6 +621,87 @@ describe('SUCCESS Cases: Testing Bundle with CRUD entries', () => {
     });
 });
 
+describe('ERROR Cases: Bundle not authorized', () => {
+    test('An entry in Bundle request is not authorized', async () => {
+        const authZ: Authorization = {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isBundleRequestAuthorized(request) {
+                throw new UnauthorizedError('An entry within the Bundle is not authorized');
+            },
+            async authorizeAndFilterReadResponse(request) {
+                return request.readResponse;
+            },
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async verifyAccessToken(request) {
+                return {};
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isWriteRequestAuthorized(request) {},
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isAccessBulkDataJobAllowed(request: AccessBulkDataJobRequest) {},
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async getAllowedResourceTypesForOperation(request) {
+                return [];
+            },
+        };
+        const bundleHandlerWithStubbedAuthZ = new BundleHandler(
+            DynamoDbBundleService,
+            'https://API_URL.com',
+            '4.0.1',
+            authZ,
+            getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
+            genericResource,
+            resources,
+        );
+
+        // Cloning
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
+
+        await expect(
+            bundleHandlerWithStubbedAuthZ.processTransaction(bundleRequestJSON, practitionerDecoded),
+        ).rejects.toThrowError(new UnauthorizedError('An entry within the Bundle is not authorized'));
+    });
+
+    test('After filtering Bundle, read request is not Authorized', async () => {
+        const authZ: Authorization = {
+            async authorizeAndFilterReadResponse() {
+                throw new UnauthorizedError('User does not have permission for requested resource');
+            },
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async verifyAccessToken(request) {
+                return {};
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isBundleRequestAuthorized(request) {},
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isWriteRequestAuthorized(request) {},
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isAccessBulkDataJobAllowed(request: AccessBulkDataJobRequest) {},
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async getAllowedResourceTypesForOperation(request) {
+                return [];
+            },
+        };
+        const bundleHandlerWithStubbedAuthZ = new BundleHandler(
+            DynamoDbBundleService,
+            'https://API_URL.com',
+            '4.0.1',
+            authZ,
+            getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
+            genericResource,
+            resources,
+        );
+
+        // Cloning
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
+
+        await expect(
+            bundleHandlerWithStubbedAuthZ.processTransaction(bundleRequestJSON, practitionerDecoded),
+        ).rejects.toThrowError(new UnauthorizedError('You do not have permission to read an entry within the Bundle'));
+    });
+});
 describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given server capabilities', () => {
     beforeEach(() => {
         // Ensures that for each test, we test the assertions in the catch block
