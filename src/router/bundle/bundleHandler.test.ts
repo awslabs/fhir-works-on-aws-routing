@@ -13,8 +13,8 @@ import {
     InvalidResourceError,
     Authorization,
     UnauthorizedError,
+    AccessBulkDataJobRequest,
 } from 'fhir-works-on-aws-interface';
-import { AccessBulkDataJobRequest } from 'fhir-works-on-aws-interface/src/authorization';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
 import BundleHandler from './bundleHandler';

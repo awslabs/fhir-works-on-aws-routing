@@ -23,7 +23,7 @@ import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
 
-// Using import will not import the library therefore using the syntax below to pull in the library
+// Using import will not import the library correctly, therefore using this syntax to pull in the library instead
 // https://github.com/es-shims/Promise.allSettled/issues/5
 const allSettled = require('promise.allsettled');
 
