@@ -13,7 +13,6 @@ import {
     Resources,
     TypeOperation,
     KeyValueMap,
-    UnauthorizedError,
     isUnauthorizedError,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
@@ -23,6 +22,10 @@ import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
+
+// Using import will not import the library therefore using the syntax below to pull in the library
+// https://github.com/es-shims/Promise.allSettled/issues/5
+const allSettled = require('promise.allsettled');
 
 export default class BundleHandler implements BundleHandlerInterface {
     private bundleService: Bundle;
@@ -159,19 +162,17 @@ export default class BundleHandler implements BundleHandlerInterface {
             return Promise.resolve();
         });
 
-        let readResponses: any[] = [];
-        try {
-            readResponses = await Promise.all(authAndFilterReadPromises);
-        } catch (e) {
-            if (isUnauthorizedError(e)) {
-                throw new UnauthorizedError('You do not have permission to read an entry within the Bundle');
-            }
-        }
+        const readResponses = await allSettled(authAndFilterReadPromises);
 
         requests.forEach((request, index) => {
             const responseEntry = bundleServiceResponse.batchReadWriteResponses[index];
             if (['read', 'vread', 'history-type', 'history-instance', 'search-type'].includes(request.operation)) {
-                responseEntry.resource = readResponses[index];
+                const readResponse = readResponses[index];
+                if (readResponse.reason && isUnauthorizedError(readResponse.reason)) {
+                    responseEntry.resource = {};
+                } else {
+                    responseEntry.resource = readResponse.value;
+                }
             }
             bundleServiceResponse.batchReadWriteResponses[index] = responseEntry;
         });

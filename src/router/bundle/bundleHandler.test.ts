@@ -697,9 +697,55 @@ describe('ERROR Cases: Bundle not authorized', () => {
         const bundleRequestJSON = clone(sampleBundleRequestJSON);
         bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
 
+        const expectedResult = {
+            resourceType: 'Bundle',
+            id: expect.stringMatching(uuidRegExp),
+            type: 'transaction-response',
+            link: [
+                {
+                    relation: 'self',
+                    url: 'https://API_URL.com',
+                },
+            ],
+            entry: [
+                {
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/8cafa46d-08b4-4ee4-b51b-803e20ae8126',
+                        etag: '3',
+                        lastModified: '2020-04-23T21:19:35.592Z',
+                    },
+                },
+                {
+                    response: {
+                        status: '201 Created',
+                        location: 'Patient/7c7cf4ca-4ba7-4326-b0dd-f3275b735827',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+                {
+                    resource: {},
+                    response: {
+                        status: '403 Forbidden',
+                        location: 'Patient/47135b80-b721-430b-9d4b-1557edc64947',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+                {
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/bce8411e-c15e-448c-95dd-69155a837405',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+            ],
+        };
         await expect(
             bundleHandlerWithStubbedAuthZ.processTransaction(bundleRequestJSON, practitionerDecoded),
-        ).rejects.toThrowError(new UnauthorizedError('You do not have permission to read an entry within the Bundle'));
+        ).resolves.toMatchObject(expectedResult);
     });
 });
 describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given server capabilities', () => {
