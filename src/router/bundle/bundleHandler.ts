@@ -23,10 +23,6 @@ import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
 
-// Using import will not import the library correctly, therefore using this syntax to pull in the library instead
-// https://github.com/es-shims/Promise.allSettled/issues/5
-const allSettled = require('promise.allsettled');
-
 export default class BundleHandler implements BundleHandlerInterface {
     private bundleService: Bundle;
 
@@ -162,12 +158,12 @@ export default class BundleHandler implements BundleHandlerInterface {
             return Promise.resolve();
         });
 
-        const readResponses = await allSettled(authAndFilterReadPromises);
+        const readResponses = await Promise.allSettled(authAndFilterReadPromises);
 
         requests.forEach((request, index) => {
             const responseEntry = bundleServiceResponse.batchReadWriteResponses[index];
             if (['read', 'vread', 'history-type', 'history-instance', 'search-type'].includes(request.operation)) {
-                const readResponse = readResponses[index];
+                const readResponse: { status: string; reason?: any; value?: any } = readResponses[index];
                 if (readResponse.reason && isUnauthorizedError(readResponse.reason)) {
                     responseEntry.resource = {};
                 } else {
