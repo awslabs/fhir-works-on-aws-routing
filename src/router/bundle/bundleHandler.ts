@@ -13,6 +13,7 @@ import {
     Resources,
     TypeOperation,
     KeyValueMap,
+    isUnauthorizedError,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
@@ -145,6 +146,42 @@ export default class BundleHandler implements BundleHandlerInterface {
                 throw new createError.BadRequest(bundleServiceResponse.message);
             }
         }
+
+        const readOperations = [
+            'read',
+            'vread',
+            'history-type',
+            'history-instance',
+            'history-system',
+            'search-type',
+            'search-system',
+        ];
+
+        const authAndFilterReadPromises = requests.map((request, index) => {
+            if (readOperations.includes(request.operation)) {
+                return this.authService.authorizeAndFilterReadResponse({
+                    operation: request.operation,
+                    userIdentity,
+                    readResponse: bundleServiceResponse.batchReadWriteResponses[index].resource,
+                });
+            }
+            return Promise.resolve();
+        });
+
+        const readResponses = await Promise.allSettled(authAndFilterReadPromises);
+
+        requests.forEach((request, index) => {
+            const entryResponse = bundleServiceResponse.batchReadWriteResponses[index];
+            if (readOperations.includes(request.operation)) {
+                const readResponse: { status: string; reason?: any; value?: any } = readResponses[index];
+                if (readResponse.reason && isUnauthorizedError(readResponse.reason)) {
+                    entryResponse.resource = {};
+                } else {
+                    entryResponse.resource = readResponse.value;
+                }
+            }
+            bundleServiceResponse.batchReadWriteResponses[index] = entryResponse;
+        });
 
         return BundleGenerator.generateTransactionBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
     }

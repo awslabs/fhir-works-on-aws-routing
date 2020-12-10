@@ -6,6 +6,7 @@
 import uuidv4 from 'uuid/v4';
 import URL from 'url';
 import { SearchResult, BatchReadWriteResponse } from 'fhir-works-on-aws-interface';
+import { isEmpty } from 'lodash';
 
 type LinkType = 'self' | 'previous' | 'next' | 'first' | 'last';
 
@@ -101,7 +102,15 @@ export default class BundleGenerator {
 
         const entries: any = [];
         bundleEntryResponses.forEach(bundleEntryResponse => {
-            const status = bundleEntryResponse.operation === 'create' ? '201 Created' : '200 OK';
+            let status = '200 OK';
+            if (bundleEntryResponse.operation === 'create') {
+                status = '201 Created';
+            } else if (
+                ['read', 'vread'].includes(bundleEntryResponse.operation) &&
+                isEmpty(bundleEntryResponse.resource)
+            ) {
+                status = '403 Forbidden';
+            }
             const entry: any = {
                 response: {
                     status,

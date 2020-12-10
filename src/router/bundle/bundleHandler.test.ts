@@ -11,6 +11,9 @@ import {
     FhirVersion,
     Resources,
     InvalidResourceError,
+    Authorization,
+    UnauthorizedError,
+    AccessBulkDataJobRequest,
 } from 'fhir-works-on-aws-interface';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
@@ -618,6 +621,133 @@ describe('SUCCESS Cases: Testing Bundle with CRUD entries', () => {
     });
 });
 
+describe('ERROR Cases: Bundle not authorized', () => {
+    test('An entry in Bundle request is not authorized', async () => {
+        const authZ: Authorization = {
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isBundleRequestAuthorized(request) {
+                throw new UnauthorizedError('An entry within the Bundle is not authorized');
+            },
+            async authorizeAndFilterReadResponse(request) {
+                return request.readResponse;
+            },
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async verifyAccessToken(request) {
+                return {};
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isWriteRequestAuthorized(request) {},
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isAccessBulkDataJobAllowed(request: AccessBulkDataJobRequest) {},
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async getAllowedResourceTypesForOperation(request) {
+                return [];
+            },
+        };
+        const bundleHandlerWithStubbedAuthZ = new BundleHandler(
+            DynamoDbBundleService,
+            'https://API_URL.com',
+            '4.0.1',
+            authZ,
+            getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
+            genericResource,
+            resources,
+        );
+
+        // Cloning
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
+
+        await expect(
+            bundleHandlerWithStubbedAuthZ.processTransaction(bundleRequestJSON, practitionerDecoded),
+        ).rejects.toThrowError(new UnauthorizedError('An entry within the Bundle is not authorized'));
+    });
+
+    test('After filtering Bundle, read request is not Authorized', async () => {
+        const authZ: Authorization = {
+            async authorizeAndFilterReadResponse() {
+                throw new UnauthorizedError('User does not have permission for requested resource');
+            },
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async verifyAccessToken(request) {
+                return {};
+            },
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isBundleRequestAuthorized(request) {},
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isWriteRequestAuthorized(request) {},
+            // eslint-disable-next-line @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars
+            async isAccessBulkDataJobAllowed(request: AccessBulkDataJobRequest) {},
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            async getAllowedResourceTypesForOperation(request) {
+                return [];
+            },
+        };
+        const bundleHandlerWithStubbedAuthZ = new BundleHandler(
+            DynamoDbBundleService,
+            'https://API_URL.com',
+            '4.0.1',
+            authZ,
+            getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
+            genericResource,
+            resources,
+        );
+
+        // Cloning
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
+
+        const expectedResult = {
+            resourceType: 'Bundle',
+            id: expect.stringMatching(uuidRegExp),
+            type: 'transaction-response',
+            link: [
+                {
+                    relation: 'self',
+                    url: 'https://API_URL.com',
+                },
+            ],
+            entry: [
+                {
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/8cafa46d-08b4-4ee4-b51b-803e20ae8126',
+                        etag: '3',
+                        lastModified: '2020-04-23T21:19:35.592Z',
+                    },
+                },
+                {
+                    response: {
+                        status: '201 Created',
+                        location: 'Patient/7c7cf4ca-4ba7-4326-b0dd-f3275b735827',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+                {
+                    resource: {},
+                    response: {
+                        status: '403 Forbidden',
+                        location: 'Patient/47135b80-b721-430b-9d4b-1557edc64947',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+                {
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/bce8411e-c15e-448c-95dd-69155a837405',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+            ],
+        };
+        await expect(
+            bundleHandlerWithStubbedAuthZ.processTransaction(bundleRequestJSON, practitionerDecoded),
+        ).resolves.toMatchObject(expectedResult);
+    });
+});
 describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given server capabilities', () => {
     beforeEach(() => {
         // Ensures that for each test, we test the assertions in the catch block
