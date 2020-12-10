@@ -147,8 +147,18 @@ export default class BundleHandler implements BundleHandlerInterface {
             }
         }
 
+        const readOperations = [
+            'read',
+            'vread',
+            'history-type',
+            'history-instance',
+            'history-system',
+            'search-type',
+            'search-system',
+        ];
+
         const authAndFilterReadPromises = requests.map((request, index) => {
-            if (['read', 'vread', 'history-type', 'history-instance', 'search-type'].includes(request.operation)) {
+            if (readOperations.includes(request.operation)) {
                 return this.authService.authorizeAndFilterReadResponse({
                     operation: request.operation,
                     userIdentity,
@@ -161,16 +171,16 @@ export default class BundleHandler implements BundleHandlerInterface {
         const readResponses = await Promise.allSettled(authAndFilterReadPromises);
 
         requests.forEach((request, index) => {
-            const responseEntry = bundleServiceResponse.batchReadWriteResponses[index];
-            if (['read', 'vread', 'history-type', 'history-instance', 'search-type'].includes(request.operation)) {
+            const entryResponse = bundleServiceResponse.batchReadWriteResponses[index];
+            if (readOperations.includes(request.operation)) {
                 const readResponse: { status: string; reason?: any; value?: any } = readResponses[index];
                 if (readResponse.reason && isUnauthorizedError(readResponse.reason)) {
-                    responseEntry.resource = {};
+                    entryResponse.resource = {};
                 } else {
-                    responseEntry.resource = readResponse.value;
+                    entryResponse.resource = readResponse.value;
                 }
             }
-            bundleServiceResponse.batchReadWriteResponses[index] = responseEntry;
+            bundleServiceResponse.batchReadWriteResponses[index] = entryResponse;
         });
 
         return BundleGenerator.generateTransactionBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
