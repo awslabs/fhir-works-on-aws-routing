@@ -119,31 +119,27 @@ export default class GenericResourceRoute {
 
         if (this.operations.includes('search-type')) {
             // SEARCH
-            this.router.get(
-                '/',
-                RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                    // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
-                    const searchParamQuery = req.query;
+            const searchHandler = async (req: express.Request, res: express.Response) => {
+                // Get the ResourceType looks like '/Patient'
+                const resourceType = req.baseUrl.substr(1);
+                const searchParamQuery = req.query;
 
-                    const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
-                        operation: 'search-type',
-                        userIdentity: res.locals.userIdentity,
-                    });
+                const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
+                    operation: 'search-type',
+                    userIdentity: res.locals.userIdentity,
+                });
 
-                    const response = await this.handler.typeSearch(
-                        resourceType,
-                        searchParamQuery,
-                        allowedResourceTypes,
-                    );
-                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
-                        operation: 'search-type',
-                        userIdentity: res.locals.userIdentity,
-                        readResponse: response,
-                    });
-                    res.send(updatedReadResponse);
-                }),
-            );
+                const response = await this.handler.typeSearch(resourceType, searchParamQuery, allowedResourceTypes);
+                const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
+                    operation: 'search-type',
+                    userIdentity: res.locals.userIdentity,
+                    readResponse: response,
+                });
+                res.send(updatedReadResponse);
+            };
+
+            this.router.get('/', RouteHelper.wrapAsync(searchHandler));
+            this.router.post('/_search', RouteHelper.wrapAsync(searchHandler));
         }
 
         // CREATE
