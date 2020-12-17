@@ -309,7 +309,7 @@ export default class BundleParser {
      */
     private static getReferences(entry: any): Reference[] {
         const flattenResource: any = flatten(get(entry, 'resource', {}));
-        const referencePaths: string[] = Object.keys(flattenResource).filter(key => key.includes('reference'));
+        const referencePaths: string[] = Object.keys(flattenResource).filter(key => key.endsWith('.reference'));
         if (referencePaths.length === 0) {
             return [];
         }

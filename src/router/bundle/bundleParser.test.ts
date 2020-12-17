@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { BatchReadWriteRequest, ResourceNotFoundError } from 'fhir-works-on-aws-interface';
+import { BatchReadWriteRequest, clone, ResourceNotFoundError } from 'fhir-works-on-aws-interface';
 import { ReadResourceRequest } from 'fhir-works-on-aws-interface/lib/persistence';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import BundleParser from './bundleParser';
@@ -1330,6 +1330,56 @@ describe('parseResource', () => {
                     'This entry refer to a contained resource that does not exist. Contained resource is referring to #referral',
                 );
             }
+        });
+
+        test('Do not consider "referenceSeq" as a "reference". Only resource fields explicitly named "reference" should be considered a reference', async () => {
+            // BUILD
+            const molecSeqEntry = {
+                fullUrl: 'https://API_URL.com/MolecularSequence/1',
+                resource: {
+                    resourceType: 'MolecularSequence',
+                    type: 'dna',
+                    coordinateSystem: 0,
+                    referenceSeq: {
+                        referenceSeqId: {
+                            coding: [
+                                {
+                                    system: 'http://www.ncbi.nlm.nih.gov/nuccore',
+                                    code: 'NC_000009.11',
+                                },
+                            ],
+                        },
+                        strand: 'watson',
+                        windowStart: 22125500,
+                        windowEnd: 22125510,
+                    },
+                    meta: {
+                        lastUpdated: '2020-03-26T15:46:55.848Z',
+                        versionId: '1',
+                    },
+                },
+                request: {
+                    method: 'POST',
+                    url: 'ExplanationOfBenefit',
+                },
+            };
+            const bundleRequestJson = {
+                resourceType: 'Bundle',
+                type: 'transaction',
+                entry: [molecSeqEntry],
+            };
+
+            // OPERATE
+            const actualRequests = await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
+
+            // CHECK
+            const expectedRequest = clone(molecSeqEntry);
+            delete expectedRequest.request;
+            expectedRequest.resourceType = 'MolecularSequence';
+            expectedRequest.operation = 'create';
+            expectedRequest.id = expect.stringMatching(uuidRegExp);
+
+            expect(actualRequests).toEqual([expectedRequest]);
         });
     });
 });
