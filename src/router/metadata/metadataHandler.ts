@@ -43,7 +43,7 @@ export default class MetadataHandler implements Capabilities {
     }
 
     async capabilities(request: CapabilitiesRequest): Promise<GenericResponse> {
-        const { auth, orgName, server, profile } = this.configHandler.config;
+        const { auth, productInfo, server, profile } = this.configHandler.config;
 
         if (!this.configHandler.isVersionSupported(request.fhirVersion)) {
             throw new createError.NotFound(`FHIR version ${request.fhirVersion} is not supported`);
@@ -52,7 +52,7 @@ export default class MetadataHandler implements Capabilities {
         const generatedResources = this.generateResources(request.fhirVersion);
         const security = makeSecurity(auth, this.hasCORSEnabled);
         const rest = makeRest(generatedResources, security, profile.systemOperations, !!profile.bulkDataAccess);
-        const capStatement = makeStatement(rest, orgName, server.url, request.fhirVersion);
+        const capStatement = makeStatement(rest, productInfo, server.url, request.fhirVersion);
 
         return {
             message: 'success',

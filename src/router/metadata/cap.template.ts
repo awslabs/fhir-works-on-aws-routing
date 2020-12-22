@@ -3,21 +3,26 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { FhirVersion } from 'fhir-works-on-aws-interface';
+import { FhirVersion, ProductInfo } from 'fhir-works-on-aws-interface';
 
-export default function makeStatement(rest: any, orgName: string, url: string, fhirVersion: FhirVersion) {
+export default function makeStatement(rest: any, productInfo: ProductInfo, url: string, fhirVersion: FhirVersion) {
     const cap: any = {
         resourceType: 'CapabilityStatement',
+        name: productInfo.productMachineName ?? 'FhirServerCapabilityStatement',
+        title: `${productInfo.productTitle ?? 'Fhir Server'} Capability Statement`,
+        description: productInfo.productDescription ?? `A FHIR ${fhirVersion} Server Capability Statement`,
+        purpose: productInfo.productPurpose ?? `A statement of this system's capabilities`,
+        copyright: productInfo.copyright ?? undefined,
         status: 'active',
         date: new Date().toISOString(),
-        publisher: orgName,
+        publisher: productInfo.orgName,
         kind: 'instance',
         software: {
-            name: 'FHIR Server',
-            version: '1.0.0',
+            name: productInfo.productTitle ?? 'FHIR Server',
+            version: productInfo.productVersion ?? '1.0.0',
         },
         implementation: {
-            description: `A FHIR ${fhirVersion} Server`,
+            description: productInfo.productDescription ?? `A FHIR ${fhirVersion} Server`,
             url,
         },
         fhirVersion,

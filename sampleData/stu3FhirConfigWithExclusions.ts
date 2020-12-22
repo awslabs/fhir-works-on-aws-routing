@@ -2,7 +2,9 @@ import { FhirConfig, stubs } from 'fhir-works-on-aws-interface';
 
 const config: FhirConfig = {
     configVersion: 1,
-    orgName: 'Organization Name',
+    productInfo: {
+        orgName: 'Organization Name',
+    },
     auth: {
         strategy: {
             oauthPolicy: {
