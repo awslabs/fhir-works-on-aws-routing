@@ -612,3 +612,43 @@ test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
         ],
     });
 });
+
+test('R4: FHIR Config V4 with all productInfo params', async() => {
+    const r4ConfigWithAllProductInfo = clone(r4FhirConfigGeneric);
+    r4ConfigWithAllProductInfo.productInfo = {
+        orgName: 'Organization Name',
+        productVersion: '1.0.0',
+        productTitle: 'Product Title',
+        productMachineName: 'product.machine.name',
+        productDescription: 'Product Description',
+        productPurpose: 'Product Purpose',
+        copyright: 'Copyright'
+    }
+    const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithAllProductInfo, SUPPORTED_R4_RESOURCES);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
+
+    expect(response.resource).toEqual({
+        resourceType: 'CapabilityStatement',
+        name: 'product.machine.name',
+        title: 'Product Title Capability Statement',
+        description: 'Product Description',
+        purpose: 'Product Purpose',
+        copyright: 'Copyright',
+        status: 'active',
+        date: new Date().toISOString(),
+        publisher: 'Organization Name',
+        kind: 'instance',
+        software: {
+            name: 'Product Title',
+            version: '1.0.0',
+        },
+        implementation: {
+            description: 'Product Description',
+            url: 'http://example.com',
+        },
+        fhirVersion: '4.0.1',
+        format: ['json'],
+        rest: response.resource.rest,
+    });
+});

@@ -12,7 +12,7 @@ export default function makeStatement(rest: any, productInfo: ProductInfo, url: 
         title: `${productInfo.productTitle ?? 'Fhir Server'} Capability Statement`,
         description: productInfo.productDescription ?? `A FHIR ${fhirVersion} Server Capability Statement`,
         purpose: productInfo.productPurpose ?? `A statement of this system's capabilities`,
-        copyright: productInfo.copyright ?? '',
+        copyright: productInfo.copyright ?? undefined,
         status: 'active',
         date: new Date().toISOString(),
         publisher: productInfo.orgName,
