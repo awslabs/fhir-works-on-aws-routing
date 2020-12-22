@@ -613,7 +613,7 @@ test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
     });
 });
 
-test('R4: FHIR Config V4 with all productInfo params', async() => {
+test('R4: FHIR Config V4 with all productInfo params', async () => {
     const r4ConfigWithAllProductInfo = clone(r4FhirConfigGeneric);
     r4ConfigWithAllProductInfo.productInfo = {
         orgName: 'Organization Name',
@@ -622,8 +622,8 @@ test('R4: FHIR Config V4 with all productInfo params', async() => {
         productMachineName: 'product.machine.name',
         productDescription: 'Product Description',
         productPurpose: 'Product Purpose',
-        copyright: 'Copyright'
-    }
+        copyright: 'Copyright',
+    };
     const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithAllProductInfo, SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
