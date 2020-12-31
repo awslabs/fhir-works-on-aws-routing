@@ -19,7 +19,9 @@ module.exports = {
         '@typescript-eslint/no-useless-constructor': 'error',
         'no-empty-function': 'off',
         '@typescript-eslint/no-empty-function': 'error',
-        'import/prefer-default-export': 'off'
+        'import/prefer-default-export': 'off',
+        'no-shadow': 'off', // replaced by ts-eslint rule below
+        '@typescript-eslint/no-shadow': 'error',
     },
     settings: {
         'import/resolver': {

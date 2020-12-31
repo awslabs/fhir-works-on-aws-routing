@@ -49,7 +49,7 @@ describe('SUCCESS CASES: Testing create, read, update, delete of resources', () 
 
     test('create: patient', async () => {
         // BUILD
-        const expectedValidPatient = { ...validPatient };
+        const expectedValidPatient = { ...validPatient } as any;
 
         // The patient that was created has a randomly generated id, which will not match the expectedValidPatient's id
         delete expectedValidPatient.id;
