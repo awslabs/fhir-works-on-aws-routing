@@ -2111,10 +2111,10 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
-fhir-works-on-aws-interface@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-5.0.0.tgz#b22a02ef7277836a4c73638abd6ef4647577c6dc"
-  integrity sha512-/zHOibdUPXGIUy/p+aA1xqVkJr/NQb4h9GWUAtefhBJcO4OWuBkyqKBKSJtsuATiPWMe/4YSTo9lrRNY7RrH1g==
+fhir-works-on-aws-interface@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-6.0.1.tgz#64fb2d471712b3521ca17aced682c8dcfda798f4"
+  integrity sha512-3d++FyAFdiry7XsIfXp/CGfP2QFfnarDgFVUic9WozQA64bTMASqAGK6jfNXZS6isHyY2sK3mILbM6hsHrMt1A==
 
 figures@^3.0.0:
   version "3.2.0"

@@ -110,7 +110,12 @@ export default class GenericResourceRoute {
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
                     const { id } = req.params;
-                    const response = await this.handler.instanceHistory(resourceType, id, searchParamQuery);
+                    const response = await this.handler.instanceHistory(
+                        resourceType,
+                        id,
+                        searchParamQuery,
+                        res.locals.userIdentity,
+                    );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-instance',
                         userIdentity: res.locals.userIdentity,

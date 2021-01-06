@@ -107,12 +107,18 @@ export default class ResourceHandler implements CrudHandlerInterface {
         );
     }
 
-    async instanceHistory(resourceType: string, id: string, queryParams: any) {
+    async instanceHistory(resourceType: string, id: string, queryParams: any, userIdentity: KeyValueMap) {
+        const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
+            userIdentity,
+            operation: 'history-instance',
+        });
+
         const historyResponse = await this.historyService.instanceHistory({
             id,
             resourceType,
             queryParams,
             baseUrl: this.serverUrl,
+            searchFilters,
         });
         return BundleGenerator.generateBundle(
             this.serverUrl,

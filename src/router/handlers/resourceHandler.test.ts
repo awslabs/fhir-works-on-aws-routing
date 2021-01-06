@@ -768,7 +768,7 @@ describe('Testing history', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' });
+        const searchResponse: any = await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' }, {});
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -799,7 +799,7 @@ describe('Testing history', () => {
         stubs.history.instanceHistory = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' });
+            await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' }, {});
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
