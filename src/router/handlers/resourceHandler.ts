@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, Persistence, FhirVersion } from 'fhir-works-on-aws-interface';
+import { Search, History, Persistence, FhirVersion, Authorization, KeyValueMap } from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
@@ -18,12 +18,15 @@ export default class ResourceHandler implements CrudHandlerInterface {
 
     private historyService: History;
 
+    private authService: Authorization;
+
     private serverUrl: string;
 
     constructor(
         dataService: Persistence,
         searchService: Search,
         historyService: History,
+        authService: Authorization,
         fhirVersion: FhirVersion,
         serverUrl: string,
     ) {
@@ -31,6 +34,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
         this.dataService = dataService;
         this.searchService = searchService;
         this.historyService = historyService;
+        this.authService = authService;
         this.serverUrl = serverUrl;
     }
 
@@ -55,12 +59,23 @@ export default class ResourceHandler implements CrudHandlerInterface {
         return patchResponse.resource;
     }
 
-    async typeSearch(resourceType: string, queryParams: any, allowedResourceTypes: string[]) {
+    async typeSearch(
+        resourceType: string,
+        queryParams: any,
+        allowedResourceTypes: string[],
+        userIdentity: KeyValueMap,
+    ) {
+        const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
+            userIdentity,
+            operation: 'search-type',
+        });
+
         const searchResponse = await this.searchService.typeSearch({
             resourceType,
             queryParams,
             baseUrl: this.serverUrl,
             allowedResourceTypes,
+            searchFilters,
         });
         return BundleGenerator.generateBundle(
             this.serverUrl,
@@ -71,11 +86,17 @@ export default class ResourceHandler implements CrudHandlerInterface {
         );
     }
 
-    async typeHistory(resourceType: string, queryParams: any) {
+    async typeHistory(resourceType: string, queryParams: any, userIdentity: KeyValueMap) {
+        const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
+            userIdentity,
+            operation: 'history-type',
+        });
+
         const historyResponse = await this.historyService.typeHistory({
             resourceType,
             queryParams,
             baseUrl: this.serverUrl,
+            searchFilters,
         });
         return BundleGenerator.generateBundle(
             this.serverUrl,
@@ -86,12 +107,18 @@ export default class ResourceHandler implements CrudHandlerInterface {
         );
     }
 
-    async instanceHistory(resourceType: string, id: string, queryParams: any) {
+    async instanceHistory(resourceType: string, id: string, queryParams: any, userIdentity: KeyValueMap) {
+        const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
+            userIdentity,
+            operation: 'history-instance',
+        });
+
         const historyResponse = await this.historyService.instanceHistory({
             id,
             resourceType,
             queryParams,
             baseUrl: this.serverUrl,
+            searchFilters,
         });
         return BundleGenerator.generateBundle(
             this.serverUrl,

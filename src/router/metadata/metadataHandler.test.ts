@@ -12,6 +12,7 @@ import stu3FhirConfigWithExclusions from '../../../sampleData/stu3FhirConfigWith
 import r4FhirConfigNoGeneric from '../../../sampleData/r4FhirConfigNoGeneric';
 import Validator from '../validation/validator';
 import ConfigHandler from '../../configHandler';
+import { utcTimeRegExp } from '../../regExpressions';
 
 const r4Validator = new Validator('4.0.1');
 const stu3Validator = new Validator('3.0.1');
@@ -628,7 +629,7 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
-    expect(response.resource).toEqual({
+    const expectedResponse: any = {
         resourceType: 'CapabilityStatement',
         name: 'product.machine.name',
         title: 'Product Title Capability Statement',
@@ -636,7 +637,7 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
         purpose: 'Product Purpose',
         copyright: 'Copyright',
         status: 'active',
-        date: new Date().toISOString(),
+        date: expect.stringMatching(utcTimeRegExp),
         publisher: 'Organization Name',
         kind: 'instance',
         software: {
@@ -650,5 +651,7 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
         fhirVersion: '4.0.1',
         format: ['json'],
         rest: response.resource.rest,
-    });
+    };
+
+    expect(response.resource).toMatchObject(expectedResponse);
 });
