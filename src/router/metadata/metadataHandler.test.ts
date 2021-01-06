@@ -637,6 +637,7 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
         purpose: 'Product Purpose',
         copyright: 'Copyright',
         status: 'active',
+        date: expect.stringMatching(utcTimeRegExp),
         publisher: 'Organization Name',
         kind: 'instance',
         software: {
@@ -652,7 +653,5 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
         rest: response.resource.rest,
     };
 
-    expectedResponse.date = expect.stringMatching(utcTimeRegExp);
-
-    expect(response.resource).toEqual(expectedResponse);
+    expect(response.resource).toMatchObject(expectedResponse);
 });
