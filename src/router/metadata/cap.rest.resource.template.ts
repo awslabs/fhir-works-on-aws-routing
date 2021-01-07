@@ -73,12 +73,7 @@ export function makeGenericResources(
     return resources;
 }
 
-export async function makeResource(
-    resourceType: string,
-    // operations: TypeOperation[],
-    // searchCapabilityStatement: SearchCapabilityStatement,
-    resource: Resource,
-) {
+export async function makeResource(resourceType: string, resource: Resource) {
     const resourceOperations: any[] = makeOperation(resource.operations);
     const updateCreate: boolean = resource.operations.includes('update');
     const hasTypeSearch: boolean = resource.operations.includes('search-type');
