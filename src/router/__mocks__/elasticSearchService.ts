@@ -1,4 +1,10 @@
-import { Search, SearchResponse, GlobalSearchRequest, TypeSearchRequest } from 'fhir-works-on-aws-interface';
+import {
+    Search,
+    SearchResponse,
+    GlobalSearchRequest,
+    TypeSearchRequest,
+    SearchCapabilityStatement,
+} from 'fhir-works-on-aws-interface';
 
 const ElasticSearchService: Search = class {
     /*
@@ -18,6 +24,10 @@ const ElasticSearchService: Search = class {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static globalSearch(request: GlobalSearchRequest): Promise<SearchResponse> {
+        throw new Error('Method not implemented.');
+    }
+
+    static async getCapabilities(): Promise<SearchCapabilityStatement> {
         throw new Error('Method not implemented.');
     }
 };
