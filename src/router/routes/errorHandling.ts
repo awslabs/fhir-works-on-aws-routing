@@ -8,6 +8,7 @@ import {
     isTooManyConcurrentExportRequestsError,
     IssueSeverity,
     IssueCode,
+    isInvalidSearchParameterError,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
@@ -36,6 +37,10 @@ export const applicationErrorMapper = (
     }
     if (isTooManyConcurrentExportRequestsError(err)) {
         next(new createError.TooManyRequests('There is currently too many requests. Please try again later'));
+        return;
+    }
+    if (isInvalidSearchParameterError(err)) {
+        next(new createError.BadRequest(err.message));
         return;
     }
     next(err);
