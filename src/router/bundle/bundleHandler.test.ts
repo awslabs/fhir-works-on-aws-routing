@@ -318,7 +318,7 @@ const getSupportedGenericResources = (
     supportedResources: string[],
     fhirVersion: FhirVersion,
 ): string[] => {
-    const customFhirConfig = clone(r4FhirConfigGeneric);
+    const customFhirConfig = r4FhirConfigGeneric();
     customFhirConfig.profile.genericResource = genRes;
     const configHandler = new ConfigHandler(customFhirConfig, supportedResources);
     return configHandler.getGenericResources(fhirVersion);

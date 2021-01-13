@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { clone, stubs } from 'fhir-works-on-aws-interface';
+import { stubs } from 'fhir-works-on-aws-interface';
 import MetadataHandler from './metadataHandler';
 import { makeOperation } from './cap.rest.resource.template';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
@@ -285,6 +285,49 @@ const SUPPORTED_STU3_RESOURCES = [
     'VisionPrescription',
 ];
 
+const overrideStubs = {
+    search: {
+        getCapabilities: async () => ({
+            AllergyIntolerance: {
+                searchParam: [
+                    {
+                        name: 'some-search-field',
+                        type: 'string',
+                        documentation: 'docs for some search field',
+                    },
+                ],
+            },
+            Organization: {
+                searchParam: [
+                    {
+                        name: 'some-search-field',
+                        type: 'string',
+                        documentation: 'docs for some search field',
+                    },
+                ],
+            },
+            Account: {
+                searchParam: [
+                    {
+                        name: 'some-search-field',
+                        type: 'string',
+                        documentation: 'docs for some search field',
+                    },
+                ],
+            },
+            Patient: {
+                searchParam: [
+                    {
+                        name: 'some-search-field',
+                        type: 'string',
+                        documentation: 'docs for some search field',
+                    },
+                ],
+            },
+        }),
+    },
+};
+
 describe('ERROR: test cases', () => {
     beforeEach(() => {
         // Ensures that for each test, we test the assertions in the catch block
@@ -292,7 +335,10 @@ describe('ERROR: test cases', () => {
     });
     test('STU3: Asking for V4 when only supports V3', async () => {
         // BUILD
-        const configHandler: ConfigHandler = new ConfigHandler(stu3FhirConfigWithExclusions, SUPPORTED_STU3_RESOURCES);
+        const configHandler: ConfigHandler = new ConfigHandler(
+            stu3FhirConfigWithExclusions(),
+            SUPPORTED_STU3_RESOURCES,
+        );
         const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
         try {
             // OPERATE
@@ -307,7 +353,10 @@ describe('ERROR: test cases', () => {
 
     test('R4: Asking for V3 when only supports V4', async () => {
         // BUILD
-        const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric, SUPPORTED_R4_RESOURCES);
+        const configHandler: ConfigHandler = new ConfigHandler(
+            r4FhirConfigGeneric(overrideStubs),
+            SUPPORTED_R4_RESOURCES,
+        );
         const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
         try {
             // OPERATE
@@ -322,10 +371,12 @@ describe('ERROR: test cases', () => {
 });
 
 test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
-    const configHandler: ConfigHandler = new ConfigHandler(stu3FhirConfigWithExclusions, SUPPORTED_STU3_RESOURCES);
+    const config = stu3FhirConfigWithExclusions(overrideStubs);
+    const supportedGenericResources = ['AllergyIntolerance', 'Organization', 'Account', 'Patient'];
+    const configHandler: ConfigHandler = new ConfigHandler(config, supportedGenericResources);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, true);
     const response = await metadataHandler.capabilities({ fhirVersion: '3.0.1', mode: 'full' });
-    const { genericResource } = stu3FhirConfigWithExclusions.profile;
+    const { genericResource } = config.profile;
     const excludedResources = genericResource ? genericResource.excludedSTU3Resources || [] : [];
     const expectedSubset = {
         acceptUnknown: 'no',
@@ -334,9 +385,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
     expect(response.resource).toBeDefined();
     expect(response.resource).toMatchObject(expectedSubset);
     expect(response.resource.rest.length).toEqual(1);
-    expect(response.resource.rest[0].resource.length).toEqual(
-        SUPPORTED_STU3_RESOURCES.length - excludedResources.length,
-    );
+    expect(response.resource.rest[0].resource.length).toEqual(3); // only AllergyIntolerance is excluded out of the 4 supportedGenericResources for this test
     expect(response.resource.rest[0].security.cors).toBeTruthy();
     // see if just READ is chosen for generic
     let isExcludedResourceFound = false;
@@ -349,9 +398,9 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
             updateCreate: true,
             searchParam: [
                 {
-                    name: 'ALL',
-                    type: 'composite',
-                    documentation: 'Support all fields.',
+                    name: 'some-search-field',
+                    type: 'string',
+                    documentation: 'docs for some search field',
                 },
             ],
         };
@@ -359,16 +408,14 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
     });
     expect(isExcludedResourceFound).toBeFalsy();
 
-    expect(response.resource.rest[0].interaction).toEqual(
-        makeOperation(stu3FhirConfigWithExclusions.profile.systemOperations),
-    );
+    expect(response.resource.rest[0].interaction).toEqual(makeOperation(config.profile.systemOperations));
     expect(response.resource.rest[0].searchParam).toBeUndefined();
     expect(stu3Validator.validate('CapabilityStatement', response.resource)).toEqual({
         message: 'Success',
     });
 });
 test('R4: FHIR Config V4 without search', async () => {
-    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric, SUPPORTED_R4_RESOURCES);
+    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric(overrideStubs), SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
     expect(response.resource).toBeDefined();
@@ -383,7 +430,9 @@ test('R4: FHIR Config V4 without search', async () => {
         updateCreate: true,
     };
     expect(response.resource.rest[0].resource[0]).toMatchObject(expectedResourceSubset);
-    expect(response.resource.rest[0].interaction).toEqual(makeOperation(r4FhirConfigGeneric.profile.systemOperations));
+    expect(response.resource.rest[0].interaction).toEqual(
+        makeOperation(r4FhirConfigGeneric(overrideStubs).profile.systemOperations),
+    );
     expect(response.resource.rest[0].searchParam).toBeUndefined();
     expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
         message: 'Success',
@@ -391,10 +440,11 @@ test('R4: FHIR Config V4 without search', async () => {
 });
 
 test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', async () => {
-    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigWithExclusions, SUPPORTED_R4_RESOURCES);
+    const config = r4FhirConfigWithExclusions(overrideStubs);
+    const configHandler: ConfigHandler = new ConfigHandler(config, SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
-    const { genericResource } = r4FhirConfigWithExclusions.profile;
+    const { genericResource } = config.profile;
     const excludedResources = genericResource ? genericResource.excludedR4Resources || [] : [];
     expect(response.resource).toBeDefined();
     expect(response.resource.acceptUnknown).toBeUndefined();
@@ -426,9 +476,7 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
         expect(resource.searchParam).toBeUndefined();
     });
     expect(isExclusionFound).toBeFalsy();
-    expect(response.resource.rest[0].interaction).toEqual(
-        makeOperation(r4FhirConfigWithExclusions.profile.systemOperations),
-    );
+    expect(response.resource.rest[0].interaction).toEqual(makeOperation(config.profile.systemOperations));
     expect(response.resource.rest[0].searchParam).toBeDefined();
     expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
         message: 'Success',
@@ -436,9 +484,10 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
 });
 
 test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
-    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigNoGeneric, SUPPORTED_R4_RESOURCES);
+    const config = r4FhirConfigNoGeneric(overrideStubs);
+    const configHandler: ConfigHandler = new ConfigHandler(config, SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
-    const configResource: any = r4FhirConfigNoGeneric.profile.resources;
+    const configResource: any = config.profile.resources;
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
     expect(response.resource).toBeDefined();
     expect(response.resource.acceptUnknown).toBeUndefined();
@@ -465,7 +514,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     });
     expect(isSTU3ResourceFound).toBeFalsy();
     expect(response.resource.rest[0].interaction).toEqual(
-        makeOperation(r4FhirConfigNoGeneric.profile.systemOperations),
+        makeOperation(r4FhirConfigNoGeneric().profile.systemOperations),
     );
     expect(response.resource.rest[0].searchParam).toBeDefined();
     expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
@@ -473,7 +522,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     });
 });
 test('R4: FHIR Config V4 with bulkDataAccess', async () => {
-    const r4ConfigWithBulkDataAccess = clone(r4FhirConfigGeneric);
+    const r4ConfigWithBulkDataAccess = r4FhirConfigGeneric(overrideStubs);
     r4ConfigWithBulkDataAccess.profile.bulkDataAccess = stubs.bulkDataAccess;
     const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithBulkDataAccess, SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
@@ -494,7 +543,7 @@ test('R4: FHIR Config V4 with bulkDataAccess', async () => {
 });
 
 test('R4: FHIR Config V4 without bulkDataAccess', async () => {
-    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric, SUPPORTED_R4_RESOURCES);
+    const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric(overrideStubs), SUPPORTED_R4_RESOURCES);
     const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
@@ -502,7 +551,7 @@ test('R4: FHIR Config V4 without bulkDataAccess', async () => {
 });
 
 test('R4: FHIR Config V4 with all Oauth Policy endpoints', async () => {
-    const r4ConfigWithOauthEndpoints = clone(r4FhirConfigGeneric);
+    const r4ConfigWithOauthEndpoints = r4FhirConfigGeneric(overrideStubs);
     r4ConfigWithOauthEndpoints.auth.strategy = {
         service: 'OAuth',
         oauthPolicy: {
@@ -566,7 +615,7 @@ test('R4: FHIR Config V4 with all Oauth Policy endpoints', async () => {
 });
 
 test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
-    const r4ConfigWithOauthEndpoints = clone(r4FhirConfigGeneric);
+    const r4ConfigWithOauthEndpoints = r4FhirConfigGeneric(overrideStubs);
     r4ConfigWithOauthEndpoints.auth.strategy = {
         service: 'OAuth',
         oauthPolicy: {
@@ -615,7 +664,7 @@ test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
 });
 
 test('R4: FHIR Config V4 with all productInfo params', async () => {
-    const r4ConfigWithAllProductInfo = clone(r4FhirConfigGeneric);
+    const r4ConfigWithAllProductInfo = r4FhirConfigGeneric(overrideStubs);
     r4ConfigWithAllProductInfo.productInfo = {
         orgName: 'Organization Name',
         productVersion: '1.0.0',

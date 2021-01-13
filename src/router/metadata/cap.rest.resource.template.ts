@@ -3,13 +3,20 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { TypeOperation, SystemOperation } from 'fhir-works-on-aws-interface';
+import {
+    TypeOperation,
+    SystemOperation,
+    SearchCapabilityStatement,
+    SearchCapabilities,
+    Resource,
+} from 'fhir-works-on-aws-interface';
 
 function makeResourceObject(
     resourceType: string,
     resourceOperations: any[],
     updateCreate: boolean,
     hasTypeSearch: boolean,
+    searchCapabilities?: SearchCapabilities,
 ) {
     const result: any = {
         type: resourceType,
@@ -23,15 +30,8 @@ function makeResourceObject(
         conditionalDelete: 'not-supported',
     };
 
-    // TODO: Handle case where user specify exactly which search parameters is supported for each resource
-    if (hasTypeSearch) {
-        result.searchParam = [
-            {
-                name: 'ALL',
-                type: 'composite',
-                documentation: 'Support all fields.',
-            },
-        ];
+    if (hasTypeSearch && searchCapabilities !== undefined) {
+        Object.assign(result, searchCapabilities);
     }
 
     return result;
@@ -47,7 +47,11 @@ export function makeOperation(operations: (TypeOperation | SystemOperation)[]) {
     return resourceOperations;
 }
 
-export function makeGenericResources(fhirResourcesToMake: string[], operations: TypeOperation[]) {
+export function makeGenericResources(
+    fhirResourcesToMake: string[],
+    operations: TypeOperation[],
+    searchCapabilityStatement: SearchCapabilityStatement,
+) {
     const resources: any[] = [];
 
     const resourceOperations: any[] = makeOperation(operations);
@@ -55,18 +59,32 @@ export function makeGenericResources(fhirResourcesToMake: string[], operations: 
     const hasTypeSearch: boolean = operations.includes('search-type');
 
     fhirResourcesToMake.forEach((resourceType: string) => {
-        resources.push(makeResourceObject(resourceType, resourceOperations, updateCreate, hasTypeSearch));
+        resources.push(
+            makeResourceObject(
+                resourceType,
+                resourceOperations,
+                updateCreate,
+                hasTypeSearch,
+                searchCapabilityStatement[resourceType],
+            ),
+        );
     });
 
     return resources;
 }
 
-export function makeResource(resourceType: string, operations: TypeOperation[]) {
-    const resourceOperations: any[] = makeOperation(operations);
-    const updateCreate: boolean = operations.includes('update');
-    const hasTypeSearch: boolean = operations.includes('search-type');
+export async function makeResource(resourceType: string, resource: Resource) {
+    const resourceOperations: any[] = makeOperation(resource.operations);
+    const updateCreate: boolean = resource.operations.includes('update');
+    const hasTypeSearch: boolean = resource.operations.includes('search-type');
 
-    const resource = makeResourceObject(resourceType, resourceOperations, updateCreate, hasTypeSearch);
+    const capabilities: SearchCapabilityStatement = hasTypeSearch ? await resource.typeSearch.getCapabilities() : {};
 
-    return resource;
+    return makeResourceObject(
+        resourceType,
+        resourceOperations,
+        updateCreate,
+        hasTypeSearch,
+        capabilities[resourceType],
+    );
 }
