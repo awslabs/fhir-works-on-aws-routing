@@ -1,6 +1,26 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [4.0.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v3.0.1...v4.0.0) (2021-01-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* updated to interface 7.0.0 which changed the structure of `FhirConfig` that is used as argument for `generateServerlessRouter`
+
+### Features
+
+* Support additional product info used in the Capability Statement ([#31](https://github.com/awslabs/fhir-works-on-aws-routing/issues/31)) ([5a61db3](https://github.com/awslabs/fhir-works-on-aws-routing/commit/5a61db3ac3b50116bdd119b98a929065676a0d0a))
+* use getSearchFilterBasedOnIdentity to prefilter resources([#38](https://github.com/awslabs/fhir-works-on-aws-routing/issues/38)) ([b3fd394](https://github.com/awslabs/fhir-works-on-aws-routing/commit/b3fd3949227b7126722056e4940dd5f161d0ce06))
+* use search getCapabilities to build capability statement ([#41](https://github.com/awslabs/fhir-works-on-aws-routing/issues/41)) ([5f4340d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/5f4340d83d213d8d46794eba3845110605db0918))
+
+
+### Bug Fixes
+
+* Add authorizeAndFilterReadResponse for system searches ([#36](https://github.com/awslabs/fhir-works-on-aws-routing/issues/36)) ([104098d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/104098d32f26403587c69045266a1581ffa163ed))
+* authorize requester has permission to view all resources returned in the Bundle ([#32](https://github.com/awslabs/fhir-works-on-aws-routing/issues/32)) ([155e926](https://github.com/awslabs/fhir-works-on-aws-routing/commit/155e926a5598b13e110b5e71468337386e75ebb4))
+* When parsing Bundles for reference only fields explicitly named 'reference' should be considered a reference ([#35](https://github.com/awslabs/fhir-works-on-aws-routing/issues/35)) ([b931d52](https://github.com/awslabs/fhir-works-on-aws-routing/commit/b931d5248673e5941709d5b2920819fa4a5b2e4d))
 
 ## [3.0.1] - 2020-12-07
 
