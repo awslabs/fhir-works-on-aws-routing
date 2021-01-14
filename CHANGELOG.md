@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v4.0.0...v4.0.1) (2021-01-14)
+
+
+### Bug Fixes
+
+* add cors typing to dependencies ([#43](https://github.com/awslabs/fhir-works-on-aws-routing/issues/43)) ([46d4a59](https://github.com/awslabs/fhir-works-on-aws-routing/commit/46d4a596e45da80d19014333ac13b2fd831484b6))
+
 ## [4.0.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v3.0.1...v4.0.0) (2021-01-13)
 
 
