@@ -598,7 +598,7 @@ test('R4: FHIR Config V4 with all Oauth Policy endpoints', async () => {
                         valueUri: 'http://fhir-server.com/register',
                     },
                 ],
-                url: 'https://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html',
+                url: 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris',
             },
         ],
         service: [
@@ -647,7 +647,7 @@ test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
                         valueUri: 'http://fhir-server.com/manage',
                     },
                 ],
-                url: 'https://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html',
+                url: 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris',
             },
         ],
         service: [
