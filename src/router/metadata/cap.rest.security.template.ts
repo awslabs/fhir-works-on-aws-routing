@@ -61,7 +61,7 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                 ...{
                     extension: [
                         {
-                            url: 'https://www.hl7.org/fhir/smart-app-launch/StructureDefinition-oauth-uris.html',
+                            url: 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris',
                             extension,
                         },
                     ],
