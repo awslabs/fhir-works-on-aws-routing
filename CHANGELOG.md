@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.3](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v4.0.1...v4.0.3) (2021-01-27)
+
+### Chore
+
+* Update interface and pass values to AuthZ ([#45](https://github.com/awslabs/fhir-works-on-aws-routing/issues/48)) ([e6de625d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/93a7933877fcb73561941c8e12aa5b05e6de625d))
+
 ### [4.0.2](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v4.0.1...v4.0.2) (2021-01-20)
 
 
