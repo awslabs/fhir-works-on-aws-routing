@@ -7,10 +7,10 @@ import { Search, History, Persistence, FhirVersion, Authorization, KeyValueMap }
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
-import Validator from '../validation/validator';
+import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 
 export default class ResourceHandler implements CrudHandlerInterface {
-    private validator: Validator;
+    private validator: JsonSchemaValidator;
 
     private dataService: Persistence;
 
@@ -30,7 +30,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
         fhirVersion: FhirVersion,
         serverUrl: string,
     ) {
-        this.validator = new Validator(fhirVersion);
+        this.validator = new JsonSchemaValidator(fhirVersion);
         this.dataService = dataService;
         this.searchService = searchService;
         this.historyService = historyService;
@@ -39,14 +39,14 @@ export default class ResourceHandler implements CrudHandlerInterface {
     }
 
     async create(resourceType: string, resource: any) {
-        this.validator.validate(resourceType, resource);
+        await this.validator.validate(resource);
 
         const createResponse = await this.dataService.createResource({ resourceType, resource });
         return createResponse.resource;
     }
 
     async update(resourceType: string, id: string, resource: any) {
-        this.validator.validate(resourceType, resource);
+        await this.validator.validate(resource);
 
         const updateResponse = await this.dataService.updateResource({ resourceType, id, resource });
         return updateResponse.resource;
