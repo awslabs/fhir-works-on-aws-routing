@@ -12,12 +12,11 @@ import validV3Account from '../../../sampleData/validV3Account.json';
 describe('Validating V4 resources', () => {
     const validatorV4 = new JsonSchemaValidator('4.0.1');
     test('No error when validating valid resource', async () => {
-        const response = validatorV4.validate(validPatient);
-        await expect(response).resolves.toEqual(undefined);
+        await expect(validatorV4.validate(validPatient)).resolves.toEqual(undefined);
     });
 
     test('Show error when validating invalid resource', async () => {
-        await expect(() => validatorV4.validate(invalidPatient)).rejects.toThrowError(
+        await expect(validatorV4.validate(invalidPatient)).rejects.toThrowError(
             new InvalidResourceError(
                 "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
             ),
@@ -35,9 +34,8 @@ describe('Validating V4 resources', () => {
 
 describe('Validating V3 resources', () => {
     const validatorV3 = new JsonSchemaValidator('3.0.1');
-    test('No error when validating valid v3 resource', () => {
-        const response = validatorV3.validate(validV3Account);
-        expect(response).resolves.toEqual(undefined);
+    test('No error when validating valid v3 resource', async () => {
+        await expect(validatorV3.validate(validV3Account)).resolves.toEqual(undefined);
     });
 
     // TODO: Validator does not validate v3 Bundles correctly
