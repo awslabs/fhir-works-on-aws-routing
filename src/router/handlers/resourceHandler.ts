@@ -3,14 +3,22 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, Persistence, FhirVersion, Authorization, KeyValueMap } from 'fhir-works-on-aws-interface';
+import {
+    Search,
+    History,
+    Persistence,
+    FhirVersion,
+    Authorization,
+    KeyValueMap,
+    Validator,
+} from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
 import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 
 export default class ResourceHandler implements CrudHandlerInterface {
-    private validator: JsonSchemaValidator;
+    private validator: Validator;
 
     private dataService: Persistence;
 

@@ -14,6 +14,7 @@ import {
     TypeOperation,
     KeyValueMap,
     isUnauthorizedError,
+    Validator,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
@@ -26,7 +27,7 @@ import BundleParser from './bundleParser';
 export default class BundleHandler implements BundleHandlerInterface {
     private bundleService: Bundle;
 
-    private validator: JsonSchemaValidator;
+    private validator: Validator;
 
     readonly serverUrl: string;
 
