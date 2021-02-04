@@ -4,28 +4,27 @@
  */
 
 import { InvalidResourceError } from 'fhir-works-on-aws-interface';
-import Validator from './validator';
+import JsonSchemaValidator from './jsonSchemaValidator';
 import validPatient from '../../../sampleData/validV4Patient.json';
 import invalidPatient from '../../../sampleData/invalidV4Patient.json';
 import validV3Account from '../../../sampleData/validV3Account.json';
 
 describe('Validating V4 resources', () => {
-    const validatorV4 = new Validator('4.0.1');
-    test('No error when validating valid resource', () => {
-        const response = validatorV4.validate('Patient', validPatient);
-        expect(response).toEqual({ message: 'Success' });
+    const validatorV4 = new JsonSchemaValidator('4.0.1');
+    test('No error when validating valid resource', async () => {
+        await expect(validatorV4.validate(validPatient)).resolves.toEqual(undefined);
     });
 
-    test('Show error when validating invalid resource', () => {
-        expect(() => validatorV4.validate('Patient', invalidPatient)).toThrowError(
+    test('Show error when validating invalid resource', async () => {
+        await expect(validatorV4.validate(invalidPatient)).rejects.toThrowError(
             new InvalidResourceError(
                 "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
             ),
         );
     });
 
-    test('Show error when checking for wrong version of FHIR resource', () => {
-        expect(() => validatorV4.validate('Account', validV3Account)).toThrowError(
+    test('Show error when checking for wrong version of FHIR resource', async () => {
+        await expect(validatorV4.validate(validV3Account)).rejects.toThrowError(
             new InvalidResourceError(
                 'data should NOT have additional properties, data should NOT have additional properties, data should NOT have additional properties, data.subject should be array',
             ),
@@ -34,14 +33,13 @@ describe('Validating V4 resources', () => {
 });
 
 describe('Validating V3 resources', () => {
-    const validatorV3 = new Validator('3.0.1');
-    test('No error when validating valid v3 resource', () => {
-        const response = validatorV3.validate('Account', validV3Account);
-        expect(response).toEqual({ message: 'Success' });
+    const validatorV3 = new JsonSchemaValidator('3.0.1');
+    test('No error when validating valid v3 resource', async () => {
+        await expect(validatorV3.validate(validV3Account)).resolves.toEqual(undefined);
     });
 
     // TODO: Validator does not validate v3 Bundles correctly
-    test.skip('No error when validating valid v3 Bundle', () => {
+    test.skip('No error when validating valid v3 Bundle', async () => {
         const bundle = {
             resourceType: 'Bundle',
             type: 'transaction',
@@ -57,12 +55,11 @@ describe('Validating V3 resources', () => {
             ],
         };
 
-        const response = validatorV3.validate('Bundle', bundle);
-        expect(response).toEqual({ success: true, message: 'Success' });
+        await expect(validatorV3.validate(bundle)).resolves.toEqual(undefined);
     });
 
-    test('Show error when validating invalid resource', () => {
-        expect(() => validatorV3.validate('Patient', invalidPatient)).toThrowError(
+    test('Show error when validating invalid resource', async () => {
+        await expect(validatorV3.validate(invalidPatient)).rejects.toThrowError(
             new InvalidResourceError(
                 "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
             ),

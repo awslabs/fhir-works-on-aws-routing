@@ -14,10 +14,11 @@ import {
     TypeOperation,
     KeyValueMap,
     isUnauthorizedError,
+    Validator,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
-import Validator from '../validation/validator';
+import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
@@ -54,7 +55,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         this.genericResource = genericResource;
         this.resources = resources;
 
-        this.validator = new Validator(fhirVersion);
+        this.validator = new JsonSchemaValidator(fhirVersion);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -100,7 +101,7 @@ export default class BundleHandler implements BundleHandlerInterface {
     async processTransaction(bundleRequestJson: any, userIdentity: KeyValueMap) {
         const startTime = new Date();
 
-        this.validator.validate('Bundle', bundleRequestJson);
+        await this.validator.validate(bundleRequestJson);
 
         let requests: BatchReadWriteRequest[];
         try {
