@@ -19,7 +19,7 @@ describe('Validating V4 resources', () => {
     test('Show error when validating invalid resource', () => {
         expect(() => validatorV4.validate('Patient', invalidPatient)).toThrowError(
             new InvalidResourceError(
-                "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
+                "Failed to parse request body as JSON resource. Error was: data.text should have required property 'div', data.gender should be equal to one of the allowed values",
             ),
         );
     });
@@ -27,7 +27,7 @@ describe('Validating V4 resources', () => {
     test('Show error when checking for wrong version of FHIR resource', () => {
         expect(() => validatorV4.validate('Account', validV3Account)).toThrowError(
             new InvalidResourceError(
-                'data should NOT have additional properties, data should NOT have additional properties, data should NOT have additional properties, data.subject should be array',
+                'Failed to parse request body as JSON resource. Error was: data should NOT have additional properties, data should NOT have additional properties, data should NOT have additional properties, data.subject should be array',
             ),
         );
     });
@@ -64,7 +64,7 @@ describe('Validating V3 resources', () => {
     test('Show error when validating invalid resource', () => {
         expect(() => validatorV3.validate('Patient', invalidPatient)).toThrowError(
             new InvalidResourceError(
-                "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
+                "Failed to parse request body as JSON resource. Error was: data.text should have required property 'div', data.gender should be equal to one of the allowed values",
             ),
         );
     });
