@@ -3,16 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-    Search,
-    History,
-    Persistence,
-    FhirVersion,
-    Authorization,
-    KeyValueMap,
-    isInvalidResourceError,
-} from 'fhir-works-on-aws-interface';
-import createError from 'http-errors';
+import { Search, History, Persistence, FhirVersion, Authorization, KeyValueMap } from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
