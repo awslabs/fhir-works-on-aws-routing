@@ -3,7 +3,16 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, Persistence, FhirVersion, Authorization, KeyValueMap } from 'fhir-works-on-aws-interface';
+import {
+    Search,
+    History,
+    Persistence,
+    FhirVersion,
+    Authorization,
+    KeyValueMap,
+    isInvalidResourceError,
+} from 'fhir-works-on-aws-interface';
+import createError from 'http-errors';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
@@ -41,8 +50,15 @@ export default class ResourceHandler implements CrudHandlerInterface {
     async create(resourceType: string, resource: any) {
         this.validator.validate(resourceType, resource);
 
-        const createResponse = await this.dataService.createResource({ resourceType, resource });
-        return createResponse.resource;
+        try {
+            const createResponse = await this.dataService.createResource({ resourceType, resource });
+            return createResponse.resource;
+        } catch (e) {
+            if (isInvalidResourceError(e)) {
+                throw new createError.BadRequest(e.message);
+            }
+            throw e;
+        }
     }
 
     async update(resourceType: string, id: string, resource: any) {
