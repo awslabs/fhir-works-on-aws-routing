@@ -50,15 +50,8 @@ export default class ResourceHandler implements CrudHandlerInterface {
     async create(resourceType: string, resource: any) {
         this.validator.validate(resourceType, resource);
 
-        try {
-            const createResponse = await this.dataService.createResource({ resourceType, resource });
-            return createResponse.resource;
-        } catch (e) {
-            if (isInvalidResourceError(e)) {
-                throw new createError.BadRequest(e.message);
-            }
-            throw e;
-        }
+        const createResponse = await this.dataService.createResource({ resourceType, resource });
+        return createResponse.resource;
     }
 
     async update(resourceType: string, id: string, resource: any) {

@@ -427,7 +427,11 @@ describe('ERROR Cases: Validation of Bundle request', () => {
 
             await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
-            expect(e).toEqual(new InvalidResourceError('data.entry[0].request should NOT have additional properties'));
+            expect(e).toEqual(
+                new InvalidResourceError(
+                    'Failed to parse request body as JSON resource. Error was: data.entry[0].request should NOT have additional properties',
+                ),
+            );
         }
     });
 
@@ -450,7 +454,11 @@ describe('ERROR Cases: Validation of Bundle request', () => {
 
             await bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerDecoded);
         } catch (e) {
-            expect(e).toEqual(new InvalidResourceError("data should have required property 'resourceType'"));
+            expect(e).toEqual(
+                new InvalidResourceError(
+                    "Failed to parse request body as JSON resource. Error was: data should have required property 'resourceType'",
+                ),
+            );
         }
     });
 
