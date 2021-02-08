@@ -23,6 +23,7 @@ import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import { uuidRegExp, utcTimeRegExp } from '../../regExpressions';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
 import ConfigHandler from '../../configHandler';
+import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 
 const sampleBundleRequestJSON = {
     resourceType: 'Bundle',
@@ -327,8 +328,8 @@ const getSupportedGenericResources = (
 
 const bundleHandlerR4 = new BundleHandler(
     DynamoDbBundleService,
+    [new JsonSchemaValidator('4.0.1')],
     'https://API_URL.com',
-    '4.0.1',
     stubs.passThroughAuthz,
     getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
     genericResource,
@@ -337,8 +338,8 @@ const bundleHandlerR4 = new BundleHandler(
 
 const bundleHandlerSTU3 = new BundleHandler(
     DynamoDbBundleService,
+    [new JsonSchemaValidator('3.0.1')],
     'https://API_URL.com',
-    '3.0.1',
     stubs.passThroughAuthz,
     getSupportedGenericResources(genericResource, SUPPORTED_STU3_RESOURCES, '3.0.1'),
     genericResource,
@@ -628,8 +629,8 @@ describe('ERROR Cases: Bundle not authorized', () => {
         };
         const bundleHandlerWithStubbedAuthZ = new BundleHandler(
             DynamoDbBundleService,
+            [new JsonSchemaValidator('4.0.1')],
             'https://API_URL.com',
-            '4.0.1',
             authZ,
             getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
             genericResource,
@@ -671,8 +672,8 @@ describe('ERROR Cases: Bundle not authorized', () => {
         };
         const bundleHandlerWithStubbedAuthZ = new BundleHandler(
             DynamoDbBundleService,
+            [new JsonSchemaValidator('4.0.1')],
             'https://API_URL.com',
-            '4.0.1',
             authZ,
             getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
             genericResource,
@@ -777,8 +778,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerReadGenericResource = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceReadOnly, supportedResource, version),
                 genericResourceReadOnly,
@@ -812,8 +813,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerExcludePatient = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceExcludePatient, supportedResource, version),
                 genericResourceExcludePatient,
@@ -856,8 +857,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerSpecialResourcePatient = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceExcludePatient, supportedResource, version),
                 genericResourceExcludePatient,
@@ -885,8 +886,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerNoExclusion = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceNoExclusion, supportedResource, version),
                 genericResourceNoExclusion,

@@ -32,6 +32,7 @@ import OperationsGenerator from '../operationsGenerator';
 
 import ElasticSearchService from '../__mocks__/elasticSearchService';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
+import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 
 const enum SEARCH_PAGINATION_PARAMS {
     PAGES_OFFSET = '_getpagesoffset',
@@ -44,8 +45,8 @@ describe('SUCCESS CASES: Testing create, read, update, delete of resources', () 
         ElasticSearchService,
         stubs.history,
         stubs.passThroughAuthz,
-        '4.0.1',
         'https://API_URL.com',
+        [new JsonSchemaValidator('4.0.1')],
     );
 
     test('create: patient', async () => {
@@ -228,8 +229,8 @@ describe('ERROR CASES: Testing create, read, update, delete of resources', () =>
         ElasticSearchService,
         stubs.history,
         stubs.passThroughAuthz,
-        '4.0.1',
         'https://API_URL.com',
+        [new JsonSchemaValidator('4.0.1')],
     );
 
     beforeEach(() => {
@@ -351,8 +352,8 @@ describe('Testing search', () => {
             ElasticSearchService,
             stubs.history,
             stubs.passThroughAuthz,
-            '4.0.1',
             'https://API_URL.com',
+            [new JsonSchemaValidator('4.0.1')],
         );
 
         return resourceHandler;
@@ -651,8 +652,8 @@ describe('Testing history', () => {
             ElasticSearchService,
             stubs.history,
             stubs.passThroughAuthz,
-            '4.0.1',
             'https://API_URL.com',
+            [new JsonSchemaValidator('4.0.1')],
         );
 
         return resourceHandler;
