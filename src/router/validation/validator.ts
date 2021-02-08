@@ -33,7 +33,9 @@ export default class Validator {
         const referenceName = `#/definitions/${definitionName}`;
         const result = this.ajv.validate(referenceName, data);
         if (!result) {
-            throw new InvalidResourceError(this.ajv.errorsText());
+            throw new InvalidResourceError(
+                `Failed to parse request body as JSON resource. Error was: ${this.ajv.errorsText()}`,
+            );
         }
         return { message: 'Success' };
     }

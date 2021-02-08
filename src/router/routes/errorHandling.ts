@@ -28,7 +28,7 @@ export const applicationErrorMapper = (
         return;
     }
     if (isInvalidResourceError(err)) {
-        next(new createError.BadRequest(`Failed to parse request body as JSON resource. Error was: ${err.message}`));
+        next(new createError.BadRequest(err.message));
         return;
     }
     if (isUnauthorizedError(err)) {
