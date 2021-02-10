@@ -39,6 +39,5 @@ export default class JsonSchemaValidator implements Validator {
         if (!result) {
             throw new InvalidResourceError(this.ajv.errorsText());
         }
-        return Promise.resolve();
     }
 }
