@@ -7,7 +7,7 @@ import { Search, History, Persistence, Authorization, KeyValueMap, Validator } f
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
-import { validateResource } from '../validation/ValidationUtilities';
+import { validateResource } from '../validation/validationUtilities';
 
 export default class ResourceHandler implements CrudHandlerInterface {
     private validators: Validator[];

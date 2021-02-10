@@ -21,7 +21,7 @@ import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
-import { validateResource } from '../validation/ValidationUtilities';
+import { validateResource } from '../validation/validationUtilities';
 
 export default class BundleHandler implements BundleHandlerInterface {
     private bundleService: Bundle;
