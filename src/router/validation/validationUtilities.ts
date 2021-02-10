@@ -5,5 +5,4 @@ export async function validateResource(validators: Validator[], resource: any): 
         // eslint-disable-next-line no-await-in-loop
         await validators[i].validate(resource);
     }
-    return Promise.resolve();
 }
