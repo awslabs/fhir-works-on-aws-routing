@@ -37,7 +37,9 @@ export default class JsonSchemaValidator implements Validator {
         const referenceName = `#/definitions/${definitionName}`;
         const result = this.ajv.validate(referenceName, resource);
         if (!result) {
-            throw new InvalidResourceError(this.ajv.errorsText());
+            throw new InvalidResourceError(
+                `Failed to parse request body as JSON resource. Error was: ${this.ajv.errorsText()}`,
+            );
         }
     }
 }

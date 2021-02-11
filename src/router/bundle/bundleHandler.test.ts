@@ -424,6 +424,10 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         await expect(bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
             new createError.BadRequest('data.entry[0].request should NOT have additional properties'),
         );
+                new InvalidResourceError(
+                    'Failed to parse request body as JSON resource. Error was: data.entry[0].request should NOT have additional properties',
+                ),
+            );
     });
 
     test('Bundle V3 JSON format not correct', async () => {
@@ -444,6 +448,10 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         await expect(bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
             new InvalidResourceError("resource should have required property 'resourceType'"),
         );
+                new InvalidResourceError(
+                    "Failed to parse request body as JSON resource. Error was: data should have required property 'resourceType'",
+                ),
+            );
     });
 
     test('Bundle request has unsupported operation: SEARCH', async () => {

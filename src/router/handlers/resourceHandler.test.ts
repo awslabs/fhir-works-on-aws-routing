@@ -247,7 +247,7 @@ describe('ERROR CASES: Testing create, read, update, delete of resources', () =>
             // CHECK
             expect(e).toEqual(
                 new InvalidResourceError(
-                    "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
+                    "Failed to parse request body as JSON resource. Error was: data.text should have required property 'div', data.gender should be equal to one of the allowed values",
                 ),
             );
         }
@@ -274,7 +274,7 @@ describe('ERROR CASES: Testing create, read, update, delete of resources', () =>
             // CHECK
             expect(e).toEqual(
                 new InvalidResourceError(
-                    "data.text should have required property 'div', data.gender should be equal to one of the allowed values",
+                    "Failed to parse request body as JSON resource. Error was: data.text should have required property 'div', data.gender should be equal to one of the allowed values",
                 ),
             );
         }
