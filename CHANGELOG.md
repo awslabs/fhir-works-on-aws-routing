@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v4.0.3...v5.0.0) (2021-02-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* updated to interface 8.0.0 which changed the structure of FhirConfig. FhirConfig now requires the validators attribute. That attribute is then used in routing. 
+
+### Features
+
+* Add support for Validator interface ([#56](https://github.com/awslabs/fhir-works-on-aws-routing/issues/56)) ([b57b54c](https://github.com/awslabs/fhir-works-on-aws-routing/commit/b57b54c7ee0ef67799a14ffb6bc66a7e25977659))
+
 ### [4.0.3](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v4.0.1...v4.0.3) (2021-01-27)
 
 ### Chore
