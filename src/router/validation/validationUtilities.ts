@@ -1,3 +1,8 @@
+/*
+ *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *  SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Validator } from 'fhir-works-on-aws-interface';
 
 export async function validateResource(validators: Validator[], resource: any): Promise<void> {
