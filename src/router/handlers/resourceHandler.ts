@@ -3,14 +3,14 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, Persistence, FhirVersion, Authorization, KeyValueMap } from 'fhir-works-on-aws-interface';
+import { Search, History, Persistence, Authorization, KeyValueMap, Validator } from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
-import Validator from '../validation/validator';
+import { validateResource } from '../validation/validationUtilities';
 
 export default class ResourceHandler implements CrudHandlerInterface {
-    private validator: Validator;
+    private validators: Validator[];
 
     private dataService: Persistence;
 
@@ -27,10 +27,10 @@ export default class ResourceHandler implements CrudHandlerInterface {
         searchService: Search,
         historyService: History,
         authService: Authorization,
-        fhirVersion: FhirVersion,
         serverUrl: string,
+        validators: Validator[],
     ) {
-        this.validator = new Validator(fhirVersion);
+        this.validators = validators;
         this.dataService = dataService;
         this.searchService = searchService;
         this.historyService = historyService;
@@ -39,14 +39,14 @@ export default class ResourceHandler implements CrudHandlerInterface {
     }
 
     async create(resourceType: string, resource: any) {
-        this.validator.validate(resourceType, resource);
+        await validateResource(this.validators, resource);
 
         const createResponse = await this.dataService.createResource({ resourceType, resource });
         return createResponse.resource;
     }
 
     async update(resourceType: string, id: string, resource: any) {
-        this.validator.validate(resourceType, resource);
+        await validateResource(this.validators, resource);
 
         const updateResponse = await this.dataService.updateResource({ resourceType, id, resource });
         return updateResponse.resource;

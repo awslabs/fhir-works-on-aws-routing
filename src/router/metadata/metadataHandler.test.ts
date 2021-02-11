@@ -10,12 +10,12 @@ import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
 import r4FhirConfigWithExclusions from '../../../sampleData/r4FhirConfigWithExclusions';
 import stu3FhirConfigWithExclusions from '../../../sampleData/stu3FhirConfigWithExclusions';
 import r4FhirConfigNoGeneric from '../../../sampleData/r4FhirConfigNoGeneric';
-import Validator from '../validation/validator';
+import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 import ConfigHandler from '../../configHandler';
 import { utcTimeRegExp } from '../../regExpressions';
 
-const r4Validator = new Validator('4.0.1');
-const stu3Validator = new Validator('3.0.1');
+const r4Validator = new JsonSchemaValidator('4.0.1');
+const stu3Validator = new JsonSchemaValidator('3.0.1');
 
 const SUPPORTED_R4_RESOURCES = [
     'Account',
@@ -410,9 +410,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
 
     expect(response.resource.rest[0].interaction).toEqual(makeOperation(config.profile.systemOperations));
     expect(response.resource.rest[0].searchParam).toBeUndefined();
-    expect(stu3Validator.validate('CapabilityStatement', response.resource)).toEqual({
-        message: 'Success',
-    });
+    expect(stu3Validator.validate(response.resource)).resolves.toEqual(undefined);
 });
 test('R4: FHIR Config V4 without search', async () => {
     const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric(overrideStubs), SUPPORTED_R4_RESOURCES);
@@ -434,9 +432,7 @@ test('R4: FHIR Config V4 without search', async () => {
         makeOperation(r4FhirConfigGeneric(overrideStubs).profile.systemOperations),
     );
     expect(response.resource.rest[0].searchParam).toBeUndefined();
-    expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
-        message: 'Success',
-    });
+    expect(r4Validator.validate(response.resource)).resolves.toEqual(undefined);
 });
 
 test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', async () => {
@@ -478,9 +474,7 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
     expect(isExclusionFound).toBeFalsy();
     expect(response.resource.rest[0].interaction).toEqual(makeOperation(config.profile.systemOperations));
     expect(response.resource.rest[0].searchParam).toBeDefined();
-    expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
-        message: 'Success',
-    });
+    expect(r4Validator.validate(response.resource)).resolves.toEqual(undefined);
 });
 
 test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
@@ -517,9 +511,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
         makeOperation(r4FhirConfigNoGeneric().profile.systemOperations),
     );
     expect(response.resource.rest[0].searchParam).toBeDefined();
-    expect(r4Validator.validate('CapabilityStatement', response.resource)).toEqual({
-        message: 'Success',
-    });
+    expect(r4Validator.validate(response.resource)).resolves.toEqual(undefined);
 });
 test('R4: FHIR Config V4 with bulkDataAccess', async () => {
     const r4ConfigWithBulkDataAccess = r4FhirConfigGeneric(overrideStubs);

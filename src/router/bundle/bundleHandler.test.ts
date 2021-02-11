@@ -15,6 +15,7 @@ import {
     UnauthorizedError,
     AccessBulkDataJobRequest,
 } from 'fhir-works-on-aws-interface';
+import createError from 'http-errors';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import DynamoDbBundleService from '../__mocks__/dynamoDbBundleService';
 import BundleHandler from './bundleHandler';
@@ -22,6 +23,7 @@ import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import { uuidRegExp, utcTimeRegExp } from '../../regExpressions';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
 import ConfigHandler from '../../configHandler';
+import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 
 const sampleBundleRequestJSON = {
     resourceType: 'Bundle',
@@ -326,8 +328,8 @@ const getSupportedGenericResources = (
 
 const bundleHandlerR4 = new BundleHandler(
     DynamoDbBundleService,
+    [new JsonSchemaValidator('4.0.1')],
     'https://API_URL.com',
-    '4.0.1',
     stubs.passThroughAuthz,
     getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
     genericResource,
@@ -336,8 +338,8 @@ const bundleHandlerR4 = new BundleHandler(
 
 const bundleHandlerSTU3 = new BundleHandler(
     DynamoDbBundleService,
+    [new JsonSchemaValidator('3.0.1')],
     'https://API_URL.com',
-    '3.0.1',
     stubs.passThroughAuthz,
     getSupportedGenericResources(genericResource, SUPPORTED_STU3_RESOURCES, '3.0.1'),
     genericResource,
@@ -399,113 +401,88 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         expect.hasAssertions();
     });
     test('Batch processing', async () => {
-        try {
-            // Cloning
-            const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.type = 'batch';
 
-            await bundleHandlerR4.processBatch(bundleRequestJSON, practitionerDecoded);
-        } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.statusCode).toEqual(400);
-            expect(e.message).toEqual('Currently this server only support transaction Bundles');
-        }
+        await expect(bundleHandlerR4.processBatch(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new createError.BadRequest('Currently this server only support transaction Bundles'),
+        );
     });
 
     test('Bundle V4 JSON format not correct', async () => {
-        try {
-            const invalidReadRequest = {
-                request: {
-                    method: 'GET',
-                    url: 'Patient/575fdea9-202d-4a14-9a23-0599dcd01a09',
-                    invalidField: 'foo',
-                },
-            };
+        const invalidReadRequest = {
+            request: {
+                method: 'GET',
+                url: 'Patient/575fdea9-202d-4a14-9a23-0599dcd01a09',
+                invalidField: 'foo',
+            },
+        };
 
-            // Cloning
-            const bundleRequestJSON = clone(sampleBundleRequestJSON);
-            bundleRequestJSON.entry.push(invalidReadRequest);
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry.push(invalidReadRequest);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
-        } catch (e) {
-            expect(e).toEqual(
-                new InvalidResourceError(
-                    'Failed to parse request body as JSON resource. Error was: data.entry[0].request should NOT have additional properties',
-                ),
-            );
-        }
+        await expect(bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new InvalidResourceError(
+                'Failed to parse request body as JSON resource. Error was: data.entry[0].request should NOT have additional properties',
+            ),
+        );
     });
 
-    // V3 schema is very relaxed. It only requires that 'resourceType' is definded in the bundle
     test('Bundle V3 JSON format not correct', async () => {
-        try {
-            const invalidReadRequest = {
-                request: {
-                    method: 'GET',
-                    url: 'Patient/575fdea9-202d-4a14-9a23-0599dcd01a09',
-                    invalidField: 'foo',
-                },
-            };
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.total = 'abc';
 
-            // Cloning
-            const bundleRequestJSON = clone(sampleBundleRequestJSON);
-            bundleRequestJSON.entry.push(invalidReadRequest);
+        await expect(bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new InvalidResourceError(
+                'Failed to parse request body as JSON resource. Error was: data.total should be number, data.total should match pattern "[0]|([1-9][0-9]*)"',
+            ),
+        );
+    });
 
-            delete bundleRequestJSON.resourceType;
+    test('resourceType is not in the Bundle', async () => {
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        delete bundleRequestJSON.resourceType;
 
-            await bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerDecoded);
-        } catch (e) {
-            expect(e).toEqual(
-                new InvalidResourceError(
-                    "Failed to parse request body as JSON resource. Error was: data should have required property 'resourceType'",
-                ),
-            );
-        }
+        await expect(bundleHandlerSTU3.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new InvalidResourceError("resource should have required property 'resourceType'"),
+        );
     });
 
     test('Bundle request has unsupported operation: SEARCH', async () => {
-        try {
-            const searchRequest = {
-                request: {
-                    method: 'GET',
-                    url: 'Patient?gender=female',
-                },
-            };
+        const searchRequest = {
+            request: {
+                method: 'GET',
+                url: 'Patient?gender=female',
+            },
+        };
 
-            // Cloning
-            const bundleRequestJSON = clone(sampleBundleRequestJSON);
-            bundleRequestJSON.entry.push(searchRequest);
+        // Cloning
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry.push(searchRequest);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
-        } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.statusCode).toEqual(400);
-            expect(e.message).toEqual('We currently do not support SEARCH entries in the Bundle');
-        }
+        await expect(bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new createError.BadRequest('We currently do not support SEARCH entries in the Bundle'),
+        );
     });
 
     test('Bundle request has unsupported operation: VREAD', async () => {
-        try {
-            const vreadRequest = {
-                request: {
-                    method: 'GET',
-                    url: 'Patient/575fdea9-202d-4a14-9a23-0599dcd01a09/_history/1',
-                },
-            };
+        const vreadRequest = {
+            request: {
+                method: 'GET',
+                url: 'Patient/575fdea9-202d-4a14-9a23-0599dcd01a09/_history/1',
+            },
+        };
 
-            // Cloning
-            const bundleRequestJSON = clone(sampleBundleRequestJSON);
-            bundleRequestJSON.entry.push(vreadRequest);
+        // Cloning
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry.push(vreadRequest);
 
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
-        } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.statusCode).toEqual(400);
-            expect(e.message).toEqual('We currently do not support V_READ entries in the Bundle');
-        }
+        await expect(bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new createError.BadRequest('We currently do not support V_READ entries in the Bundle'),
+        );
     });
 
     test('Bundle request has too many entries', async () => {
-        // Cloning
         const bundleRequestJSON = clone(sampleBundleRequestJSON);
         for (let i = 0; i < MAX_BUNDLE_ENTRIES + 1; i += 1) {
             const readRequest = {
@@ -516,15 +493,11 @@ describe('ERROR Cases: Validation of Bundle request', () => {
             };
             bundleRequestJSON.entry.push(readRequest);
         }
-        try {
-            await bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded);
-        } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.statusCode).toEqual(400);
-            expect(e.message).toEqual(
+        await expect(bundleHandlerR4.processTransaction(bundleRequestJSON, practitionerDecoded)).rejects.toThrowError(
+            new createError.BadRequest(
                 `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${bundleRequestJSON.entry.length} entries in this Bundle`,
-            );
-        }
+            ),
+        );
     });
 });
 
@@ -658,8 +631,8 @@ describe('ERROR Cases: Bundle not authorized', () => {
         };
         const bundleHandlerWithStubbedAuthZ = new BundleHandler(
             DynamoDbBundleService,
+            [new JsonSchemaValidator('4.0.1')],
             'https://API_URL.com',
-            '4.0.1',
             authZ,
             getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
             genericResource,
@@ -701,8 +674,8 @@ describe('ERROR Cases: Bundle not authorized', () => {
         };
         const bundleHandlerWithStubbedAuthZ = new BundleHandler(
             DynamoDbBundleService,
+            [new JsonSchemaValidator('4.0.1')],
             'https://API_URL.com',
-            '4.0.1',
             authZ,
             getSupportedGenericResources(genericResource, SUPPORTED_R4_RESOURCES, '4.0.1'),
             genericResource,
@@ -807,26 +780,22 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerReadGenericResource = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceReadOnly, supportedResource, version),
                 genericResourceReadOnly,
                 resources,
             );
 
-            try {
-                // OPERATE
-                await bundleHandlerReadGenericResource.processTransaction(
+            await expect(
+                bundleHandlerReadGenericResource.processTransaction(
                     bundleRequestJsonCreatePatient,
                     practitionerDecoded,
-                );
-            } catch (e) {
-                // CHECK
-                expect(e.name).toEqual('BadRequestError');
-                expect(e.statusCode).toEqual(400);
-                expect(e.message).toEqual('Server does not support these resource and operations: {Patient: create}');
-            }
+                ),
+            ).rejects.toThrowError(
+                new createError.BadRequest('Server does not support these resource and operations: {Patient: create}'),
+            );
         });
 
         test(`FhirVersion: ${version}. Failed to operate on Bundle because server does not support Generic Resource for Patient`, async () => {
@@ -846,26 +815,19 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerExcludePatient = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceExcludePatient, supportedResource, version),
                 genericResourceExcludePatient,
                 resources,
             );
 
-            try {
-                // OPERATE
-                await bundleHandlerExcludePatient.processTransaction(
-                    bundleRequestJsonCreatePatient,
-                    practitionerDecoded,
-                );
-            } catch (e) {
-                // CHECK
-                expect(e.name).toEqual('BadRequestError');
-                expect(e.statusCode).toEqual(400);
-                expect(e.message).toEqual('Server does not support these resource and operations: {Patient: create}');
-            }
+            await expect(
+                bundleHandlerExcludePatient.processTransaction(bundleRequestJsonCreatePatient, practitionerDecoded),
+            ).rejects.toThrowError(
+                new createError.BadRequest('Server does not support these resource and operations: {Patient: create}'),
+            );
         });
 
         // For now, entries in Bundle must be generic resource, because only one persistence obj can be passed into
@@ -897,8 +859,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerSpecialResourcePatient = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceExcludePatient, supportedResource, version),
                 genericResourceExcludePatient,
@@ -926,8 +888,8 @@ describe('SERVER-CAPABILITIES Cases: Validating Bundle request is allowed given 
 
             const bundleHandlerNoExclusion = new BundleHandler(
                 DynamoDbBundleService,
+                [new JsonSchemaValidator(version)],
                 'https://API_URL.com',
-                version,
                 stubs.passThroughAuthz,
                 getSupportedGenericResources(genericResourceNoExclusion, supportedResource, version),
                 genericResourceNoExclusion,
