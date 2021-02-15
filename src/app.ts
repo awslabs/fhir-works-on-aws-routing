@@ -100,8 +100,8 @@ export function generateServerlessRouter(
                     typeSearch,
                     typeHistory,
                     fhirConfig.auth.authorization,
-                    fhirVersion,
                     serverUrl,
+                    fhirConfig.validators,
                 );
 
                 const route: GenericResourceRoute = new GenericResourceRoute(
@@ -125,8 +125,8 @@ export function generateServerlessRouter(
             genericResource.typeSearch,
             genericResource.typeHistory,
             fhirConfig.auth.authorization,
-            fhirVersion,
             serverUrl,
+            fhirConfig.validators,
         );
 
         const genericRoute: GenericResourceRoute = new GenericResourceRoute(
@@ -145,7 +145,7 @@ export function generateServerlessRouter(
     if (fhirConfig.profile.systemOperations.length > 0) {
         const rootRoute = new RootRoute(
             fhirConfig.profile.systemOperations,
-            fhirVersion,
+            fhirConfig.validators,
             serverUrl,
             fhirConfig.profile.bundle,
             fhirConfig.profile.systemSearch,

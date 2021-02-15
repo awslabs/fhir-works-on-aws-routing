@@ -7,12 +7,12 @@ import express, { Router } from 'express';
 import {
     Authorization,
     Bundle,
-    FhirVersion,
     SystemOperation,
     Search,
     History,
     GenericResource,
     Resources,
+    Validator,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import BundleHandler from '../bundle/bundleHandler';
@@ -32,7 +32,7 @@ export default class RootRoute {
 
     constructor(
         operations: SystemOperation[],
-        fhirVersion: FhirVersion,
+        validators: Validator[],
         serverUrl: string,
         bundle: Bundle,
         search: Search,
@@ -46,8 +46,8 @@ export default class RootRoute {
         this.operations = operations;
         this.bundleHandler = new BundleHandler(
             bundle,
+            validators,
             serverUrl,
-            fhirVersion,
             authService,
             supportedGenericResources,
             genericResource,
