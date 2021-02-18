@@ -395,7 +395,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
         }
         const expectedResourceSubset = {
             interaction: makeOperation(['read', 'create', 'update', 'vread', 'search-type']),
-            updateCreate: true,
+            updateCreate: false,
             searchParam: [
                 {
                     name: 'some-search-field',
@@ -425,7 +425,7 @@ test('R4: FHIR Config V4 without search', async () => {
     // see if the four CRUD + vRead operations are chosen
     const expectedResourceSubset = {
         interaction: makeOperation(['create', 'read', 'update', 'delete', 'vread', 'history-instance']),
-        updateCreate: true,
+        updateCreate: false,
     };
     expect(response.resource.rest[0].resource[0]).toMatchObject(expectedResourceSubset);
     expect(response.resource.rest[0].interaction).toEqual(
@@ -460,7 +460,7 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
         if (resource.type === 'AllergyIntolerance') {
             expectedResourceSubset = {
                 interaction: makeOperation(['create', 'update']),
-                updateCreate: true,
+                updateCreate: false,
             };
         } else {
             expectedResourceSubset = {
@@ -497,7 +497,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
         }
         const expectedResourceSubset = {
             interaction: makeOperation(configResource[resource.type].operations),
-            updateCreate: configResource[resource.type].operations.includes('update'),
+            updateCreate: false,
         };
         expect(resource).toMatchObject(expectedResourceSubset);
         if (configResource[resource.type].operations.includes('search-type')) {
