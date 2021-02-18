@@ -51,6 +51,7 @@ export function makeGenericResources(
     fhirResourcesToMake: string[],
     operations: TypeOperation[],
     searchCapabilityStatement: SearchCapabilityStatement,
+    updateCreate: boolean,
 ) {
     const resources: any[] = [];
 
@@ -62,7 +63,7 @@ export function makeGenericResources(
             makeResourceObject(
                 resourceType,
                 resourceOperations,
-                false,
+                updateCreate,
                 hasTypeSearch,
                 searchCapabilityStatement[resourceType],
             ),
@@ -72,11 +73,17 @@ export function makeGenericResources(
     return resources;
 }
 
-export async function makeResource(resourceType: string, resource: Resource) {
+export async function makeResource(resourceType: string, resource: Resource, updateCreate: boolean) {
     const resourceOperations: any[] = makeOperation(resource.operations);
     const hasTypeSearch: boolean = resource.operations.includes('search-type');
 
     const capabilities: SearchCapabilityStatement = hasTypeSearch ? await resource.typeSearch.getCapabilities() : {};
 
-    return makeResourceObject(resourceType, resourceOperations, false, hasTypeSearch, capabilities[resourceType]);
+    return makeResourceObject(
+        resourceType,
+        resourceOperations,
+        updateCreate,
+        hasTypeSearch,
+        capabilities[resourceType],
+    );
 }

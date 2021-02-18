@@ -25,11 +25,13 @@ export default class MetadataHandler implements Capabilities {
         const specialResourceTypes = this.configHandler.getSpecialResourceTypes(fhirVersion);
         let generatedResources = [];
         if (this.configHandler.config.profile.genericResource) {
+            const updateCreate = this.configHandler.config.profile.genericResource.persistence.updateCreateSupported;
             const generatedResourcesTypes = this.configHandler.getGenericResources(fhirVersion, specialResourceTypes);
             generatedResources = makeGenericResources(
                 generatedResourcesTypes,
                 this.configHandler.getGenericOperations(fhirVersion),
                 await this.configHandler.config.profile.genericResource.typeSearch.getCapabilities(),
+                updateCreate,
             );
         }
 
@@ -37,7 +39,11 @@ export default class MetadataHandler implements Capabilities {
         generatedResources.push(
             ...(await Promise.all(
                 specialResourceTypes.map(resourceType =>
-                    makeResource(resourceType, this.configHandler.config.profile.resources![resourceType]),
+                    makeResource(
+                        resourceType,
+                        this.configHandler.config.profile.resources![resourceType],
+                        this.configHandler.config.profile.resources![resourceType].persistence.updateCreateSupported,
+                    ),
                 ),
             )),
         );
