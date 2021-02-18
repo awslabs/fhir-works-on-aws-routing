@@ -516,10 +516,10 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
 });
 
 each([
-    ['Generic Resources with support for updateCreate = true', true, r4FhirConfigGeneric],
-    ['Generic Resources with support for updateCreate = false', false, r4FhirConfigGeneric],
-    ['Special Resources with support for updateCreate = true', true, r4FhirConfigNoGeneric],
-    ['Special Resources with support for updateCreate = false', false, r4FhirConfigNoGeneric],
+    ['Generic Resources: updateCreate = true', true, r4FhirConfigGeneric],
+    ['Generic Resources: updateCreate = false', false, r4FhirConfigGeneric],
+    ['Special Resources: updateCreate = true', true, r4FhirConfigNoGeneric],
+    ['Special Resources: updateCreate = false', false, r4FhirConfigNoGeneric],
 ]).test('R4: FHIR Config with %s', async (testName: string, updateCreateSupported: boolean, fhirConfigBuilder: any) => {
     const persistence: Persistence = {
         ...stubs.persistence,
