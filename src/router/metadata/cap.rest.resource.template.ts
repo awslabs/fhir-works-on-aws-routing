@@ -23,7 +23,7 @@ function makeResourceObject(
         interaction: resourceOperations,
         versioning: 'versioned',
         readHistory: false,
-        updateCreate, // TODO do we actually do updateCreate?
+        updateCreate,
         conditionalCreate: false,
         conditionalRead: 'not-supported',
         conditionalUpdate: false,
@@ -73,10 +73,10 @@ export function makeGenericResources(
     return resources;
 }
 
-export async function makeResource(resourceType: string, resource: Resource, updateCreate: boolean) {
+export async function makeResource(resourceType: string, resource: Resource) {
     const resourceOperations: any[] = makeOperation(resource.operations);
     const hasTypeSearch: boolean = resource.operations.includes('search-type');
-
+    const updateCreate = resource.persistence.updateCreateSupported;
     const capabilities: SearchCapabilityStatement = hasTypeSearch ? await resource.typeSearch.getCapabilities() : {};
 
     return makeResourceObject(
