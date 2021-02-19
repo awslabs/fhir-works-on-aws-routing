@@ -23,7 +23,7 @@ function makeResourceObject(
         interaction: resourceOperations,
         versioning: 'versioned',
         readHistory: false,
-        updateCreate, // TODO do we actually do updateCreate?
+        updateCreate,
         conditionalCreate: false,
         conditionalRead: 'not-supported',
         conditionalUpdate: false,
@@ -51,11 +51,11 @@ export function makeGenericResources(
     fhirResourcesToMake: string[],
     operations: TypeOperation[],
     searchCapabilityStatement: SearchCapabilityStatement,
+    updateCreate: boolean,
 ) {
     const resources: any[] = [];
 
     const resourceOperations: any[] = makeOperation(operations);
-    const updateCreate: boolean = operations.includes('update');
     const hasTypeSearch: boolean = operations.includes('search-type');
 
     fhirResourcesToMake.forEach((resourceType: string) => {
@@ -75,9 +75,8 @@ export function makeGenericResources(
 
 export async function makeResource(resourceType: string, resource: Resource) {
     const resourceOperations: any[] = makeOperation(resource.operations);
-    const updateCreate: boolean = resource.operations.includes('update');
     const hasTypeSearch: boolean = resource.operations.includes('search-type');
-
+    const updateCreate = resource.persistence.updateCreateSupported;
     const capabilities: SearchCapabilityStatement = hasTypeSearch ? await resource.typeSearch.getCapabilities() : {};
 
     return makeResourceObject(

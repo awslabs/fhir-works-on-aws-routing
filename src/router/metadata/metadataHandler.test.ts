@@ -3,7 +3,8 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { stubs } from 'fhir-works-on-aws-interface';
+import { stubs, Persistence } from 'fhir-works-on-aws-interface';
+import each from 'jest-each';
 import MetadataHandler from './metadataHandler';
 import { makeOperation } from './cap.rest.resource.template';
 import r4FhirConfigGeneric from '../../../sampleData/r4FhirConfigGeneric';
@@ -395,7 +396,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
         }
         const expectedResourceSubset = {
             interaction: makeOperation(['read', 'create', 'update', 'vread', 'search-type']),
-            updateCreate: true,
+            updateCreate: configHandler.config.profile.genericResource!.persistence.updateCreateSupported,
             searchParam: [
                 {
                     name: 'some-search-field',
@@ -425,7 +426,7 @@ test('R4: FHIR Config V4 without search', async () => {
     // see if the four CRUD + vRead operations are chosen
     const expectedResourceSubset = {
         interaction: makeOperation(['create', 'read', 'update', 'delete', 'vread', 'history-instance']),
-        updateCreate: true,
+        updateCreate: configHandler.config.profile.genericResource!.persistence.updateCreateSupported,
     };
     expect(response.resource.rest[0].resource[0]).toMatchObject(expectedResourceSubset);
     expect(response.resource.rest[0].interaction).toEqual(
@@ -460,12 +461,12 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
         if (resource.type === 'AllergyIntolerance') {
             expectedResourceSubset = {
                 interaction: makeOperation(['create', 'update']),
-                updateCreate: true,
+                updateCreate: configHandler.config.profile.genericResource!.persistence.updateCreateSupported,
             };
         } else {
             expectedResourceSubset = {
                 interaction: makeOperation(['read', 'history-instance', 'history-type']),
-                updateCreate: false,
+                updateCreate: configHandler.config.profile.genericResource!.persistence.updateCreateSupported,
             };
         }
         expect(resource).toMatchObject(expectedResourceSubset);
@@ -497,7 +498,7 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
         }
         const expectedResourceSubset = {
             interaction: makeOperation(configResource[resource.type].operations),
-            updateCreate: configResource[resource.type].operations.includes('update'),
+            updateCreate: configHandler.config.profile.resources![resource.type].persistence.updateCreateSupported,
         };
         expect(resource).toMatchObject(expectedResourceSubset);
         if (configResource[resource.type].operations.includes('search-type')) {
@@ -513,6 +514,31 @@ test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     expect(response.resource.rest[0].searchParam).toBeDefined();
     expect(r4Validator.validate(response.resource)).resolves.toEqual(undefined);
 });
+
+each([
+    ['Generic Resources: updateCreate = true', true, r4FhirConfigGeneric],
+    ['Generic Resources: updateCreate = false', false, r4FhirConfigGeneric],
+    ['Special Resources: updateCreate = true', true, r4FhirConfigNoGeneric],
+    ['Special Resources: updateCreate = false', false, r4FhirConfigNoGeneric],
+]).test('R4: FHIR Config with %s', async (testName: string, updateCreateSupported: boolean, fhirConfigBuilder: any) => {
+    const persistence: Persistence = {
+        ...stubs.persistence,
+        updateCreateSupported,
+    };
+
+    const fhirConfig = fhirConfigBuilder({ persistence, ...overrideStubs });
+
+    const configHandler: ConfigHandler = new ConfigHandler(fhirConfig, SUPPORTED_R4_RESOURCES);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
+    response.resource.rest[0].resource.forEach((resource: any) => {
+        const expectedResourceSubset = {
+            updateCreate: updateCreateSupported,
+        };
+        expect(resource).toMatchObject(expectedResourceSubset);
+    });
+});
+
 test('R4: FHIR Config V4 with bulkDataAccess', async () => {
     const r4ConfigWithBulkDataAccess = r4FhirConfigGeneric(overrideStubs);
     r4ConfigWithBulkDataAccess.profile.bulkDataAccess = stubs.bulkDataAccess;
