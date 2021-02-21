@@ -31,6 +31,7 @@ export default class MetadataHandler implements Capabilities {
                 generatedResourcesTypes,
                 this.configHandler.getGenericOperations(fhirVersion),
                 await this.configHandler.config.profile.genericResource.typeSearch.getCapabilities(),
+                await this.configHandler.config.profile.genericResource.registry.getCapabilities(),
                 updateCreate,
             );
         }
