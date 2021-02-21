@@ -17,13 +17,13 @@ export class FHIRStructureDefinitionRegistry implements CapabilityRegistry {
         this.capabilityStatement = {};
 
         compiledStructureDefinitions.forEach(compiledStructureDefinition => {
-            const structuredDefinition = this.capabilityStatement[compiledStructureDefinition.name];
+            const structuredDefinition = this.capabilityStatement[compiledStructureDefinition.type];
 
             if (structuredDefinition) {
-                this.capabilityStatement[compiledStructureDefinition.name].supportedProfile.push(compiledStructureDefinition.url);
+                this.capabilityStatement[compiledStructureDefinition.type].supportedProfile.push(compiledStructureDefinition.url);
             }
             else {
-                this.capabilityStatement[compiledStructureDefinition.name] = {
+                this.capabilityStatement[compiledStructureDefinition.type] = {
                     type: compiledStructureDefinition.type,
                     supportedProfile: [compiledStructureDefinition.url]
                 };
