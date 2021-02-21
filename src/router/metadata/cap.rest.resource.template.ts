@@ -6,11 +6,12 @@
 import {
     TypeOperation,
     SystemOperation,
+    ResourceCapabilityStatement,
+    ResourceCapability,
     SearchCapabilityStatement,
     SearchCapabilities,
     Resource,
 } from 'fhir-works-on-aws-interface';
-import { StructureDefinitionCapabilityStatement, StructureDefinition } from "../../FHIRStructuredDefinitionRegistry";
 
 function makeResourceObject(
     resourceType: string,
@@ -18,7 +19,7 @@ function makeResourceObject(
     updateCreate: boolean,
     hasTypeSearch: boolean,
     searchCapabilities?: SearchCapabilities,
-    structureDefinition?: StructureDefinition,
+    resourceCapability?: ResourceCapability,
 ) {
     const result: any = {
         type: resourceType,
@@ -36,8 +37,8 @@ function makeResourceObject(
         Object.assign(result, searchCapabilities);
     }
 
-    if (structureDefinition) {
-        Object.assign(result, structureDefinition);
+    if (resourceCapability) {
+        Object.assign(result, resourceCapability);
     }
 
     return result;
@@ -57,7 +58,7 @@ export function makeGenericResources(
     fhirResourcesToMake: string[],
     operations: TypeOperation[],
     searchCapabilityStatement: SearchCapabilityStatement,
-    structureDefinitionCapabilityStatement: StructureDefinitionCapabilityStatement,
+    resourceCapabilityStatement: ResourceCapabilityStatement,
     updateCreate: boolean,
 ) {
     const resources: any[] = [];
@@ -73,7 +74,7 @@ export function makeGenericResources(
                 updateCreate,
                 hasTypeSearch,
                 searchCapabilityStatement[resourceType],
-                structureDefinitionCapabilityStatement[resourceType],
+                resourceCapabilityStatement[resourceType],
             ),
         );
     });

@@ -33,16 +33,14 @@ export class StructureDefinitionImplementationGuides implements ImplementationGu
             }
         });
 
-        return validStructureDefinitions.flatMap(structureDefinitions => {
-            return <FhirStructureDefinition>{
-                name: structureDefinitions.name,
-                url: structureDefinitions.url,
-                type: structureDefinitions.type,
-                resourceType: structureDefinitions.resourceType,
-                description: structureDefinitions.description,
-                baseDefinition: structureDefinitions.baseDefinition,
-            };
-        });
+        return validStructureDefinitions.map((structureDefinition: any) => ({
+            name: structureDefinition.name,
+            url: structureDefinition.url,
+            type: structureDefinition.type,
+            resourceType: structureDefinition.resourceType,
+            description: structureDefinition.description,
+            baseDefinition: structureDefinition.baseDefinition,
+        }));
     };
 
     private static isFhirStructureDefinition(x: any): x is FhirStructureDefinition {
