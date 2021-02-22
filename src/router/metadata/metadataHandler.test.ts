@@ -624,7 +624,7 @@ test('R4: FHIR Config V4 with all Oauth Policy endpoints', async () => {
                 coding: [
                     {
                         code: 'OAuth',
-                        system: 'https://www.hl7.org/fhir/codesystem-restful-security-service.html',
+                        system: 'http://hl7.org/fhir/ValueSet/restful-security-service',
                     },
                 ],
             },
@@ -673,7 +673,7 @@ test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
                 coding: [
                     {
                         code: 'OAuth',
-                        system: 'https://www.hl7.org/fhir/codesystem-restful-security-service.html',
+                        system: 'http://hl7.org/fhir/ValueSet/restful-security-service',
                     },
                 ],
             },

@@ -13,7 +13,7 @@ export default function makeSecurity(authConfig: Auth, hasCORSEnabled: boolean =
                 {
                     coding: [
                         {
-                            system: 'https://www.hl7.org/fhir/codesystem-restful-security-service.html',
+                            system: 'http://hl7.org/fhir/ValueSet/restful-security-service',
                             code: authConfig.strategy.service,
                         },
                     ],
