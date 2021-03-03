@@ -18,7 +18,7 @@ export type FhirStructureDefinition = {
  */
 export class StructureDefinitionImplementationGuides implements ImplementationGuides {
     /**
-     * Compiles the contents of an Implementation Guide into an internal representation used to build Elasticsearch queries.
+     * Compiles the contents of an Implementation Guide into an internal representation used to build the Capability Statement
      *
      * @param resources - an array of FHIR resources. See: https://www.hl7.org/fhir/profiling.html
      */
@@ -29,7 +29,6 @@ export class StructureDefinitionImplementationGuides implements ImplementationGu
                 validStructureDefinitions.push(s);
             } else {
                 throw new Error(`The following input is not a StructureDefinition: ${s.type} ${s.name}`);
-                // throw new Error(`The following input is not a StructureDefinition: ${JSON.stringify(s, null, 2)}`);
             }
         });
 
@@ -41,7 +40,7 @@ export class StructureDefinitionImplementationGuides implements ImplementationGu
             description: structureDefinition.description,
             baseDefinition: structureDefinition.baseDefinition,
         }));
-    };
+    }
 
     private static isFhirStructureDefinition(x: any): x is FhirStructureDefinition {
         return (
@@ -54,5 +53,5 @@ export class StructureDefinitionImplementationGuides implements ImplementationGu
             typeof x.baseDefinition === 'string' &&
             typeof x.type === 'string'
         );
-    };
+    }
 }

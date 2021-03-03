@@ -21,6 +21,7 @@ import RootRoute from './router/routes/rootRoute';
 import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from './router/routes/errorHandling';
 import ExportRoute from './router/routes/exportRoute';
 import WellKnownUriRouteRoute from './router/routes/wellKnownUriRoute';
+import { FHIRStructureDefinitionRegistry } from './registry';
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -33,9 +34,11 @@ export function generateServerlessRouter(
         throw new Error(`This router does not support ${fhirConfig.configVersion} version`);
     }
     const configHandler: ConfigHandler = new ConfigHandler(fhirConfig, supportedGenericResources);
-    const { fhirVersion, genericResource } = fhirConfig.profile;
+    const { fhirVersion, genericResource, compiledImplementationGuides } = fhirConfig.profile;
     const serverUrl: string = fhirConfig.server.url;
     let hasCORSEnabled: boolean = false;
+    const registry = new FHIRStructureDefinitionRegistry(compiledImplementationGuides);
+
     const app = express();
     app.use(express.urlencoded({ extended: true }));
     app.use(
@@ -52,7 +55,7 @@ export function generateServerlessRouter(
     }
 
     // Metadata
-    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, hasCORSEnabled);
+    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, registry, hasCORSEnabled);
     app.use('/metadata', metadataRoute.router);
 
     if (fhirConfig.auth.strategy.service === 'SMART-on-FHIR') {

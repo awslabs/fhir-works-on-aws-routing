@@ -1,13 +1,13 @@
-import { FhirVersion, CapabilityRegistry, ResourceCapabilityStatement } from 'fhir-works-on-aws-interface';
-import { FhirStructureDefinition } from "../implementationGuides";
+import { ResourceCapabilityStatement } from 'fhir-works-on-aws-interface';
+import { FhirStructureDefinition } from '../implementationGuides';
 
 /**
  * This class is the single authority over the supported FHIR StructuredDefinition and their definitions
  */
-export class FHIRStructureDefinitionRegistry implements CapabilityRegistry {
+export class FHIRStructureDefinitionRegistry {
     private readonly capabilityStatement: ResourceCapabilityStatement;
 
-    constructor(fhirVersion: FhirVersion, compiledImplementationGuides?: any[]) {
+    constructor(compiledImplementationGuides?: any[]) {
         let compiledStructureDefinitions: FhirStructureDefinition[] = [];
 
         if (compiledImplementationGuides !== undefined) {
@@ -20,12 +20,13 @@ export class FHIRStructureDefinitionRegistry implements CapabilityRegistry {
             const structuredDefinition = this.capabilityStatement[compiledStructureDefinition.type];
 
             if (structuredDefinition) {
-                this.capabilityStatement[compiledStructureDefinition.type].supportedProfile.push(compiledStructureDefinition.url);
-            }
-            else {
+                this.capabilityStatement[compiledStructureDefinition.type].supportedProfile.push(
+                    compiledStructureDefinition.url,
+                );
+            } else {
                 this.capabilityStatement[compiledStructureDefinition.type] = {
                     type: compiledStructureDefinition.type,
-                    supportedProfile: [compiledStructureDefinition.url]
+                    supportedProfile: [compiledStructureDefinition.url],
                 };
             }
         });
