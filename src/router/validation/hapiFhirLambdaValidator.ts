@@ -16,6 +16,8 @@ interface HapiValidatorResponse {
     errorMessages: ErrorMessage[];
     successful: boolean;
 }
+// a relatively high number to give cold starts a chance to succeed
+const TIMEOUT_MILLISECONDS = 25_000;
 
 export default class HapiFhirLambdaValidator implements Validator {
     private hapiValidatorLambdaArn: string;
@@ -24,7 +26,11 @@ export default class HapiFhirLambdaValidator implements Validator {
 
     constructor(hapiValidatorLambdaArn: string) {
         this.hapiValidatorLambdaArn = hapiValidatorLambdaArn;
-        this.lambdaClient = new AWS.Lambda();
+        this.lambdaClient = new AWS.Lambda({
+            httpOptions: {
+                timeout: TIMEOUT_MILLISECONDS,
+            },
+        });
     }
 
     async validate(resource: any): Promise<void> {
