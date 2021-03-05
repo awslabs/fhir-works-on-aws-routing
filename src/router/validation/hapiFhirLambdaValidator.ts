@@ -37,7 +37,7 @@ export default class HapiFhirLambdaValidator implements Validator {
         const params = {
             FunctionName: this.hapiValidatorLambdaArn,
             InvocationType: 'RequestResponse',
-            Payload: JSON.stringify(resource),
+            Payload: JSON.stringify(JSON.stringify(resource)),
         };
 
         const lambdaResponse = await this.lambdaClient.invoke(params).promise();
