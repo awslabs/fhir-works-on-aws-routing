@@ -6,12 +6,11 @@
 import {
     TypeOperation,
     SystemOperation,
-    ResourceCapabilityStatement,
-    ResourceCapability,
     SearchCapabilityStatement,
     SearchCapabilities,
     Resource,
 } from 'fhir-works-on-aws-interface';
+import { ResourceCapabilityStatement, ResourceCapability } from '../../registry/ResourceCapabilityInterface';
 
 function makeResourceObject(
     resourceType: string,

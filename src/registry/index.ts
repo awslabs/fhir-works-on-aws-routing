@@ -1,5 +1,10 @@
-import { ResourceCapabilityStatement } from 'fhir-works-on-aws-interface';
+/*
+ *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *  SPDX-License-Identifier: Apache-2.0
+ */
+
 import { FhirStructureDefinition } from '../implementationGuides';
+import { ResourceCapabilityStatement } from './ResourceCapabilityInterface';
 
 /**
  * This class is the single authority over the supported FHIR StructuredDefinition and their definitions
