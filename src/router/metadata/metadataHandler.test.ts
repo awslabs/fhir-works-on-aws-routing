@@ -14,7 +14,7 @@ import r4FhirConfigNoGeneric from '../../../sampleData/r4FhirConfigNoGeneric';
 import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 import ConfigHandler from '../../configHandler';
 import { utcTimeRegExp } from '../../regExpressions';
-import {FHIRStructureDefinitionRegistry} from "../../registry";
+import { FHIRStructureDefinitionRegistry } from '../../registry';
 
 const r4Validator = new JsonSchemaValidator('4.0.1');
 const stu3Validator = new JsonSchemaValidator('3.0.1');

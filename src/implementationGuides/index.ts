@@ -27,6 +27,7 @@ export class StructureDefinitionImplementationGuides implements ImplementationGu
      *
      * @param resources - an array of FHIR resources. See: https://www.hl7.org/fhir/profiling.html
      */
+    // eslint-disable-next-line class-methods-use-this
     async compile(resources: any[]): Promise<any> {
         const validStructureDefinitions: FhirStructureDefinition[] = [];
         resources.forEach(s => {
