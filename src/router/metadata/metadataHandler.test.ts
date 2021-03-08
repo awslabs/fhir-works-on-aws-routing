@@ -14,6 +14,7 @@ import r4FhirConfigNoGeneric from '../../../sampleData/r4FhirConfigNoGeneric';
 import JsonSchemaValidator from '../validation/jsonSchemaValidator';
 import ConfigHandler from '../../configHandler';
 import { utcTimeRegExp } from '../../regExpressions';
+import { FHIRStructureDefinitionRegistry } from '../../registry';
 
 const r4Validator = new JsonSchemaValidator('4.0.1');
 const stu3Validator = new JsonSchemaValidator('3.0.1');
@@ -328,6 +329,7 @@ const overrideStubs = {
         }),
     },
 };
+const registry: FHIRStructureDefinitionRegistry = new FHIRStructureDefinitionRegistry();
 
 describe('ERROR: test cases', () => {
     beforeEach(() => {
@@ -340,7 +342,7 @@ describe('ERROR: test cases', () => {
             stu3FhirConfigWithExclusions(),
             SUPPORTED_STU3_RESOURCES,
         );
-        const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+        const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
         try {
             // OPERATE
             await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
@@ -358,7 +360,7 @@ describe('ERROR: test cases', () => {
             r4FhirConfigGeneric(overrideStubs),
             SUPPORTED_R4_RESOURCES,
         );
-        const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+        const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
         try {
             // OPERATE
             await metadataHandler.capabilities({ fhirVersion: '3.0.1', mode: 'full' });
@@ -375,7 +377,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
     const config = stu3FhirConfigWithExclusions(overrideStubs);
     const supportedGenericResources = ['AllergyIntolerance', 'Organization', 'Account', 'Patient'];
     const configHandler: ConfigHandler = new ConfigHandler(config, supportedGenericResources);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, true);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry, true);
     const response = await metadataHandler.capabilities({ fhirVersion: '3.0.1', mode: 'full' });
     const { genericResource } = config.profile;
     const excludedResources = genericResource ? genericResource.excludedSTU3Resources || [] : [];
@@ -415,7 +417,7 @@ test('STU3: FHIR Config V3 with 2 exclusions and search', async () => {
 });
 test('R4: FHIR Config V4 without search', async () => {
     const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric(overrideStubs), SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
     expect(response.resource).toBeDefined();
     expect(response.resource.acceptUnknown).toBeUndefined();
@@ -439,7 +441,7 @@ test('R4: FHIR Config V4 without search', async () => {
 test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', async () => {
     const config = r4FhirConfigWithExclusions(overrideStubs);
     const configHandler: ConfigHandler = new ConfigHandler(config, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
     const { genericResource } = config.profile;
     const excludedResources = genericResource ? genericResource.excludedR4Resources || [] : [];
@@ -481,7 +483,7 @@ test('R4: FHIR Config V4 with 3 exclusions and AllergyIntollerance special', asy
 test('R4: FHIR Config V4 no generic set-up & mix of STU3 & R4', async () => {
     const config = r4FhirConfigNoGeneric(overrideStubs);
     const configHandler: ConfigHandler = new ConfigHandler(config, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const configResource: any = config.profile.resources;
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
     expect(response.resource).toBeDefined();
@@ -529,7 +531,7 @@ each([
     const fhirConfig = fhirConfigBuilder({ persistence, ...overrideStubs });
 
     const configHandler: ConfigHandler = new ConfigHandler(fhirConfig, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
     response.resource.rest[0].resource.forEach((resource: any) => {
         const expectedResourceSubset = {
@@ -543,7 +545,7 @@ test('R4: FHIR Config V4 with bulkDataAccess', async () => {
     const r4ConfigWithBulkDataAccess = r4FhirConfigGeneric(overrideStubs);
     r4ConfigWithBulkDataAccess.profile.bulkDataAccess = stubs.bulkDataAccess;
     const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithBulkDataAccess, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
     expect(response.resource.rest[0].operation).toEqual([
@@ -562,7 +564,7 @@ test('R4: FHIR Config V4 with bulkDataAccess', async () => {
 
 test('R4: FHIR Config V4 without bulkDataAccess', async () => {
     const configHandler: ConfigHandler = new ConfigHandler(r4FhirConfigGeneric(overrideStubs), SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
     expect(response.resource.rest[0].operation).toBeUndefined();
@@ -582,7 +584,7 @@ test('R4: FHIR Config V4 with all Oauth Policy endpoints', async () => {
         },
     };
     const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithOauthEndpoints, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
     expect(response.resource.rest[0].security).toEqual({
@@ -643,7 +645,7 @@ test('R4: FHIR Config V4 with some Oauth Policy endpoints', async () => {
         },
     };
     const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithOauthEndpoints, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
     expect(response.resource.rest[0].security).toEqual({
@@ -693,7 +695,7 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
         copyright: 'Copyright',
     };
     const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithAllProductInfo, SUPPORTED_R4_RESOURCES);
-    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler);
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry);
     const response = await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
 
     const expectedResponse: any = {

@@ -10,6 +10,7 @@ import {
     SearchCapabilities,
     Resource,
 } from 'fhir-works-on-aws-interface';
+import { ResourceCapabilityStatement, ResourceCapability } from '../../registry/ResourceCapabilityInterface';
 
 function makeResourceObject(
     resourceType: string,
@@ -17,6 +18,7 @@ function makeResourceObject(
     updateCreate: boolean,
     hasTypeSearch: boolean,
     searchCapabilities?: SearchCapabilities,
+    resourceCapability?: ResourceCapability,
 ) {
     const result: any = {
         type: resourceType,
@@ -32,6 +34,10 @@ function makeResourceObject(
 
     if (hasTypeSearch && searchCapabilities !== undefined) {
         Object.assign(result, searchCapabilities);
+    }
+
+    if (resourceCapability) {
+        Object.assign(result, resourceCapability);
     }
 
     return result;
@@ -51,6 +57,7 @@ export function makeGenericResources(
     fhirResourcesToMake: string[],
     operations: TypeOperation[],
     searchCapabilityStatement: SearchCapabilityStatement,
+    resourceCapabilityStatement: ResourceCapabilityStatement,
     updateCreate: boolean,
 ) {
     const resources: any[] = [];
@@ -66,6 +73,7 @@ export function makeGenericResources(
                 updateCreate,
                 hasTypeSearch,
                 searchCapabilityStatement[resourceType],
+                resourceCapabilityStatement[resourceType],
             ),
         );
     });
