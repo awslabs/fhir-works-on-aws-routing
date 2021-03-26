@@ -4793,15 +4793,14 @@
             },
             "category": {
               "description": "Category of the identified substance.",
-              "enum": [
-                "food",
-                "medication",
-                "environment",
-                "biologic"
-              ],
               "type": "array",
               "items": {
-                "type": "string"
+                "enum": [
+                  "food",
+                  "medication",
+                  "environment",
+                  "biologic"
+                ]
               }
             },
             "_category": {
@@ -24749,6 +24748,13 @@
         {
           "description": "This special resource type is used to represent an operation request and response (operations.html). It has no other use, and there is no RESTful endpoint associated with it.",
           "properties": {
+            "resourceType": {
+              "description": "This is a Parameters resource",
+              "type": "string",
+              "enum": [
+                "Parameters"
+              ]
+            },
             "parameter": {
               "description": "A parameter passed to or received from the operation.",
               "type": "array",
@@ -36586,9 +36592,6 @@
           "$ref": "#/definitions/DocumentReference"
         },
         {
-          "$ref": "#/definitions/DomainResource"
-        },
-        {
           "$ref": "#/definitions/EligibilityRequest"
         },
         {
@@ -36715,9 +36718,6 @@
           "$ref": "#/definitions/Parameters"
         },
         {
-          "$ref": "#/definitions/Parameters"
-        },
-        {
           "$ref": "#/definitions/Patient"
         },
         {
@@ -36773,9 +36773,6 @@
         },
         {
           "$ref": "#/definitions/ResearchSubject"
-        },
-        {
-          "$ref": "#/definitions/Resource"
         },
         {
           "$ref": "#/definitions/RiskAssessment"
