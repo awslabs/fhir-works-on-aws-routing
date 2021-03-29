@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.0.0...v5.1.0) (2021-03-29)
+
+
+### Features
+
+* add Implementation Guides support ([#66](https://github.com/awslabs/fhir-works-on-aws-routing/issues/66)) ([151228c](https://github.com/awslabs/fhir-works-on-aws-routing/commit/151228c135ac24a25d95b5f5bde2f4bd735b16af)), closes [#59](https://github.com/awslabs/fhir-works-on-aws-routing/issues/59) [#63](https://github.com/awslabs/fhir-works-on-aws-routing/issues/63)
+
+
+### Bug Fixes
+
+* Capability Statement rest security value set url ([#61](https://github.com/awslabs/fhir-works-on-aws-routing/issues/61)) ([a68a872](https://github.com/awslabs/fhir-works-on-aws-routing/commit/a68a87246c65a8b10da868ba47bd88e3e73b4004))
+* Capability statement to pull updateCreateSupported from Persistence ([#58](https://github.com/awslabs/fhir-works-on-aws-routing/issues/58)) ([bfb9a1d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/bfb9a1db3c4705857d0d45afcb0b69eb5d785e85))
+* fix stu3 schema for Bundle & AllergyIntolerance ([#65](https://github.com/awslabs/fhir-works-on-aws-routing/issues/65)) ([87857d1](https://github.com/awslabs/fhir-works-on-aws-routing/commit/87857d19c2bbed9e58bf1a042a5c88c3739eb7db))
+* for operations returning GenericResponse type, check that response exists before testing for sub properties. ([#54](https://github.com/awslabs/fhir-works-on-aws-routing/issues/54)) ([e1740b5](https://github.com/awslabs/fhir-works-on-aws-routing/commit/e1740b5dfa2abb75b51a43dc0c8c30e5d42ab44b))
+* Relax validation rules before a patch can be applied ([#64](https://github.com/awslabs/fhir-works-on-aws-routing/issues/64)) ([5a87d2b](https://github.com/awslabs/fhir-works-on-aws-routing/commit/5a87d2bc11615392d1535ce029db61bc3cd9d17f))
+
 ## [5.0.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v4.0.3...v5.0.0) (2021-02-11)
 
 
