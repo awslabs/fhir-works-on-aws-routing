@@ -9,6 +9,10 @@ import AWS from 'aws-sdk';
 
 const AWSWithXray = AWSXRay.captureAWS(AWS);
 
+AWS.config.update({
+    customUserAgent: process.env.CUSTOM_USER_AGENT,
+});
+
 const { IS_OFFLINE } = process.env;
 if (IS_OFFLINE === 'true') {
     AWS.config.update({
