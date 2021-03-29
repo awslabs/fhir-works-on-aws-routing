@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.1.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.1.0...v5.1.1) (2021-03-29)
+
 ## [5.1.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.0.0...v5.1.0) (2021-03-29)
 
 
