@@ -7,6 +7,7 @@ import express, { Router } from 'express';
 import { CapabilityMode, FhirVersion } from 'fhir-works-on-aws-interface';
 import MetadataHandler from '../metadata/metadataHandler';
 import ConfigHandler from '../../configHandler';
+import { FHIRStructureDefinitionRegistry } from '../../registry';
 
 export default class MetadataRoute {
     readonly fhirVersion: FhirVersion;
@@ -15,9 +16,14 @@ export default class MetadataRoute {
 
     private metadataHandler: MetadataHandler;
 
-    constructor(fhirVersion: FhirVersion, fhirConfigHandler: ConfigHandler, hasCORSEnabled: boolean) {
+    constructor(
+        fhirVersion: FhirVersion,
+        fhirConfigHandler: ConfigHandler,
+        registry: FHIRStructureDefinitionRegistry,
+        hasCORSEnabled: boolean,
+    ) {
         this.fhirVersion = fhirVersion;
-        this.metadataHandler = new MetadataHandler(fhirConfigHandler, hasCORSEnabled);
+        this.metadataHandler = new MetadataHandler(fhirConfigHandler, registry, hasCORSEnabled);
         this.router = express.Router();
         this.init();
     }

@@ -18,6 +18,7 @@ const config = (stubs: {
     bulkDataAccess: BulkDataAccess;
 }): FhirConfig => ({
     configVersion: 1,
+    validators: [],
     productInfo: {
         orgName: 'Organization Name',
     },

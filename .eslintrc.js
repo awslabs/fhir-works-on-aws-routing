@@ -20,6 +20,7 @@ module.exports = {
         'no-empty-function': 'off',
         '@typescript-eslint/no-empty-function': 'error',
         'import/prefer-default-export': 'off',
+        'import/no-extraneous-dependencies': ['error', {'devDependencies': ['**/*.test.ts']}],
         'no-shadow': 'off', // replaced by ts-eslint rule below
         '@typescript-eslint/no-shadow': 'error',
     },

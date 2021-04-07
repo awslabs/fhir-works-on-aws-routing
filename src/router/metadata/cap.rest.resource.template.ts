@@ -10,6 +10,7 @@ import {
     SearchCapabilities,
     Resource,
 } from 'fhir-works-on-aws-interface';
+import { ResourceCapabilityStatement, ResourceCapability } from '../../registry/ResourceCapabilityInterface';
 
 function makeResourceObject(
     resourceType: string,
@@ -17,13 +18,14 @@ function makeResourceObject(
     updateCreate: boolean,
     hasTypeSearch: boolean,
     searchCapabilities?: SearchCapabilities,
+    resourceCapability?: ResourceCapability,
 ) {
     const result: any = {
         type: resourceType,
         interaction: resourceOperations,
         versioning: 'versioned',
         readHistory: false,
-        updateCreate, // TODO do we actually do updateCreate?
+        updateCreate,
         conditionalCreate: false,
         conditionalRead: 'not-supported',
         conditionalUpdate: false,
@@ -32,6 +34,10 @@ function makeResourceObject(
 
     if (hasTypeSearch && searchCapabilities !== undefined) {
         Object.assign(result, searchCapabilities);
+    }
+
+    if (resourceCapability) {
+        Object.assign(result, resourceCapability);
     }
 
     return result;
@@ -51,11 +57,12 @@ export function makeGenericResources(
     fhirResourcesToMake: string[],
     operations: TypeOperation[],
     searchCapabilityStatement: SearchCapabilityStatement,
+    resourceCapabilityStatement: ResourceCapabilityStatement,
+    updateCreate: boolean,
 ) {
     const resources: any[] = [];
 
     const resourceOperations: any[] = makeOperation(operations);
-    const updateCreate: boolean = operations.includes('update');
     const hasTypeSearch: boolean = operations.includes('search-type');
 
     fhirResourcesToMake.forEach((resourceType: string) => {
@@ -66,6 +73,7 @@ export function makeGenericResources(
                 updateCreate,
                 hasTypeSearch,
                 searchCapabilityStatement[resourceType],
+                resourceCapabilityStatement[resourceType],
             ),
         );
     });
@@ -75,9 +83,8 @@ export function makeGenericResources(
 
 export async function makeResource(resourceType: string, resource: Resource) {
     const resourceOperations: any[] = makeOperation(resource.operations);
-    const updateCreate: boolean = resource.operations.includes('update');
     const hasTypeSearch: boolean = resource.operations.includes('search-type');
-
+    const updateCreate = resource.persistence.updateCreateSupported;
     const capabilities: SearchCapabilityStatement = hasTypeSearch ? await resource.typeSearch.getCapabilities() : {};
 
     return makeResourceObject(
