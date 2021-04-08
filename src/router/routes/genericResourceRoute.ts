@@ -6,6 +6,7 @@
 import express, { Router } from 'express';
 import { Authorization, TypeOperation } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
+import { forOwn, has, isEmpty } from 'lodash';
 import CrudHandlerInterface from '../handlers/CrudHandlerInterface';
 import RouteHelper from './routeHelper';
 
@@ -127,6 +128,25 @@ export default class GenericResourceRoute {
         }
 
         if (this.operations.includes('search-type')) {
+            const handleSearch = async (res: express.Response, resourceType: string, searchParamQuery: any) => {
+                const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
+                    operation: 'search-type',
+                    userIdentity: res.locals.userIdentity,
+                });
+
+                const response = await this.handler.typeSearch(
+                    resourceType,
+                    searchParamQuery,
+                    allowedResourceTypes,
+                    res.locals.userIdentity,
+                );
+                const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
+                    operation: 'search-type',
+                    userIdentity: res.locals.userIdentity,
+                    readResponse: response,
+                });
+                return updatedReadResponse;
+            };
             // SEARCH
             this.router.get(
                 '/',
@@ -135,23 +155,36 @@ export default class GenericResourceRoute {
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
 
-                    const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
-                        operation: 'search-type',
-                        userIdentity: res.locals.userIdentity,
+                    const updatedReadResponse = await handleSearch(res, resourceType, searchParamQuery);
+                    res.send(updatedReadResponse);
+                }),
+            );
+            this.router.post(
+                '/_search',
+                RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
+                    // Get the ResourceType looks like '/Patient'
+                    const resourceType = req.baseUrl.substr(1);
+                    const searchParamQuery = req.query;
+                    const { body } = req;
+
+                    const conflictSearchParams: string[] = [];
+                    forOwn(searchParamQuery, (value, key) => {
+                        if (has(body, key) && body[key] !== value) {
+                            conflictSearchParams.push(key);
+                        }
                     });
 
-                    const response = await this.handler.typeSearch(
-                        resourceType,
-                        searchParamQuery,
-                        allowedResourceTypes,
-                        res.locals.userIdentity,
-                    );
-                    const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
-                        operation: 'search-type',
-                        userIdentity: res.locals.userIdentity,
-                        readResponse: response,
-                    });
-                    res.send(updatedReadResponse);
+                    if (isEmpty(conflictSearchParams)) {
+                        const updatedReadResponse = await handleSearch(res, resourceType, {
+                            ...searchParamQuery,
+                            ...body,
+                        });
+                        res.send(updatedReadResponse);
+                    } else {
+                        throw new createError.BadRequest(
+                            `Can not process search request, query parameter and request body parameter conflicts in [${conflictSearchParams}]`,
+                        );
+                    }
                 }),
             );
         }
