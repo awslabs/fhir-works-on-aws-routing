@@ -170,7 +170,7 @@ export default class GenericResourceRoute {
                         mergeWith(searchParamQuery, body, (valueOne, valueTwo) => {
                             const result: string | any[] = [];
                             if (!isEmpty(valueOne) && !isEmpty(valueTwo) && !(valueOne === valueTwo)) {
-                                return [...new Set(result.concat(valueOne).concat(valueTwo))];
+                                return [...new Set([].concat(valueOne, valueTwo))];
                             }
                             return undefined; // Merging is handled by lodash mergeWith if undefined is returned
                         });
