@@ -6,7 +6,7 @@
 import express, { Router } from 'express';
 import { Authorization, TypeOperation } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
-import { forOwn, has, isEmpty } from 'lodash';
+import { isEmpty, mergeWith } from 'lodash';
 import CrudHandlerInterface from '../handlers/CrudHandlerInterface';
 import RouteHelper from './routeHelper';
 
@@ -140,12 +140,12 @@ export default class GenericResourceRoute {
                     allowedResourceTypes,
                     res.locals.userIdentity,
                 );
-                const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
+                const updatedSearchResponse = await this.authService.authorizeAndFilterReadResponse({
                     operation: 'search-type',
                     userIdentity: res.locals.userIdentity,
                     readResponse: response,
                 });
-                return updatedReadResponse;
+                return updatedSearchResponse;
             };
             // SEARCH
             this.router.get(
@@ -155,8 +155,11 @@ export default class GenericResourceRoute {
                     const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
 
-                    const updatedReadResponse = await handleSearch(res, resourceType, searchParamQuery);
-                    res.send(updatedReadResponse);
+                    console.log('here');
+                    console.log('2');
+
+                    const updatedSearchResponse = await handleSearch(res, resourceType, searchParamQuery);
+                    res.send(updatedSearchResponse);
                 }),
             );
             this.router.post(
@@ -167,24 +170,18 @@ export default class GenericResourceRoute {
                     const searchParamQuery = req.query;
                     const { body } = req;
 
-                    const conflictSearchParams: string[] = [];
-                    forOwn(searchParamQuery, (value, key) => {
-                        if (has(body, key) && body[key] !== value) {
-                            conflictSearchParams.push(key);
-                        }
-                    });
-
-                    if (isEmpty(conflictSearchParams)) {
-                        const updatedReadResponse = await handleSearch(res, resourceType, {
-                            ...searchParamQuery,
-                            ...body,
+                    if (!isEmpty(body)) {
+                        mergeWith(searchParamQuery, body, (valueOne, valueTwo) => {
+                            const result: string | any[] = [];
+                            if (!isEmpty(valueOne) && !isEmpty(valueTwo) && !(valueOne === valueTwo)) {
+                                return [...new Set(result.concat(valueOne).concat(valueTwo))];
+                            }
+                            return undefined; // Merging is handled by lodash mergeWith if undefined is returned
                         });
-                        res.send(updatedReadResponse);
-                    } else {
-                        throw new createError.BadRequest(
-                            `Can not process search request, query parameter and request body parameter conflicts in [${conflictSearchParams}]`,
-                        );
                     }
+
+                    const updatedSearchResponse = await handleSearch(res, resourceType, searchParamQuery);
+                    res.send(updatedSearchResponse);
                 }),
             );
         }
