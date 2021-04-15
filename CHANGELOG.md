@@ -2,10 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.2.0...v5.1.1) (2021-04-15)
+
+* feat: Add Post method for search ([#70](https://github.com/awslabs/fhir-works-on-aws-routing/pull/70))([0c29a2d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/0c29a2dc9eab953dd64c5cfb18acc48684ce2a71))
+
 ### [5.1.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.1.0...v5.1.1) (2021-03-29)
 
 ## [5.1.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.0.0...v5.1.0) (2021-03-29)
-
 
 ### Features
 
