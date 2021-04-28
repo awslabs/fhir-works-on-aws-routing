@@ -5,7 +5,13 @@
 
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
-import { Authorization, BulkDataAccess, ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
+import {
+    Authorization,
+    BulkDataAccess,
+    ExportType,
+    InitiateExportRequest,
+    RequestContext
+} from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';
@@ -61,9 +67,9 @@ export default class ExportRoute {
         this.router.get(
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const { userIdentity } = res.locals;
+                const { userIdentity, requestContext } = res.locals;
                 const { jobId } = req.params;
-                const response = await this.exportHandler.getExportJobStatus(jobId, userIdentity);
+                const response = await this.exportHandler.getExportJobStatus(jobId, userIdentity, requestContext);
                 if (response.jobStatus === 'in-progress') {
                     res.status(202)
                         .header('x-progress', 'in-progress')
@@ -99,8 +105,8 @@ export default class ExportRoute {
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
-                const { userIdentity } = res.locals;
-                await this.exportHandler.cancelExport(jobId, userIdentity);
+                const { userIdentity, requestContext } = res.locals;
+                await this.exportHandler.cancelExport(jobId, userIdentity, requestContext);
                 res.status(202).send();
             }),
         );

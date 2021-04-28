@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { KeyValueMap } from 'fhir-works-on-aws-interface';
+import { KeyValueMap, RequestContext } from 'fhir-works-on-aws-interface';
 
 export default interface CrudHandlerInterface {
     create(resourceType: string, resource: any): any;
@@ -12,7 +12,24 @@ export default interface CrudHandlerInterface {
     read(resourceType: string, id: string): any;
     vRead(resourceType: string, id: string, vid: string): any;
     delete(resourceType: string, id: string): any;
-    typeSearch(resourceType: string, searchParams: any, allowedResourceTypes: string[], userIdentity: KeyValueMap): any;
-    typeHistory(resourceType: string, searchParams: any, userIdentity: KeyValueMap): any;
-    instanceHistory(resourceType: string, id: string, searchParams: any, userIdentity: KeyValueMap): any;
+    typeSearch(
+        resourceType: string,
+        searchParams: any,
+        allowedResourceTypes: string[],
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ): any;
+    typeHistory(
+        resourceType: string,
+        searchParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ): any;
+    instanceHistory(
+        resourceType: string,
+        id: string,
+        searchParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ): any;
 }

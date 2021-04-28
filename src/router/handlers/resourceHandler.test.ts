@@ -24,6 +24,7 @@ import {
     InvalidResourceError,
     InitiateExportRequest,
     GetExportStatusResponse,
+    RequestContext,
 } from 'fhir-works-on-aws-interface';
 import ResourceHandler from './resourceHandler';
 import invalidPatient from '../../../sampleData/invalidV4Patient.json';
@@ -38,6 +39,14 @@ const enum SEARCH_PAGINATION_PARAMS {
     PAGES_OFFSET = '_getpagesoffset',
     COUNT = '_count',
 }
+
+const dummyRequestContext: RequestContext = {
+    url: 'https://fhir.acme.com/patient',
+    contextInfo: {},
+    headers: {},
+    hostname: 'fhir.acme.com',
+    verb: 'GET',
+};
 
 describe('SUCCESS CASES: Testing create, read, update, delete of resources', () => {
     const resourceHandler = new ResourceHandler(
@@ -388,6 +397,7 @@ describe('Testing search', () => {
             { name: 'Henry' },
             ['Patient', 'Practitioner'],
             {},
+            dummyRequestContext,
         );
 
         // CHECK
@@ -433,7 +443,13 @@ describe('Testing search', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [], {});
+        const searchResponse: any = await resourceHandler.typeSearch(
+            'Patient',
+            { name: 'Henry' },
+            [],
+            {},
+            dummyRequestContext,
+        );
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -457,7 +473,7 @@ describe('Testing search', () => {
         ElasticSearchService.typeSearch = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [], {});
+            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [], {}, dummyRequestContext);
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -494,6 +510,7 @@ describe('Testing search', () => {
                 },
                 [],
                 {},
+                dummyRequestContext,
             );
 
             // CHECK
@@ -551,6 +568,7 @@ describe('Testing search', () => {
                 },
                 [],
                 {},
+                dummyRequestContext,
             );
 
             // CHECK
@@ -608,6 +626,7 @@ describe('Testing search', () => {
                 },
                 [],
                 {},
+                dummyRequestContext,
             );
 
             // CHECK
@@ -683,7 +702,12 @@ describe('Testing history', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeHistory('Patient', { name: 'Henry' }, {});
+        const searchResponse: any = await resourceHandler.typeHistory(
+            'Patient',
+            { name: 'Henry' },
+            {},
+            dummyRequestContext,
+        );
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -719,7 +743,12 @@ describe('Testing history', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeHistory('Patient', { name: 'Henry' }, {});
+        const searchResponse: any = await resourceHandler.typeHistory(
+            'Patient',
+            { name: 'Henry' },
+            {},
+            dummyRequestContext,
+        );
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -743,7 +772,7 @@ describe('Testing history', () => {
         stubs.history.typeHistory = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeHistory('Patient', { name: 'Henry' }, {});
+            await resourceHandler.typeHistory('Patient', { name: 'Henry' }, {}, dummyRequestContext);
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -769,7 +798,13 @@ describe('Testing history', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' }, {});
+        const searchResponse: any = await resourceHandler.instanceHistory(
+            'Patient',
+            'id123',
+            { name: 'Henry' },
+            {},
+            dummyRequestContext,
+        );
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -800,7 +835,7 @@ describe('Testing history', () => {
         stubs.history.instanceHistory = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' }, {});
+            await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' }, {}, dummyRequestContext);
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -836,6 +871,7 @@ describe('Testing history', () => {
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
                 {},
+                dummyRequestContext,
             );
 
             // CHECK
@@ -892,6 +928,7 @@ describe('Testing history', () => {
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
                 {},
+                dummyRequestContext,
             );
 
             // CHECK
@@ -949,6 +986,7 @@ describe('Testing history', () => {
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
                 {},
+                dummyRequestContext,
             );
 
             // CHECK

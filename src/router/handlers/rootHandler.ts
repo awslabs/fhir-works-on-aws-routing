@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, KeyValueMap, Authorization } from 'fhir-works-on-aws-interface';
+import {Search, History, KeyValueMap, Authorization, RequestContext} from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 
 export default class RootHandler {
@@ -22,9 +22,10 @@ export default class RootHandler {
         this.serverUrl = serverUrl;
     }
 
-    async globalSearch(queryParams: any, userIdentity: KeyValueMap) {
+    async globalSearch(queryParams: any, requestContext: RequestContext, userIdentity: KeyValueMap) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
+            requestContext,
             operation: 'search-system',
         });
         const searchResponse = await this.searchService.globalSearch({
@@ -35,9 +36,10 @@ export default class RootHandler {
         return BundleGenerator.generateBundle(this.serverUrl, queryParams, searchResponse.result, 'searchset');
     }
 
-    async globalHistory(queryParams: any, userIdentity: KeyValueMap) {
+    async globalHistory(queryParams: any, requestContext: RequestContext, userIdentity: KeyValueMap) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
+            requestContext,
             operation: 'history-system',
         });
         const historyResponse = await this.historyService.globalHistory({
