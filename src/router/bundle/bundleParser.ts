@@ -239,7 +239,7 @@ export default class BundleParser {
                         set(
                             requestWithRef,
                             `resource.${reference.referencePath}`,
-                            `${requestWithRef.resourceType}/${reference.id}`,
+                            `${reference.resourceType}/${reference.id}`,
                         );
                         referenceIsFound = true;
                     }
