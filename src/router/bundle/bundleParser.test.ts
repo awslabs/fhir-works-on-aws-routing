@@ -513,7 +513,7 @@ describe('parseResource', () => {
                             ],
                         },
                         subject: {
-                            reference: 'Observation/47135b80-b721-430b-9d4b-1557edc64947',
+                            reference: 'Patient/47135b80-b721-430b-9d4b-1557edc64947',
                         },
                     },
                     fullUrl: 'https://API_URL.com/Observation/3',
@@ -767,6 +767,85 @@ describe('parseResource', () => {
 
             // CHECK
             expect(actualRequests).toEqual(expectedRequests);
+        });
+
+        test('POST with absolute URL references that match the server url', async () => {
+            const bundleRequestJson = {
+                resourceType: 'Bundle',
+                type: 'transaction',
+                entry: [
+                    {
+                        resource: {
+                            resourceType: 'Observation',
+                            status: 'final',
+                            code: {
+                                coding: [
+                                    {
+                                        code: 'LQA',
+                                        display: 'display value for LQA',
+                                    },
+                                ],
+                            },
+                            subject: {
+                                reference: `${serverUrl}/Patient/111`,
+                            },
+                            device: {
+                                reference: `${serverUrl}/Device/222`,
+                            },
+                            effectiveDateTime: '2021-01-09T20:00:06Z',
+                            valueQuantity: {
+                                unit: 'cm',
+                                value: 170,
+                            },
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'Observation',
+                        },
+                    },
+                ],
+            };
+
+            const batchReadWriteRequest = await BundleParser.parseResource(
+                bundleRequestJson,
+                DynamoDbDataService,
+                serverUrl,
+            );
+            expect(batchReadWriteRequest).toHaveLength(1);
+            expect(batchReadWriteRequest[0]).toMatchInlineSnapshot(
+                { id: expect.stringMatching(uuidRegExp) },
+                `
+                Object {
+                  "fullUrl": "",
+                  "id": StringMatching /\\\\w\\{8\\}-\\\\w\\{4\\}-\\\\w\\{4\\}-\\\\w\\{4\\}-\\\\w\\{12\\}/,
+                  "operation": "create",
+                  "resource": Object {
+                    "code": Object {
+                      "coding": Array [
+                        Object {
+                          "code": "LQA",
+                          "display": "display value for LQA",
+                        },
+                      ],
+                    },
+                    "device": Object {
+                      "reference": "Device/222",
+                    },
+                    "effectiveDateTime": "2021-01-09T20:00:06Z",
+                    "resourceType": "Observation",
+                    "status": "final",
+                    "subject": Object {
+                      "reference": "Patient/111",
+                    },
+                    "valueQuantity": Object {
+                      "unit": "cm",
+                      "value": 170,
+                    },
+                  },
+                  "resourceType": "Observation",
+                }
+            `,
+            );
         });
 
         test('POST with missing fullUrl and relative references', async () => {
