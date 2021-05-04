@@ -9,7 +9,8 @@ import {
     BulkDataAccess,
     GetExportStatusResponse,
     InitiateExportRequest,
-    KeyValueMap, RequestContext,
+    KeyValueMap,
+    RequestContext,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 
