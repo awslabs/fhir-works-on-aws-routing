@@ -848,6 +848,85 @@ describe('parseResource', () => {
             );
         });
 
+        test('POST with missing fullUrl and relative references', async () => {
+            const bundleRequestJson = {
+                resourceType: 'Bundle',
+                type: 'transaction',
+                entry: [
+                    {
+                        resource: {
+                            resourceType: 'Observation',
+                            status: 'final',
+                            code: {
+                                coding: [
+                                    {
+                                        code: 'LQA',
+                                        display: 'display value for LQA',
+                                    },
+                                ],
+                            },
+                            subject: {
+                                reference: 'Patient/111',
+                            },
+                            device: {
+                                reference: 'Device/222',
+                            },
+                            effectiveDateTime: '2021-01-09T20:00:06Z',
+                            valueQuantity: {
+                                unit: 'cm',
+                                value: 170,
+                            },
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'Observation',
+                        },
+                    },
+                ],
+            };
+
+            const batchReadWriteRequest = await BundleParser.parseResource(
+                bundleRequestJson,
+                DynamoDbDataService,
+                serverUrl,
+            );
+            expect(batchReadWriteRequest).toHaveLength(1);
+            expect(batchReadWriteRequest[0]).toMatchInlineSnapshot(
+                { id: expect.stringMatching(uuidRegExp) },
+                `
+                Object {
+                  "fullUrl": "",
+                  "id": StringMatching /\\\\w\\{8\\}-\\\\w\\{4\\}-\\\\w\\{4\\}-\\\\w\\{4\\}-\\\\w\\{12\\}/,
+                  "operation": "create",
+                  "resource": Object {
+                    "code": Object {
+                      "coding": Array [
+                        Object {
+                          "code": "LQA",
+                          "display": "display value for LQA",
+                        },
+                      ],
+                    },
+                    "device": Object {
+                      "reference": "Device/222",
+                    },
+                    "effectiveDateTime": "2021-01-09T20:00:06Z",
+                    "resourceType": "Observation",
+                    "status": "final",
+                    "subject": Object {
+                      "reference": "Patient/111",
+                    },
+                    "valueQuantity": Object {
+                      "unit": "cm",
+                      "value": 170,
+                    },
+                  },
+                  "resourceType": "Observation",
+                }
+            `,
+            );
+        });
+
         test('Circular references. An Observation with a reference to a Procedure. That Procedure referencing the Observation.', async () => {
             const bundleRequestJson = {
                 resourceType: 'Bundle',
