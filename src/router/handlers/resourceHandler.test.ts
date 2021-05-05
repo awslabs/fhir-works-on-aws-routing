@@ -366,6 +366,11 @@ describe('Testing search', () => {
 
     test('Search for a patient that exist', async () => {
         // BUILD
+
+        stubs.passThroughAuthz.getAllowedResourceTypesForOperation = jest
+            .fn()
+            .mockResolvedValue(['Patient', 'Practitioner']);
+
         const resourceHandler = initializeResourceHandler({
             result: {
                 numberOfResults: 1,
@@ -383,14 +388,13 @@ describe('Testing search', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeSearch(
-            'Patient',
-            { name: 'Henry' },
-            ['Patient', 'Practitioner'],
-            {},
-        );
+        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, {});
 
         // CHECK
+        expect(stubs.passThroughAuthz.getAllowedResourceTypesForOperation).toHaveBeenCalledWith({
+            operation: 'search-type',
+            userIdentity: {},
+        });
         expect(ElasticSearchService.typeSearch).toHaveBeenCalledWith({
             allowedResourceTypes: ['Patient', 'Practitioner'],
             baseUrl: 'https://API_URL.com',
@@ -433,7 +437,7 @@ describe('Testing search', () => {
         });
 
         // OPERATE
-        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [], {});
+        const searchResponse: any = await resourceHandler.typeSearch('Patient', { name: 'Henry' }, {});
 
         // CHECK
         expect(searchResponse.resourceType).toEqual('Bundle');
@@ -457,7 +461,7 @@ describe('Testing search', () => {
         ElasticSearchService.typeSearch = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [], {});
+            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, {});
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -492,7 +496,6 @@ describe('Testing search', () => {
                     [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 0,
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
-                [],
                 {},
             );
 
@@ -549,7 +552,6 @@ describe('Testing search', () => {
                     [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
-                [],
                 {},
             );
 
@@ -606,7 +608,6 @@ describe('Testing search', () => {
                     [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
-                [],
                 {},
             );
 
