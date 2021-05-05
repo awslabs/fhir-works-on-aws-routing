@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.2.0...v5.2.1) (2021-05-04)
+
+
+### Bug Fixes
+
+* bad substitution in absolute URL refs that match the server url ([#75](https://github.com/awslabs/fhir-works-on-aws-routing/issues/75)) ([9974257](https://github.com/awslabs/fhir-works-on-aws-routing/commit/99742570c8c19d6c730db0ae375bd112f42e4f42))
+* handle POST bundle with no fullUrl and relative refs ([#74](https://github.com/awslabs/fhir-works-on-aws-routing/issues/74)) ([1d09f48](https://github.com/awslabs/fhir-works-on-aws-routing/commit/1d09f488307b5b0a447738105815e95be76c2a62))
+
 ### [5.2.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.2.0...v5.1.1) (2021-04-15)
 
 * feat: Add Post method for search ([#70](https://github.com/awslabs/fhir-works-on-aws-routing/pull/70))([0c29a2d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/0c29a2dc9eab953dd64c5cfb18acc48684ce2a71))
