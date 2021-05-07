@@ -13,7 +13,8 @@ import {
     TypeOperation,
     KeyValueMap,
     isUnauthorizedError,
-    Validator, RequestContext,
+    Validator,
+    RequestContext,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';

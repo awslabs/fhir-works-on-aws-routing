@@ -5,13 +5,7 @@
 
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
-import {
-    Authorization,
-    BulkDataAccess,
-    ExportType,
-    InitiateExportRequest,
-    RequestContext
-} from 'fhir-works-on-aws-interface';
+import { Authorization, BulkDataAccess, ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';

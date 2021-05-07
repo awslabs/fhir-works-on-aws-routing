@@ -10,7 +10,7 @@ import {
     Authorization,
     KeyValueMap,
     Validator,
-    RequestContext
+    RequestContext,
 } from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
