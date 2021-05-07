@@ -375,6 +375,11 @@ describe('Testing search', () => {
 
     test('Search for a patient that exist', async () => {
         // BUILD
+
+        stubs.passThroughAuthz.getAllowedResourceTypesForOperation = jest
+            .fn()
+            .mockResolvedValue(['Patient', 'Practitioner']);
+
         const resourceHandler = initializeResourceHandler({
             result: {
                 numberOfResults: 1,
@@ -395,12 +400,16 @@ describe('Testing search', () => {
         const searchResponse: any = await resourceHandler.typeSearch(
             'Patient',
             { name: 'Henry' },
-            ['Patient', 'Practitioner'],
             {},
             dummyRequestContext,
         );
 
         // CHECK
+        expect(stubs.passThroughAuthz.getAllowedResourceTypesForOperation).toHaveBeenCalledWith({
+            operation: 'search-type',
+            userIdentity: {},
+            requestContext: dummyRequestContext,
+        });
         expect(ElasticSearchService.typeSearch).toHaveBeenCalledWith({
             allowedResourceTypes: ['Patient', 'Practitioner'],
             baseUrl: 'https://API_URL.com',
@@ -446,7 +455,6 @@ describe('Testing search', () => {
         const searchResponse: any = await resourceHandler.typeSearch(
             'Patient',
             { name: 'Henry' },
-            [],
             {},
             dummyRequestContext,
         );
@@ -473,7 +481,7 @@ describe('Testing search', () => {
         ElasticSearchService.typeSearch = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, [], {}, dummyRequestContext);
+            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, {}, dummyRequestContext);
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -508,7 +516,6 @@ describe('Testing search', () => {
                     [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 0,
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
-                [],
                 {},
                 dummyRequestContext,
             );
@@ -566,7 +573,6 @@ describe('Testing search', () => {
                     [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
-                [],
                 {},
                 dummyRequestContext,
             );
@@ -624,7 +630,6 @@ describe('Testing search', () => {
                     [SEARCH_PAGINATION_PARAMS.PAGES_OFFSET]: 1,
                     [SEARCH_PAGINATION_PARAMS.COUNT]: 1,
                 },
-                [],
                 {},
                 dummyRequestContext,
             );
