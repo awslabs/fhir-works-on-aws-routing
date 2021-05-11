@@ -6,7 +6,7 @@
 
 import { DocRefParams } from './parseParams';
 
-export const docRefParamsToSearchParams = (docRefParams: DocRefParams) => {
+export const convertDocRefParamsToSearchParams = (docRefParams: DocRefParams) => {
     const { patient, start, end, type, onDemand } = docRefParams;
 
     if (onDemand) {

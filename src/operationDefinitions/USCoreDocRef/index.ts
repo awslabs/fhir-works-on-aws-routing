@@ -10,12 +10,12 @@ import { OperationDefinitionImplementation } from '../types';
 import ResourceHandler from '../../router/handlers/resourceHandler';
 import RouteHelper from '../../router/routes/routeHelper';
 import { DocRefParams, parsePostParams, parseQueryParams } from './parseParams';
-import { docRefParamsToSearchParams } from './docRefParamsToSearchParams';
+import { convertDocRefParamsToSearchParams } from './convertDocRefParamsToSearchParams';
 
 const searchTypeOperation: TypeOperation = 'search-type';
 
 const docRefImpl = async (resourceHandler: ResourceHandler, userIdentity: KeyValueMap, params: DocRefParams) => {
-    const searchParams = docRefParamsToSearchParams(params);
+    const searchParams = convertDocRefParamsToSearchParams(params);
     return resourceHandler.typeSearch('DocumentReference', searchParams, userIdentity);
 };
 

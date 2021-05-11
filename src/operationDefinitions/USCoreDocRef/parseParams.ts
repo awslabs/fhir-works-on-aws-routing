@@ -47,31 +47,30 @@ const validateQueryParams = ajv.compile(queryParamsSchema);
 
 export const parseQueryParams = (queryParams: any): DocRefParams => {
     if (queryParams.type) {
-        // This will likely be a common error, so we add a very specific mesage.
+        // This will likely be a common error, so we add a very specific message.
         throw new createError.BadRequest('"type" parameter is not allowed on a GET request. Use POST instead');
     }
 
-    if (validateQueryParams(queryParams)) {
-        const docRefParams: DocRefParams = {
-            patient: queryParams.patient,
-        };
+    if (!validateQueryParams(queryParams)) {
+        throw new createError.BadRequest(ajv.errorsText(validateQueryParams.errors, { dataVar: 'params' }));
+    }
+    const docRefParams: DocRefParams = {
+        patient: queryParams.patient,
+    };
 
-        if (queryParams.start) {
-            docRefParams.start = queryParams.start;
-        }
-
-        if (queryParams.end) {
-            docRefParams.end = queryParams.end;
-        }
-
-        if (queryParams['on-demand']) {
-            docRefParams.onDemand = queryParams['on-demand'] === 'true';
-        }
-
-        return docRefParams;
+    if (queryParams.start) {
+        docRefParams.start = queryParams.start;
     }
 
-    throw new createError.BadRequest(ajv.errorsText(validateQueryParams.errors, { dataVar: 'params' }));
+    if (queryParams.end) {
+        docRefParams.end = queryParams.end;
+    }
+
+    if (queryParams['on-demand']) {
+        docRefParams.onDemand = queryParams['on-demand'] === 'true';
+    }
+
+    return docRefParams;
 };
 
 const postParamsSchema = {
@@ -192,48 +191,48 @@ const postParamsSchema = {
 const validatePostParams = ajv.compile(postParamsSchema);
 
 export const parsePostParams = (postParams: any): DocRefParams => {
-    if (validatePostParams(postParams)) {
-        const params: any[] = postParams.parameter;
-        const allowedNames = ['patient', 'start', 'end', 'on-demand', 'codeableConcept'];
-
-        const docRefParams: any = {};
-
-        allowedNames.forEach(name => {
-            const matches = params.filter(param => param.name === name);
-            if (matches.length > 1) {
-                throw new createError.BadRequest('parameter names cannot repeat');
-            }
-            if (name === 'patient' && matches.length === 0) {
-                throw new createError.BadRequest('patient parameter is required');
-            }
-            if (matches.length === 0) {
-                return;
-            }
-
-            switch (name) {
-                case 'patient':
-                    docRefParams[name] = matches[0].valueId;
-                    break;
-                case 'start':
-                case 'end':
-                    docRefParams[name] = matches[0].valueDate;
-                    break;
-                case 'on-demand':
-                    docRefParams.onDemand = matches[0].valueBoolean;
-                    break;
-                case 'codeableConcept':
-                    docRefParams.type = {
-                        system: matches[0].valueCodeableConcept.coding.system,
-                        code: matches[0].valueCodeableConcept.coding.code,
-                    };
-                    break;
-                default:
-                    // this should never happen
-                    throw new Error('Unable to parse params');
-            }
-        });
-
-        return docRefParams;
+    if (!validatePostParams(postParams)) {
+        throw new createError.BadRequest(ajv.errorsText(validatePostParams.errors, { dataVar: 'params' }));
     }
-    throw new createError.BadRequest(ajv.errorsText(validatePostParams.errors, { dataVar: 'params' }));
+    const params: any[] = postParams.parameter;
+    const allowedNames = ['patient', 'start', 'end', 'on-demand', 'codeableConcept'];
+
+    const docRefParams: any = {};
+
+    allowedNames.forEach(name => {
+        const matches = params.filter(param => param.name === name);
+        if (matches.length > 1) {
+            throw new createError.BadRequest('parameter names cannot repeat');
+        }
+        if (name === 'patient' && matches.length === 0) {
+            throw new createError.BadRequest('patient parameter is required');
+        }
+        if (matches.length === 0) {
+            return;
+        }
+
+        switch (name) {
+            case 'patient':
+                docRefParams[name] = matches[0].valueId;
+                break;
+            case 'start':
+            case 'end':
+                docRefParams[name] = matches[0].valueDate;
+                break;
+            case 'on-demand':
+                docRefParams.onDemand = matches[0].valueBoolean;
+                break;
+            case 'codeableConcept':
+                docRefParams.type = {
+                    system: matches[0].valueCodeableConcept.coding.system,
+                    code: matches[0].valueCodeableConcept.coding.code,
+                };
+                break;
+            default:
+                // this should never happen
+                throw new Error('Unable to parse params');
+        }
+    });
+
+    return docRefParams;
 };

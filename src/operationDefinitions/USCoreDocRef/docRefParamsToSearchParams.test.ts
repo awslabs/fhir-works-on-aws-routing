@@ -4,11 +4,11 @@
  *
  */
 
-import { docRefParamsToSearchParams } from './docRefParamsToSearchParams';
+import { convertDocRefParamsToSearchParams } from './convertDocRefParamsToSearchParams';
 
 describe('docRefParamsToSearchParams', () => {
     test('minimal params ', () => {
-        expect(docRefParamsToSearchParams({ patient: 'Patient/1' })).toMatchInlineSnapshot(`
+        expect(convertDocRefParamsToSearchParams({ patient: 'Patient/1' })).toMatchInlineSnapshot(`
             Object {
               "_count": "1",
               "_sort": "-period",
@@ -19,7 +19,7 @@ describe('docRefParamsToSearchParams', () => {
     });
     test('all params ', () => {
         expect(
-            docRefParamsToSearchParams({
+            convertDocRefParamsToSearchParams({
                 patient: 'Patient/1',
                 start: '1990-10-10',
                 end: '1995-10-10',
@@ -43,7 +43,7 @@ describe('docRefParamsToSearchParams', () => {
 
     test('on demand', () => {
         expect(
-            docRefParamsToSearchParams({
+            convertDocRefParamsToSearchParams({
                 patient: 'Patient/1',
                 onDemand: true,
             }),
@@ -56,7 +56,7 @@ describe('docRefParamsToSearchParams', () => {
 
     test('only start', () => {
         expect(
-            docRefParamsToSearchParams({
+            convertDocRefParamsToSearchParams({
                 patient: 'Patient/1',
                 start: '1990',
             }),
@@ -73,7 +73,7 @@ describe('docRefParamsToSearchParams', () => {
 
     test('only end', () => {
         expect(
-            docRefParamsToSearchParams({
+            convertDocRefParamsToSearchParams({
                 patient: 'Patient/1',
                 end: '2000',
             }),
