@@ -129,23 +129,7 @@ export default class GenericResourceRoute {
 
         if (this.operations.includes('search-type')) {
             const handleSearch = async (res: express.Response, resourceType: string, searchParamQuery: any) => {
-                const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
-                    operation: 'search-type',
-                    userIdentity: res.locals.userIdentity,
-                });
-
-                const response = await this.handler.typeSearch(
-                    resourceType,
-                    searchParamQuery,
-                    allowedResourceTypes,
-                    res.locals.userIdentity,
-                );
-                const updatedSearchResponse = await this.authService.authorizeAndFilterReadResponse({
-                    operation: 'search-type',
-                    userIdentity: res.locals.userIdentity,
-                    readResponse: response,
-                });
-                return updatedSearchResponse;
+                return this.handler.typeSearch(resourceType, searchParamQuery, res.locals.userIdentity);
             };
             // SEARCH
             this.router.get(

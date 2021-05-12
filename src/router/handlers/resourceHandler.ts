@@ -59,12 +59,12 @@ export default class ResourceHandler implements CrudHandlerInterface {
         return patchResponse.resource;
     }
 
-    async typeSearch(
-        resourceType: string,
-        queryParams: any,
-        allowedResourceTypes: string[],
-        userIdentity: KeyValueMap,
-    ) {
+    async typeSearch(resourceType: string, queryParams: any, userIdentity: KeyValueMap) {
+        const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
+            operation: 'search-type',
+            userIdentity,
+        });
+
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
             operation: 'search-type',
@@ -78,13 +78,19 @@ export default class ResourceHandler implements CrudHandlerInterface {
             allowedResourceTypes,
             searchFilters,
         });
-        return BundleGenerator.generateBundle(
+        const bundle = BundleGenerator.generateBundle(
             this.serverUrl,
             queryParams,
             searchResponse.result,
             'searchset',
             resourceType,
         );
+
+        return this.authService.authorizeAndFilterReadResponse({
+            operation: 'search-type',
+            userIdentity,
+            readResponse: bundle,
+        });
     }
 
     async typeHistory(resourceType: string, queryParams: any, userIdentity: KeyValueMap) {

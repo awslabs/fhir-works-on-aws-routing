@@ -239,7 +239,7 @@ export default class BundleParser {
                         set(
                             requestWithRef,
                             `resource.${reference.referencePath}`,
-                            `${requestWithRef.resourceType}/${reference.id}`,
+                            `${reference.resourceType}/${reference.id}`,
                         );
                         referenceIsFound = true;
                     }
@@ -335,7 +335,7 @@ export default class BundleParser {
                 let rootUrl = fullUrlMatch[1];
                 // If the reference doesn't have a urlRoot, check if the entry's fullUrl has a urlRoot
                 if (rootUrl === undefined) {
-                    if (entry.fullUrl.length > 0 && entry.fullUrl.match(captureFullUrlParts)) {
+                    if (entry.fullUrl && entry.fullUrl.match(captureFullUrlParts)) {
                         // eslint-disable-next-line prefer-destructuring
                         rootUrl = entry.fullUrl.match(captureFullUrlParts)[1];
                     }
