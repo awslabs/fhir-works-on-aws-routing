@@ -6,6 +6,7 @@
 import { InvalidResourceError, Validator } from 'fhir-works-on-aws-interface';
 import { Lambda } from 'aws-sdk';
 import AWS from '../../AWS';
+import makeComponentLogger from '../../loggerBuilder';
 
 interface ErrorMessage {
     severity: string;
@@ -18,6 +19,7 @@ interface HapiValidatorResponse {
 }
 // a relatively high number to give cold starts a chance to succeed
 const TIMEOUT_MILLISECONDS = 25_000;
+const logger = makeComponentLogger();
 
 export default class HapiFhirLambdaValidator implements Validator {
     private hapiValidatorLambdaArn: string;
@@ -45,7 +47,7 @@ export default class HapiFhirLambdaValidator implements Validator {
         if (lambdaResponse.FunctionError) {
             // this means that the lambda function crashed, not necessarily that the resource is invalid.
             const msg = `The execution of ${this.hapiValidatorLambdaArn} lambda function failed`;
-            console.log(msg, lambdaResponse);
+            logger.error(msg, lambdaResponse);
             throw new Error(msg);
         }
         // response payload is always a string. the Payload type is also used for invoke parameters
