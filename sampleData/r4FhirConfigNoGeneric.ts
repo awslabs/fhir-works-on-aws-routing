@@ -31,9 +31,6 @@ const config = (stubs: {
     server: {
         url: 'http://example.com',
     },
-    logging: {
-        level: 'warn',
-    },
     profile: {
         fhirVersion: '4.0.1',
         systemOperations: ['search-system', 'batch', 'history-system'],
