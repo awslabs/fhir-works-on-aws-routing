@@ -4,7 +4,7 @@
  *
  */
 
-import express, { Router } from 'express';
+import express from 'express';
 import { KeyValueMap, TypeOperation } from 'fhir-works-on-aws-interface';
 import { OperationDefinitionImplementation } from '../types';
 import ResourceHandler from '../../router/handlers/resourceHandler';
@@ -19,27 +19,23 @@ const docRefImpl = async (resourceHandler: ResourceHandler, userIdentity: KeyVal
     return resourceHandler.typeSearch('DocumentReference', searchParams, userIdentity);
 };
 
-export class USCoreDocRef implements OperationDefinitionImplementation {
-    readonly canonicalUrl = 'http://hl7.org/fhir/us/core/OperationDefinition/docref';
-
-    readonly requestInformation = {
+export const USCoreDocRef: OperationDefinitionImplementation = {
+    canonicalUrl: 'http://hl7.org/fhir/us/core/OperationDefinition/docref',
+    path: '/DocumentReference/$docref',
+    httpMethods: ['GET', 'POST'],
+    targetResourceType: 'DocumentReference',
+    requestInformation: {
         operation: searchTypeOperation,
         resourceType: 'DocumentReference',
-    };
-
-    private readonly resourceHandler: ResourceHandler;
-
-    readonly router: Router;
-
-    constructor(resourceHandler: ResourceHandler) {
-        this.resourceHandler = resourceHandler;
+    },
+    buildRouter: (resourceHandler: ResourceHandler) => {
         const path = '/DocumentReference/\\$docref';
         const router = express.Router();
         router.get(
             path,
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const response = await docRefImpl(
-                    this.resourceHandler,
+                    resourceHandler,
                     res.locals.userIdentity,
                     parseQueryParams(req.query),
                 );
@@ -50,14 +46,11 @@ export class USCoreDocRef implements OperationDefinitionImplementation {
         router.post(
             path,
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const response = await docRefImpl(
-                    this.resourceHandler,
-                    res.locals.userIdentity,
-                    parsePostParams(req.body),
-                );
+                const response = await docRefImpl(resourceHandler, res.locals.userIdentity, parsePostParams(req.body));
                 res.send(response);
             }),
         );
-        this.router = router;
-    }
-}
+
+        return router;
+    },
+};

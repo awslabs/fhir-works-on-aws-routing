@@ -4,6 +4,7 @@
  */
 
 import { FhirConfig, FhirVersion, TypeOperation } from 'fhir-works-on-aws-interface';
+import ResourceHandler from './router/handlers/resourceHandler';
 
 export default class ConfigHandler {
     readonly config: FhirConfig;
@@ -65,5 +66,37 @@ export default class ConfigHandler {
         );
 
         return resources;
+    }
+
+    getResourceHandler(resourceType: string): ResourceHandler | undefined {
+        if (this.config.profile.resources?.[resourceType]) {
+            const { persistence, typeSearch, typeHistory } = this.config.profile.resources[resourceType];
+            return new ResourceHandler(
+                persistence,
+                typeSearch,
+                typeHistory,
+                this.config.auth.authorization,
+                this.config.server.url,
+                this.config.validators,
+            );
+        }
+
+        if (
+            this.getGenericResources(this.config.profile.fhirVersion).includes(resourceType) &&
+            this.config.profile.genericResource
+        ) {
+            const { persistence, typeSearch, typeHistory } = this.config.profile.genericResource;
+
+            return new ResourceHandler(
+                persistence,
+                typeSearch,
+                typeHistory,
+                this.config.auth.authorization,
+                this.config.server.url,
+                this.config.validators,
+            );
+        }
+
+        return undefined;
     }
 }

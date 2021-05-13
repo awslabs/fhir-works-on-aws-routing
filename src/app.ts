@@ -22,6 +22,7 @@ import { applicationErrorMapper, httpErrorHandler, unknownErrorHandler } from '.
 import ExportRoute from './router/routes/exportRoute';
 import WellKnownUriRouteRoute from './router/routes/wellKnownUriRoute';
 import { FHIRStructureDefinitionRegistry } from './registry';
+import { initializeOperationRegistry } from './operationDefinitions';
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -38,6 +39,7 @@ export function generateServerlessRouter(
     const serverUrl: string = fhirConfig.server.url;
     let hasCORSEnabled: boolean = false;
     const registry = new FHIRStructureDefinitionRegistry(compiledImplementationGuides);
+    const operationRegistry = initializeOperationRegistry(configHandler);
 
     const app = express();
     app.use(express.urlencoded({ extended: true }));
@@ -70,7 +72,9 @@ export function generateServerlessRouter(
     // AuthZ
     app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
-            const requestInformation = getRequestInformation(req.method, req.path);
+            const requestInformation =
+                operationRegistry.getOperation(req.method, req.path)?.requestInformation ??
+                getRequestInformation(req.method, req.path);
             // Clean auth header (remove 'Bearer ')
             req.headers.authorization = cleanAuthHeader(req.headers.authorization);
             res.locals.userIdentity = await fhirConfig.auth.authorization.verifyAccessToken({
@@ -92,6 +96,11 @@ export function generateServerlessRouter(
         );
         app.use('/', exportRoute.router);
     }
+
+    // Operations defined by OperationDefinition resources
+    operationRegistry.getAllRouters().forEach(router => {
+        app.use('/', router);
+    });
 
     // Special Resources
     if (fhirConfig.profile.resources) {
