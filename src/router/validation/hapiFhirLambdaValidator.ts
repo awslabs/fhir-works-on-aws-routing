@@ -6,7 +6,7 @@
 import { InvalidResourceError, Validator } from 'fhir-works-on-aws-interface';
 import { Lambda } from 'aws-sdk';
 import AWS from '../../AWS';
-import makeComponentLogger from '../../loggerBuilder';
+import getComponentLogger from '../../loggerBuilder';
 
 interface ErrorMessage {
     severity: string;
@@ -19,7 +19,7 @@ interface HapiValidatorResponse {
 }
 // a relatively high number to give cold starts a chance to succeed
 const TIMEOUT_MILLISECONDS = 25_000;
-const logger = makeComponentLogger();
+const logger = getComponentLogger();
 
 export default class HapiFhirLambdaValidator implements Validator {
     private hapiValidatorLambdaArn: string;

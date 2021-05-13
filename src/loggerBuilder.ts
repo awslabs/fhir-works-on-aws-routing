@@ -1,8 +1,9 @@
 import { makeLogger } from 'fhir-works-on-aws-interface';
 
-export default function makeComponentLogger(metadata?: any): any {
-    return makeLogger({
-        component: 'routing',
-        ...metadata,
-    });
+const componentLogger = makeLogger({
+    component: 'routing',
+});
+
+export default function getComponentLogger(): any {
+    return componentLogger;
 }
