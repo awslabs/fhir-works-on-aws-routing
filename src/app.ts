@@ -57,7 +57,13 @@ export function generateServerlessRouter(
     }
 
     // Metadata
-    const metadataRoute: MetadataRoute = new MetadataRoute(fhirVersion, configHandler, registry, hasCORSEnabled);
+    const metadataRoute: MetadataRoute = new MetadataRoute(
+        fhirVersion,
+        configHandler,
+        registry,
+        operationRegistry,
+        hasCORSEnabled,
+    );
     app.use('/metadata', metadataRoute.router);
 
     if (fhirConfig.auth.strategy.service === 'SMART-on-FHIR') {

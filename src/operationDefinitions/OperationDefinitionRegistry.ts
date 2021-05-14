@@ -8,6 +8,18 @@ import { Router } from 'express';
 import { OperationDefinitionImplementation } from './types';
 import ConfigHandler from '../configHandler';
 
+export interface OperationCapability {
+    operation: {
+        name: string;
+        definition: string;
+        documentation: string;
+    }[];
+}
+
+export interface OperationCapabilityStatement {
+    [resourceType: string]: OperationCapability;
+}
+
 export class OperationDefinitionRegistry {
     private readonly operations: OperationDefinitionImplementation[];
 
@@ -34,5 +46,24 @@ export class OperationDefinitionRegistry {
 
     getAllRouters(): Router[] {
         return this.routers;
+    }
+
+    getCapabilities(): OperationCapabilityStatement {
+        const capabilities: OperationCapabilityStatement = {};
+
+        this.operations.forEach(operation => {
+            if (!capabilities[operation.targetResourceType]) {
+                capabilities[operation.targetResourceType] = {
+                    operation: [],
+                };
+            }
+            capabilities[operation.targetResourceType].operation.push({
+                name: operation.name,
+                definition: operation.canonicalUrl,
+                documentation: operation.documentation,
+            });
+        });
+
+        return capabilities;
     }
 }

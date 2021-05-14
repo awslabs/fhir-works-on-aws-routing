@@ -14,6 +14,17 @@ export interface OperationDefinitionImplementation {
     readonly canonicalUrl: string;
 
     /**
+     * common name for the operation. It is found as `code` or `id` in the corresponding OperationDefinition resource
+     */
+    readonly name: string;
+
+    /**
+     * Usually based on the `description` of the corresponding OperationDefinition resource.
+     * documentation should also include details that are specific to this implementation of the operation
+     */
+    readonly documentation: string;
+
+    /**
      * url path used to invoke the operation
      * @example '/DocumentReference/$docref'
      */
