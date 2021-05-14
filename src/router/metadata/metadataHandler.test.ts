@@ -440,12 +440,6 @@ test('R4: FHIR Config V4 without search', async () => {
     expect(response.resource.rest.length).toEqual(1);
     expect(response.resource.rest[0].resource.length).toEqual(SUPPORTED_R4_RESOURCES.length);
     expect(response.resource.rest[0].security.cors).toBeFalsy();
-    // see if the four CRUD + vRead operations are chosen
-    const expectedResourceSubset = {
-        interaction: makeOperation(['create', 'read', 'update', 'delete', 'vread', 'history-instance']),
-        updateCreate: configHandler.config.profile.genericResource!.persistence.updateCreateSupported,
-    };
-    expect(response.resource.rest[0].resource[0]).toMatchObject(expectedResourceSubset);
     expect(response.resource.rest[0].resource[0]).toMatchInlineSnapshot(`
         Object {
           "conditionalCreate": false,
