@@ -29,9 +29,6 @@ const config = (stubs: {
     server: {
         url: 'http://example.com',
     },
-    logging: {
-        level: 'error',
-    },
     profile: {
         fhirVersion: '4.0.1',
         systemOperations: [],

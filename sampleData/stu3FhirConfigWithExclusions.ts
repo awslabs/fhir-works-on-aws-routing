@@ -35,9 +35,6 @@ const config = (stubs: {
     server: {
         url: 'http://example.com',
     },
-    logging: {
-        level: 'debug',
-    },
     profile: {
         fhirVersion: '3.0.1',
         systemOperations: ['transaction'],
