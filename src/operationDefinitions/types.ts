@@ -15,13 +15,14 @@ export interface OperationDefinitionImplementation {
 
     /**
      * url path used to invoke the operation
+     * @example '/DocumentReference/$docref'
      */
     readonly path: string;
 
     /**
-     * methods supported by this operation e.g GET, POST
+     * Http verbs (methods) supported by this operation e.g GET, POST
      */
-    readonly httpMethods: string[];
+    readonly httpVerbs: string[];
 
     /**
      * FHIR resourceType that is affected by this operation

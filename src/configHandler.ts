@@ -68,6 +68,12 @@ export default class ConfigHandler {
         return resources;
     }
 
+    /**
+     * Get a `ResourceHandler` for a given `resourceType`. The `ResourceHandler` uses the most specific dependencies available in `FhirConfig`:
+     * 1. Use the dependencies specific to the given `resourceType` if they are defined.
+     * 2. Otherwise use the dependencies for `genericResource` if the given `resourceType` is a valid `genericResource`.
+     * 3. Otherwise return undefined.
+     */
     getResourceHandler(resourceType: string): ResourceHandler | undefined {
         if (this.config.profile.resources?.[resourceType]) {
             const { persistence, typeSearch, typeHistory } = this.config.profile.resources[resourceType];

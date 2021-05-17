@@ -29,7 +29,7 @@ export class OperationDefinitionRegistry {
     }
 
     getOperation(method: string, path: string): OperationDefinitionImplementation | undefined {
-        return this.operations.find(o => o.path === path && o.httpMethods.includes(method));
+        return this.operations.find(o => o.path === path && o.httpVerbs.includes(method));
     }
 
     getAllRouters(): Router[] {

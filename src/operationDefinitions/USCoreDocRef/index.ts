@@ -22,7 +22,7 @@ const docRefImpl = async (resourceHandler: ResourceHandler, userIdentity: KeyVal
 export const USCoreDocRef: OperationDefinitionImplementation = {
     canonicalUrl: 'http://hl7.org/fhir/us/core/OperationDefinition/docref',
     path: '/DocumentReference/$docref',
-    httpMethods: ['GET', 'POST'],
+    httpVerbs: ['GET', 'POST'],
     targetResourceType: 'DocumentReference',
     requestInformation: {
         operation: searchTypeOperation,

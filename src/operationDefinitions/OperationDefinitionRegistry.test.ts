@@ -13,7 +13,7 @@ import ResourceHandler from '../router/handlers/resourceHandler';
 const fakeRouter = (jest.fn() as unknown) as Router;
 const fakeOperation: OperationDefinitionImplementation = {
     canonicalUrl: 'https://fwoa.com/operation/fakeOperation',
-    httpMethods: ['GET'],
+    httpVerbs: ['GET'],
     path: '/Patient/fakeOperation',
     targetResourceType: 'Patient',
     requestInformation: {
