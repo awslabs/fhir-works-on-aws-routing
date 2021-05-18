@@ -10,6 +10,7 @@ import {
     GetExportStatusResponse,
     InitiateExportRequest,
     KeyValueMap,
+    RequestContext,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 
@@ -27,15 +28,19 @@ export default class ExportHandler {
         return this.bulkDataAccess.initiateExport(initiateExportRequest);
     }
 
-    async getExportJobStatus(jobId: string, userIdentity: KeyValueMap): Promise<GetExportStatusResponse> {
+    async getExportJobStatus(
+        jobId: string,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ): Promise<GetExportStatusResponse> {
         const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
-        await this.checkIfRequesterHasAccessToJob(jobDetails, userIdentity);
+        await this.checkIfRequesterHasAccessToJob(jobDetails, userIdentity, requestContext);
         return jobDetails;
     }
 
-    async cancelExport(jobId: string, userIdentity: KeyValueMap): Promise<void> {
+    async cancelExport(jobId: string, userIdentity: KeyValueMap, requestContext: RequestContext): Promise<void> {
         const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
-        await this.checkIfRequesterHasAccessToJob(jobDetails, userIdentity);
+        await this.checkIfRequesterHasAccessToJob(jobDetails, userIdentity, requestContext);
         if (['completed', 'failed'].includes(jobDetails.jobStatus)) {
             throw new createError.BadRequest(
                 `Job cannot be canceled because job is already in ${jobDetails.jobStatus} state`,
@@ -45,9 +50,13 @@ export default class ExportHandler {
         await this.bulkDataAccess.cancelExport(jobId);
     }
 
-    private async checkIfRequesterHasAccessToJob(jobDetails: GetExportStatusResponse, userIdentity: KeyValueMap) {
+    private async checkIfRequesterHasAccessToJob(
+        jobDetails: GetExportStatusResponse,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ) {
         const { jobOwnerId } = jobDetails;
-        const accessBulkDataJobRequest: AccessBulkDataJobRequest = { userIdentity, jobOwnerId };
+        const accessBulkDataJobRequest: AccessBulkDataJobRequest = { userIdentity, requestContext, jobOwnerId };
         await this.authService.isAccessBulkDataJobAllowed(accessBulkDataJobRequest);
     }
 }

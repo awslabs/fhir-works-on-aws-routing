@@ -14,6 +14,7 @@ import {
     KeyValueMap,
     isUnauthorizedError,
     Validator,
+    RequestContext,
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
@@ -58,7 +59,7 @@ export default class BundleHandler implements BundleHandlerInterface {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap) {
+    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext) {
         throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
 
@@ -97,7 +98,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         return bundleEntriesNotSupported;
     }
 
-    async processTransaction(bundleRequestJson: any, userIdentity: KeyValueMap) {
+    async processTransaction(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext) {
         const startTime = new Date();
 
         await validateResource(this.validators, bundleRequestJson);
@@ -129,6 +130,7 @@ export default class BundleHandler implements BundleHandlerInterface {
 
         await this.authService.isBundleRequestAuthorized({
             userIdentity,
+            requestContext,
             requests,
         });
 
@@ -162,6 +164,7 @@ export default class BundleHandler implements BundleHandlerInterface {
                 return this.authService.authorizeAndFilterReadResponse({
                     operation: request.operation,
                     userIdentity,
+                    requestContext,
                     readResponse: bundleServiceResponse.batchReadWriteResponses[index].resource,
                 });
             }
