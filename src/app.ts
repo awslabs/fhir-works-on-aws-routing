@@ -12,6 +12,8 @@ import {
     TypeOperation,
     FhirConfig,
     SmartStrategy,
+    RequestContext,
+    VerbType,
 } from 'fhir-works-on-aws-interface';
 import GenericResourceRoute from './router/routes/genericResourceRoute';
 import ConfigHandler from './configHandler';
@@ -24,6 +26,23 @@ import WellKnownUriRouteRoute from './router/routes/wellKnownUriRoute';
 import { FHIRStructureDefinitionRegistry } from './registry';
 
 const configVersionSupported: ConfigVersion = 1;
+
+function prepareRequestContext(req: express.Request): RequestContext {
+    const requestContext: RequestContext = {
+        headers: req.headers,
+        hostname: req.hostname,
+        url: req.url,
+        contextInfo: {},
+    };
+
+    if (req.method) {
+        const method = req.method.toUpperCase();
+        if (['CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE'].includes(method)) {
+            requestContext.verb = method as VerbType;
+        }
+    }
+    return requestContext;
+}
 
 export function generateServerlessRouter(
     fhirConfig: FhirConfig,
@@ -73,8 +92,10 @@ export function generateServerlessRouter(
             const requestInformation = getRequestInformation(req.method, req.path);
             // Clean auth header (remove 'Bearer ')
             req.headers.authorization = cleanAuthHeader(req.headers.authorization);
+            res.locals.requestContext = prepareRequestContext(req);
             res.locals.userIdentity = await fhirConfig.auth.authorization.verifyAccessToken({
                 ...requestInformation,
+                requestContext: res.locals.requestContext,
                 accessToken: req.headers.authorization,
             });
             next();

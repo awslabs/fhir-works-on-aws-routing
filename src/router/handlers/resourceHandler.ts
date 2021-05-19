@@ -3,7 +3,15 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, History, Persistence, Authorization, KeyValueMap, Validator } from 'fhir-works-on-aws-interface';
+import {
+    Search,
+    History,
+    Persistence,
+    Authorization,
+    KeyValueMap,
+    Validator,
+    RequestContext,
+} from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
@@ -59,14 +67,21 @@ export default class ResourceHandler implements CrudHandlerInterface {
         return patchResponse.resource;
     }
 
-    async typeSearch(resourceType: string, queryParams: any, userIdentity: KeyValueMap) {
+    async typeSearch(
+        resourceType: string,
+        queryParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ) {
         const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
             operation: 'search-type',
             userIdentity,
+            requestContext,
         });
 
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
+            requestContext,
             operation: 'search-type',
             resourceType,
         });
@@ -89,13 +104,20 @@ export default class ResourceHandler implements CrudHandlerInterface {
         return this.authService.authorizeAndFilterReadResponse({
             operation: 'search-type',
             userIdentity,
+            requestContext,
             readResponse: bundle,
         });
     }
 
-    async typeHistory(resourceType: string, queryParams: any, userIdentity: KeyValueMap) {
+    async typeHistory(
+        resourceType: string,
+        queryParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
+            requestContext,
             operation: 'history-type',
             resourceType,
         });
@@ -115,9 +137,16 @@ export default class ResourceHandler implements CrudHandlerInterface {
         );
     }
 
-    async instanceHistory(resourceType: string, id: string, queryParams: any, userIdentity: KeyValueMap) {
+    async instanceHistory(
+        resourceType: string,
+        id: string,
+        queryParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+    ) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
+            requestContext,
             operation: 'history-instance',
             resourceType,
             id,

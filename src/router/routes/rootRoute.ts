@@ -68,10 +68,15 @@ export default class RootRoute {
                             const response = await this.bundleHandler.processTransaction(
                                 req.body,
                                 res.locals.userIdentity,
+                                res.locals.requestContext,
                             );
                             res.send(response);
                         } else if (req.body.type.toLowerCase() === 'batch') {
-                            const response = await this.bundleHandler.processBatch(req.body, res.locals.userIdentity);
+                            const response = await this.bundleHandler.processBatch(
+                                req.body,
+                                res.locals.userIdentity,
+                                res.locals.requestContext,
+                            );
                             res.send(response);
                         } else {
                             throw new createError.BadRequest('This root path can only process a Bundle');
@@ -87,10 +92,15 @@ export default class RootRoute {
                 '/',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     const searchParamQuery = req.query;
-                    const response = await this.rootHandler.globalSearch(searchParamQuery, res.locals.userIdentity);
+                    const response = await this.rootHandler.globalSearch(
+                        searchParamQuery,
+                        res.locals.userIdentity,
+                        res.locals.requestContext,
+                    );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'search-system',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
@@ -102,10 +112,15 @@ export default class RootRoute {
                 '/_history',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     const searchParamQuery = req.query;
-                    const response = await this.rootHandler.globalHistory(searchParamQuery, res.locals.userIdentity);
+                    const response = await this.rootHandler.globalHistory(
+                        searchParamQuery,
+                        res.locals.userIdentity,
+                        res.locals.requestContext,
+                    );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-system',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
