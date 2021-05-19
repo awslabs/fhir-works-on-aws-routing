@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.3.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.2.1...v5.3.0) (2021-05-19)
+
+
+### Features
+
+* create requestContext and pass it along with userIdentity ([aff9ebc](https://github.com/awslabs/fhir-works-on-aws-routing/commit/aff9ebc2a3c15b37fe618a7605635a35564decc7))
+
 ### [5.2.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.2.0...v5.2.1) (2021-05-04)
 
 
