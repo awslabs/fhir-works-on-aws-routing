@@ -41,6 +41,7 @@ export default class GenericResourceRoute {
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'read',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                         readResponse: response,
                     });
                     if (updatedReadResponse && updatedReadResponse.meta) {
@@ -66,6 +67,7 @@ export default class GenericResourceRoute {
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'vread',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                         readResponse: response,
                     });
                     if (updatedReadResponse && updatedReadResponse.meta) {
@@ -91,10 +93,12 @@ export default class GenericResourceRoute {
                         resourceType,
                         searchParamQuery,
                         res.locals.userIdentity,
+                        res.locals.requestContext,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-type',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
@@ -116,10 +120,12 @@ export default class GenericResourceRoute {
                         id,
                         searchParamQuery,
                         res.locals.userIdentity,
+                        res.locals.requestContext,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-instance',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                         readResponse: response,
                     });
                     res.send(updatedReadResponse);
@@ -129,7 +135,12 @@ export default class GenericResourceRoute {
 
         if (this.operations.includes('search-type')) {
             const handleSearch = async (res: express.Response, resourceType: string, searchParamQuery: any) => {
-                return this.handler.typeSearch(resourceType, searchParamQuery, res.locals.userIdentity);
+                return this.handler.typeSearch(
+                    resourceType,
+                    searchParamQuery,
+                    res.locals.userIdentity,
+                    res.locals.requestContext,
+                );
             };
             // SEARCH
             this.router.get(
@@ -182,6 +193,7 @@ export default class GenericResourceRoute {
                         resourceBody: body,
                         operation: 'create',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                     });
 
                     const response = await this.handler.create(resourceType, body);
@@ -211,6 +223,7 @@ export default class GenericResourceRoute {
                         resourceBody: body,
                         operation: 'update',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                     });
 
                     const response = await this.handler.update(resourceType, id, body);
@@ -240,6 +253,7 @@ export default class GenericResourceRoute {
                         resourceBody: body,
                         operation: 'patch',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                     });
 
                     const response = await this.handler.patch(resourceType, id, body);
@@ -265,6 +279,7 @@ export default class GenericResourceRoute {
                         resourceBody: readResponse,
                         operation: 'delete',
                         userIdentity: res.locals.userIdentity,
+                        requestContext: res.locals.requestContext,
                     });
 
                     const response = await this.handler.delete(resourceType, id);

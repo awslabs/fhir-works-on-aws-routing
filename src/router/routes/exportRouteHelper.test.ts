@@ -7,6 +7,7 @@ describe('buildInitiateExportRequest', () => {
     const mockedResponse = mockResponse({
         locals: {
             userIdentity: { sub: 'abcd-1234' },
+            requestContext: { verb: 'GET', hostname: 'test.acme.com' },
         },
     });
 
