@@ -5,7 +5,7 @@
  */
 
 import express from 'express';
-import { KeyValueMap, TypeOperation } from 'fhir-works-on-aws-interface';
+import { KeyValueMap, RequestContext, TypeOperation } from 'fhir-works-on-aws-interface';
 import { OperationDefinitionImplementation } from '../types';
 import ResourceHandler from '../../router/handlers/resourceHandler';
 import RouteHelper from '../../router/routes/routeHelper';
@@ -14,9 +14,14 @@ import { convertDocRefParamsToSearchParams } from './convertDocRefParamsToSearch
 
 const searchTypeOperation: TypeOperation = 'search-type';
 
-const docRefImpl = async (resourceHandler: ResourceHandler, userIdentity: KeyValueMap, params: DocRefParams) => {
+const docRefImpl = async (
+    resourceHandler: ResourceHandler,
+    userIdentity: KeyValueMap,
+    params: DocRefParams,
+    requestContext: RequestContext,
+) => {
     const searchParams = convertDocRefParamsToSearchParams(params);
-    return resourceHandler.typeSearch('DocumentReference', searchParams, userIdentity);
+    return resourceHandler.typeSearch('DocumentReference', searchParams, userIdentity, requestContext);
 };
 
 export const USCoreDocRef: OperationDefinitionImplementation = {
@@ -42,6 +47,7 @@ export const USCoreDocRef: OperationDefinitionImplementation = {
                     resourceHandler,
                     res.locals.userIdentity,
                     parseQueryParams(req.query),
+                    res.locals.requestContext,
                 );
                 res.send(response);
             }),
@@ -50,7 +56,12 @@ export const USCoreDocRef: OperationDefinitionImplementation = {
         router.post(
             path,
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const response = await docRefImpl(resourceHandler, res.locals.userIdentity, parsePostParams(req.body));
+                const response = await docRefImpl(
+                    resourceHandler,
+                    res.locals.userIdentity,
+                    parsePostParams(req.body),
+                    res.locals.requestContext,
+                );
                 res.send(response);
             }),
         );
