@@ -13,6 +13,8 @@ import ResourceHandler from '../router/handlers/resourceHandler';
 const fakeRouter = (jest.fn() as unknown) as Router;
 const fakeOperation: OperationDefinitionImplementation = {
     canonicalUrl: 'https://fwoa.com/operation/fakeOperation',
+    name: 'fakeOperation',
+    documentation: 'The documentation for the fakeOperation',
     httpVerbs: ['GET'],
     path: '/Patient/fakeOperation',
     targetResourceType: 'Patient',
@@ -52,6 +54,31 @@ describe('OperationDefinitionRegistry', () => {
         expect(operationDefinitionRegistry.getOperation('GET', '/Patient/someOtherOperation')).toBeUndefined();
 
         expect(operationDefinitionRegistry.getOperation('GET', '/Patient/fakeOperation')).toBe(fakeOperation);
+    });
+
+    test('getCapabilities', () => {
+        const configHandlerMock = {
+            getResourceHandler: jest.fn().mockReturnValue({}),
+        };
+
+        const operationDefinitionRegistry = new OperationDefinitionRegistry(
+            (configHandlerMock as unknown) as ConfigHandler,
+            [fakeOperation],
+        );
+
+        expect(operationDefinitionRegistry.getCapabilities()).toMatchInlineSnapshot(`
+            Object {
+              "Patient": Object {
+                "operation": Array [
+                  Object {
+                    "definition": "https://fwoa.com/operation/fakeOperation",
+                    "documentation": "The documentation for the fakeOperation",
+                    "name": "fakeOperation",
+                  },
+                ],
+              },
+            }
+        `);
     });
 
     test('ResourceHandler not available', () => {
