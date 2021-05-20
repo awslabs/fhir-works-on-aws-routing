@@ -9,7 +9,7 @@ import createError from 'http-errors';
 // @ts-ignore
 import ajvErrors from 'ajv-errors';
 
-const ajv = ajvErrors(new Ajv({ allErrors: true }));
+const ajv = ajvErrors(new Ajv({ allErrors: true, jsonPointers: true }));
 
 export interface DocRefParams {
     patient: string;

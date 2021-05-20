@@ -16,7 +16,9 @@ export class FHIRStructureDefinitionRegistry {
         let compiledStructureDefinitions: FhirStructureDefinition[] = [];
 
         if (compiledImplementationGuides !== undefined) {
-            compiledStructureDefinitions = [...compiledImplementationGuides];
+            compiledStructureDefinitions = [
+                ...compiledImplementationGuides.filter(x => x.resourceType === 'StructureDefinition'),
+            ];
         }
 
         this.capabilityStatement = {};
