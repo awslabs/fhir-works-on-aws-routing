@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.4.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.3.0...v5.4.0) (2021-05-21)
+
+
+### Features
+
+* add $docref operation ([#86](https://github.com/awslabs/fhir-works-on-aws-routing/issues/86)) ([105790f](https://github.com/awslabs/fhir-works-on-aws-routing/commit/105790fbd84e1886e000844be8a7fa0ea1d532d6)), closes [#78](https://github.com/awslabs/fhir-works-on-aws-routing/issues/78) [#83](https://github.com/awslabs/fhir-works-on-aws-routing/issues/83) [#85](https://github.com/awslabs/fhir-works-on-aws-routing/issues/85)
+
 ## [5.3.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.2.1...v5.3.0) (2021-05-19)
 
 
