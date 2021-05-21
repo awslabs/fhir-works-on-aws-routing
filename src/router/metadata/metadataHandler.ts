@@ -11,6 +11,7 @@ import makeRest from './cap.rest.template';
 import makeStatement from './cap.template';
 import ConfigHandler from '../../configHandler';
 import { FHIRStructureDefinitionRegistry } from '../../registry';
+import { OperationDefinitionRegistry } from '../../operationDefinitions/OperationDefinitionRegistry';
 
 export default class MetadataHandler implements Capabilities {
     configHandler: ConfigHandler;
@@ -19,10 +20,18 @@ export default class MetadataHandler implements Capabilities {
 
     readonly registry: FHIRStructureDefinitionRegistry;
 
-    constructor(handler: ConfigHandler, registry: FHIRStructureDefinitionRegistry, hasCORSEnabled: boolean = false) {
+    readonly operationRegistry: OperationDefinitionRegistry;
+
+    constructor(
+        handler: ConfigHandler,
+        registry: FHIRStructureDefinitionRegistry,
+        operationRegistry: OperationDefinitionRegistry,
+        hasCORSEnabled: boolean = false,
+    ) {
         this.configHandler = handler;
         this.hasCORSEnabled = hasCORSEnabled;
         this.registry = registry;
+        this.operationRegistry = operationRegistry;
     }
 
     private async generateResources(fhirVersion: FhirVersion) {
@@ -36,6 +45,7 @@ export default class MetadataHandler implements Capabilities {
                 this.configHandler.getGenericOperations(fhirVersion),
                 await this.configHandler.config.profile.genericResource.typeSearch.getCapabilities(),
                 await this.registry.getCapabilities(),
+                await this.operationRegistry.getCapabilities(),
                 updateCreate,
             );
         }
