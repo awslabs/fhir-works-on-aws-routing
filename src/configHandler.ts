@@ -4,6 +4,7 @@
  */
 
 import { FhirConfig, FhirVersion, TypeOperation } from 'fhir-works-on-aws-interface';
+import ResourceHandler from './router/handlers/resourceHandler';
 
 export default class ConfigHandler {
     readonly config: FhirConfig;
@@ -65,5 +66,43 @@ export default class ConfigHandler {
         );
 
         return resources;
+    }
+
+    /**
+     * Get a `ResourceHandler` for a given `resourceType`. The `ResourceHandler` uses the most specific dependencies available in `FhirConfig`:
+     * 1. Use the dependencies specific to the given `resourceType` if they are defined.
+     * 2. Otherwise use the dependencies for `genericResource` if the given `resourceType` is a valid `genericResource`.
+     * 3. Otherwise return undefined.
+     */
+    getResourceHandler(resourceType: string): ResourceHandler | undefined {
+        if (this.config.profile.resources?.[resourceType]) {
+            const { persistence, typeSearch, typeHistory } = this.config.profile.resources[resourceType];
+            return new ResourceHandler(
+                persistence,
+                typeSearch,
+                typeHistory,
+                this.config.auth.authorization,
+                this.config.server.url,
+                this.config.validators,
+            );
+        }
+
+        if (
+            this.getGenericResources(this.config.profile.fhirVersion).includes(resourceType) &&
+            this.config.profile.genericResource
+        ) {
+            const { persistence, typeSearch, typeHistory } = this.config.profile.genericResource;
+
+            return new ResourceHandler(
+                persistence,
+                typeSearch,
+                typeHistory,
+                this.config.auth.authorization,
+                this.config.server.url,
+                this.config.validators,
+            );
+        }
+
+        return undefined;
     }
 }
