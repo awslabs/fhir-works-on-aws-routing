@@ -61,6 +61,7 @@ export function generateServerlessRouter(
     const operationRegistry = initializeOperationRegistry(configHandler);
 
     const app = express();
+    app.disable('x-powered-by');
     app.use(express.urlencoded({ extended: true }));
     app.use(
         express.json({
