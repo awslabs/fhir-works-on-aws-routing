@@ -32,7 +32,7 @@ export const applicationErrorMapper = (
         return;
     }
     if (isUnauthorizedError(err)) {
-        next(new createError.Forbidden(err.message));
+        next(new createError.Unauthorized(err.message));
         return;
     }
     if (isTooManyConcurrentExportRequestsError(err)) {
