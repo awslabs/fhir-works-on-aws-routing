@@ -61,8 +61,12 @@ export function generateServerlessRouter(
     const operationRegistry = initializeOperationRegistry(configHandler);
 
     const app = express();
-    app.use(express.urlencoded({ extended: true }));
-    app.use(
+    app.disable('x-powered-by');
+
+    const mainRouter = express.Router();
+
+    mainRouter.use(express.urlencoded({ extended: true }));
+    mainRouter.use(
         express.json({
             type: ['application/json', 'application/fhir+json', 'application/json-patch+json'],
             // 6MB is the maximum payload that Lambda accepts
@@ -71,7 +75,7 @@ export function generateServerlessRouter(
     );
     // Add cors handler before auth to allow pre-flight requests without auth.
     if (corsOptions) {
-        app.use(cors(corsOptions));
+        mainRouter.use(cors(corsOptions));
         hasCORSEnabled = true;
     }
 
@@ -83,19 +87,19 @@ export function generateServerlessRouter(
         operationRegistry,
         hasCORSEnabled,
     );
-    app.use('/metadata', metadataRoute.router);
+    mainRouter.use('/metadata', metadataRoute.router);
 
     if (fhirConfig.auth.strategy.service === 'SMART-on-FHIR') {
         // well-known URI http://www.hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known
         const smartStrat: SmartStrategy = fhirConfig.auth.strategy.oauthPolicy as SmartStrategy;
         if (smartStrat.capabilities) {
             const wellKnownUriRoute = new WellKnownUriRouteRoute(smartStrat);
-            app.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
+            mainRouter.use('/.well-known/smart-configuration', wellKnownUriRoute.router);
         }
     }
 
     // AuthZ
-    app.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    mainRouter.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         try {
             const requestInformation =
                 operationRegistry.getOperation(req.method, req.path)?.requestInformation ??
@@ -121,12 +125,12 @@ export function generateServerlessRouter(
             fhirConfig.profile.bulkDataAccess,
             fhirConfig.auth.authorization,
         );
-        app.use('/', exportRoute.router);
+        mainRouter.use('/', exportRoute.router);
     }
 
     // Operations defined by OperationDefinition resources
     operationRegistry.getAllRouters().forEach(router => {
-        app.use('/', router);
+        mainRouter.use('/', router);
     });
 
     // Special Resources
@@ -148,7 +152,7 @@ export function generateServerlessRouter(
                     resourceHandler,
                     fhirConfig.auth.authorization,
                 );
-                app.use(`/${resourceEntry[0]}`, route.router);
+                mainRouter.use(`/:resourceType(${resourceEntry[0]})`, route.router);
             }
         });
     }
@@ -176,7 +180,7 @@ export function generateServerlessRouter(
 
         // Set up Resource for each generic resource
         genericFhirResources.forEach(async (resourceType: string) => {
-            app.use(`/${resourceType}`, genericRoute.router);
+            mainRouter.use(`/:resourceType(${resourceType})`, genericRoute.router);
         });
     }
 
@@ -194,12 +198,14 @@ export function generateServerlessRouter(
             genericResource,
             fhirConfig.profile.resources,
         );
-        app.use('/', rootRoute.router);
+        mainRouter.use('/', rootRoute.router);
     }
 
-    app.use(applicationErrorMapper);
-    app.use(httpErrorHandler);
-    app.use(unknownErrorHandler);
+    mainRouter.use(applicationErrorMapper);
+    mainRouter.use(httpErrorHandler);
+    mainRouter.use(unknownErrorHandler);
+
+    app.use('/', mainRouter);
 
     return app;
 }

@@ -22,7 +22,7 @@ export default class GenericResourceRoute {
     constructor(operations: TypeOperation[], handler: CrudHandlerInterface, authService: Authorization) {
         this.operations = operations;
         this.handler = handler;
-        this.router = express.Router();
+        this.router = express.Router({ mergeParams: true });
         this.authService = authService;
         this.init();
     }
@@ -35,8 +35,7 @@ export default class GenericResourceRoute {
                 '/:id',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
-                    const { id } = req.params;
+                    const { id, resourceType } = req.params;
                     const response = await this.handler.read(resourceType, id);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'read',
@@ -61,8 +60,7 @@ export default class GenericResourceRoute {
                 '/:id/_history/:vid',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
-                    const { id, vid } = req.params;
+                    const { id, vid, resourceType } = req.params;
                     const response = await this.handler.vRead(resourceType, id, vid);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'vread',
@@ -87,7 +85,7 @@ export default class GenericResourceRoute {
                 '/_history',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
+                    const { resourceType } = req.params;
                     const searchParamQuery = req.query;
                     const response = await this.handler.typeHistory(
                         resourceType,
@@ -112,9 +110,8 @@ export default class GenericResourceRoute {
                 '/:id/_history',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
                     const searchParamQuery = req.query;
-                    const { id } = req.params;
+                    const { id, resourceType } = req.params;
                     const response = await this.handler.instanceHistory(
                         resourceType,
                         id,
@@ -147,7 +144,7 @@ export default class GenericResourceRoute {
                 '/',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
+                    const { resourceType } = req.params;
                     const searchParamQuery = req.query;
                     const updatedSearchResponse = await handleSearch(res, resourceType, searchParamQuery);
                     res.send(updatedSearchResponse);
@@ -157,7 +154,7 @@ export default class GenericResourceRoute {
                 '/_search',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
+                    const { resourceType } = req.params;
                     const searchParamQuery = req.query;
                     const { body } = req;
 
@@ -186,7 +183,7 @@ export default class GenericResourceRoute {
                 '/',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
+                    const { resourceType } = req.params;
                     const { body } = req;
 
                     await this.authService.isWriteRequestAuthorized({
@@ -210,8 +207,7 @@ export default class GenericResourceRoute {
             this.router.put(
                 '/:id',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                    const resourceType = req.baseUrl.substr(1);
-                    const { id } = req.params;
+                    const { id, resourceType } = req.params;
                     const { body } = req;
 
                     if (body.id === null || body.id !== id) {
@@ -240,8 +236,7 @@ export default class GenericResourceRoute {
             this.router.patch(
                 '/:id',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                    const resourceType = req.baseUrl.substr(1);
-                    const { id } = req.params;
+                    const { id, resourceType } = req.params;
                     const { body } = req;
 
                     if (body.id && body.id !== id) {
@@ -271,8 +266,7 @@ export default class GenericResourceRoute {
                 '/:id',
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
-                    const resourceType = req.baseUrl.substr(1);
-                    const { id } = req.params;
+                    const { id, resourceType } = req.params;
                     const readResponse = await this.handler.read(resourceType, id);
 
                     await this.authService.isWriteRequestAuthorized({
