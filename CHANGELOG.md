@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.4.2](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.4.1...v5.4.2) (2021-06-04)
+
+
+### Bug Fixes
+
+* Changed error for Unauthorized request([#92](https://github.com/awslabs/fhir-works-on-aws-routing/issues/92)) ([83f8d23](https://github.com/awslabs/fhir-works-on-aws-routing/commit/83f8d2317bdbc7c8ae0e4fb3b382c2ac2f9ce97c))
+* remove informational HTTP header ([#89](https://github.com/awslabs/fhir-works-on-aws-routing/issues/89)) ([f8f4238](https://github.com/awslabs/fhir-works-on-aws-routing/commit/f8f423813ff8d591c17d952d79989bd934f549a9))
+
 ### [5.4.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.4.0...v5.4.1) (2021-05-21)
 
 ## [5.4.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.3.0...v5.4.0) (2021-05-21)
