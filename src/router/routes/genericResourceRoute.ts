@@ -36,7 +36,7 @@ export default class GenericResourceRoute {
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
                     const { id, resourceType } = req.params;
-                    const response = await this.handler.read(resourceType, id);
+                    const response = await this.handler.read(resourceType, id, res.locals.tenantId);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'read',
                         userIdentity: res.locals.userIdentity,
@@ -61,7 +61,7 @@ export default class GenericResourceRoute {
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
                     const { id, vid, resourceType } = req.params;
-                    const response = await this.handler.vRead(resourceType, id, vid);
+                    const response = await this.handler.vRead(resourceType, id, vid, res.locals.tenantId);
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'vread',
                         userIdentity: res.locals.userIdentity,
@@ -92,6 +92,7 @@ export default class GenericResourceRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-type',
@@ -118,6 +119,7 @@ export default class GenericResourceRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-instance',
@@ -137,6 +139,8 @@ export default class GenericResourceRoute {
                     searchParamQuery,
                     res.locals.userIdentity,
                     res.locals.requestContext,
+                    res.locals.serverUrl,
+                    res.locals.tenantId,
                 );
             };
             // SEARCH
@@ -193,7 +197,7 @@ export default class GenericResourceRoute {
                         requestContext: res.locals.requestContext,
                     });
 
-                    const response = await this.handler.create(resourceType, body);
+                    const response = await this.handler.create(resourceType, body, res.locals.tenantId);
                     if (response && response.meta) {
                         res.set({ ETag: `W/"${response.meta.versionId}"`, 'Last-Modified': response.meta.lastUpdated });
                     }
@@ -222,7 +226,7 @@ export default class GenericResourceRoute {
                         requestContext: res.locals.requestContext,
                     });
 
-                    const response = await this.handler.update(resourceType, id, body);
+                    const response = await this.handler.update(resourceType, id, body, res.locals.tenantId);
                     if (response && response.meta) {
                         res.set({ ETag: `W/"${response.meta.versionId}"`, 'Last-Modified': response.meta.lastUpdated });
                     }
@@ -251,7 +255,7 @@ export default class GenericResourceRoute {
                         requestContext: res.locals.requestContext,
                     });
 
-                    const response = await this.handler.patch(resourceType, id, body);
+                    const response = await this.handler.patch(resourceType, id, body, res.locals.tenantId);
                     if (response && response.meta) {
                         res.set({ ETag: `W/"${response.meta.versionId}"`, 'Last-Modified': response.meta.lastUpdated });
                     }
@@ -267,7 +271,7 @@ export default class GenericResourceRoute {
                 RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                     // Get the ResourceType looks like '/Patient'
                     const { id, resourceType } = req.params;
-                    const readResponse = await this.handler.read(resourceType, id);
+                    const readResponse = await this.handler.read(resourceType, id, res.locals.tenantId);
 
                     await this.authService.isWriteRequestAuthorized({
                         resourceBody: readResponse,
@@ -276,7 +280,7 @@ export default class GenericResourceRoute {
                         requestContext: res.locals.requestContext,
                     });
 
-                    const response = await this.handler.delete(resourceType, id);
+                    const response = await this.handler.delete(resourceType, id, res.locals.tenantId);
                     res.send(response);
                 }),
             );

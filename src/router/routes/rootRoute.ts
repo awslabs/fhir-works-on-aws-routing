@@ -96,6 +96,7 @@ export default class RootRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'search-system',
@@ -116,6 +117,7 @@ export default class RootRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-system',

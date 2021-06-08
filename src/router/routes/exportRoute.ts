@@ -16,11 +16,8 @@ export default class ExportRoute {
 
     private exportHandler: any;
 
-    private serverUrl: string;
-
-    constructor(serverUrl: string, bulkDataAccess: BulkDataAccess, authService: Authorization) {
+    constructor(bulkDataAccess: BulkDataAccess, authService: Authorization) {
         this.router = express.Router();
-        this.serverUrl = serverUrl;
         this.exportHandler = new ExportHandler(bulkDataAccess, authService);
         this.init();
     }
@@ -33,7 +30,7 @@ export default class ExportRoute {
         );
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
-        const exportStatusUrl = `${this.serverUrl}/$export/${jobId}`;
+        const exportStatusUrl = `${res.locals.serverUrl}/$export/${jobId}`;
         res.header('Content-Location', exportStatusUrl)
             .status(202)
             .send();
@@ -61,9 +58,14 @@ export default class ExportRoute {
         this.router.get(
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const { userIdentity, requestContext } = res.locals;
+                const { userIdentity, requestContext, tenantId } = res.locals;
                 const { jobId } = req.params;
-                const response = await this.exportHandler.getExportJobStatus(jobId, userIdentity, requestContext);
+                const response = await this.exportHandler.getExportJobStatus(
+                    jobId,
+                    userIdentity,
+                    requestContext,
+                    tenantId,
+                );
                 if (response.jobStatus === 'in-progress') {
                     res.status(202)
                         .header('x-progress', 'in-progress')
@@ -76,7 +78,7 @@ export default class ExportRoute {
                     const jsonResponse = {
                         transactionTime: response.transactionTime,
                         request: ExportRouteHelper.getExportUrl(
-                            this.serverUrl,
+                            res.locals.serverUrl,
                             response.exportType,
                             queryParams,
                             groupId,
@@ -99,8 +101,8 @@ export default class ExportRoute {
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
-                const { userIdentity, requestContext } = res.locals;
-                await this.exportHandler.cancelExport(jobId, userIdentity, requestContext);
+                const { userIdentity, requestContext, tenantId } = res.locals;
+                await this.exportHandler.cancelExport(jobId, userIdentity, requestContext, tenantId);
                 res.status(202).send();
             }),
         );

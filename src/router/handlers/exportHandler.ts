@@ -32,14 +32,20 @@ export default class ExportHandler {
         jobId: string,
         userIdentity: KeyValueMap,
         requestContext: RequestContext,
+        tenantId?: string,
     ): Promise<GetExportStatusResponse> {
-        const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
+        const jobDetails = await this.bulkDataAccess.getExportStatus(jobId, tenantId);
         await this.checkIfRequesterHasAccessToJob(jobDetails, userIdentity, requestContext);
         return jobDetails;
     }
 
-    async cancelExport(jobId: string, userIdentity: KeyValueMap, requestContext: RequestContext): Promise<void> {
-        const jobDetails = await this.bulkDataAccess.getExportStatus(jobId);
+    async cancelExport(
+        jobId: string,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        tenantId?: string,
+    ): Promise<void> {
+        const jobDetails = await this.bulkDataAccess.getExportStatus(jobId, tenantId);
         await this.checkIfRequesterHasAccessToJob(jobDetails, userIdentity, requestContext);
         if (['completed', 'failed'].includes(jobDetails.jobStatus)) {
             throw new createError.BadRequest(
@@ -47,7 +53,7 @@ export default class ExportHandler {
             );
         }
 
-        await this.bulkDataAccess.cancelExport(jobId);
+        await this.bulkDataAccess.cancelExport(jobId, tenantId);
     }
 
     private async checkIfRequesterHasAccessToJob(

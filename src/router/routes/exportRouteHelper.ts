@@ -34,6 +34,7 @@ export default class ExportRouteHelper {
                     : undefined,
             type: isString(req.query._type) ? req.query._type : undefined,
             groupId: isString(req.params.id) ? req.params.id : undefined,
+            tenantId: res.locals.tenantId,
         };
         return initiateExportRequest;
     }
@@ -46,14 +47,15 @@ export default class ExportRouteHelper {
     ) {
         const { outputFormat, since, type } = queryParams;
         const url = new URL(baseUrl);
+        url.pathname += url.pathname.endsWith('/') ? '' : '/';
         if (exportType === 'system') {
-            url.pathname = '/$export';
+            url.pathname += '$export';
         }
         if (exportType === 'patient') {
-            url.pathname = '/Patient/$export';
+            url.pathname += 'Patient/$export';
         }
         if (exportType === 'group') {
-            url.pathname = `/Group/${groupId}/$export`;
+            url.pathname += `Group/${groupId}/$export`;
         }
         if (outputFormat) {
             url.searchParams.append('_outputFormat', outputFormat);
