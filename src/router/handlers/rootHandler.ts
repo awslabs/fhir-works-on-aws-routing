@@ -22,7 +22,7 @@ export default class RootHandler {
         this.serverUrl = serverUrl;
     }
 
-    async globalSearch(queryParams: any, userIdentity: KeyValueMap, requestContext: RequestContext) {
+    async globalSearch(queryParams: any, userIdentity: KeyValueMap, requestContext: RequestContext, tenantId?: string) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
             requestContext,
@@ -32,11 +32,17 @@ export default class RootHandler {
             queryParams,
             baseUrl: this.serverUrl,
             searchFilters,
+            tenantId,
         });
         return BundleGenerator.generateBundle(this.serverUrl, queryParams, searchResponse.result, 'searchset');
     }
 
-    async globalHistory(queryParams: any, userIdentity: KeyValueMap, requestContext: RequestContext) {
+    async globalHistory(
+        queryParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        tenantId?: string,
+    ) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
             requestContext,
@@ -46,6 +52,7 @@ export default class RootHandler {
             queryParams,
             baseUrl: this.serverUrl,
             searchFilters,
+            tenantId,
         });
         return BundleGenerator.generateBundle(this.serverUrl, queryParams, historyResponse.result, 'history');
     }
