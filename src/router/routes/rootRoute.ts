@@ -69,6 +69,7 @@ export default class RootRoute {
                                 req.body,
                                 res.locals.userIdentity,
                                 res.locals.requestContext,
+                                res.locals.tenantId,
                             );
                             res.send(response);
                         } else if (req.body.type.toLowerCase() === 'batch') {
@@ -76,6 +77,7 @@ export default class RootRoute {
                                 req.body,
                                 res.locals.userIdentity,
                                 res.locals.requestContext,
+                                res.locals.tenantId,
                             );
                             res.send(response);
                         } else {
