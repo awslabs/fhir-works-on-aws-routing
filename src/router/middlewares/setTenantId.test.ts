@@ -30,6 +30,7 @@ describe('SetTenantIdMiddleware', () => {
                     userIdentity: {
                         claim1: 'val1',
                         tenantId: 't1',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
             } as unknown) as express.Response;
@@ -61,6 +62,7 @@ describe('SetTenantIdMiddleware', () => {
                         obj: {
                             tenantId: 't1',
                         },
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
             } as unknown) as express.Response;
@@ -92,6 +94,7 @@ describe('SetTenantIdMiddleware', () => {
                     userIdentity: {
                         claim1: 'val1',
                         tenantId: 't1',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
             } as unknown) as express.Response;
@@ -132,7 +135,7 @@ describe('SetTenantIdMiddleware', () => {
             expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
         });
 
-        test('tenantId in token does not match tenantId in token', async () => {
+        test('tenantId in token does not match tenantId in path', async () => {
             const fhirConfig = {
                 multiTenancyConfig: {
                     enableMultiTenancy: true,
@@ -148,6 +151,7 @@ describe('SetTenantIdMiddleware', () => {
                     userIdentity: {
                         claim1: 'val1',
                         tenantId: 't1',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
             } as unknown) as express.Response;
