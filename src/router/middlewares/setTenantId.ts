@@ -16,11 +16,11 @@ const getTenantIdFromAudClaim = (audClaim: string) => {
     if (!audClaim) {
         throw new UnauthorizedError('Unauthorized');
     }
-    const audClaimSplit = audClaim.split(':')[1].split('/');
+    const audClaimSplit = audClaim.split('://')[1].split('/');
     if (audClaimSplit.length === 2) {
         return undefined;
     }
-    return audClaimSplit[-1];
+    return audClaimSplit.pop();
 };
 
 /**
@@ -50,7 +50,7 @@ export const setTenantIdMiddleware: (
         ) {
             throw new UnauthorizedError('Unauthorized');
         }
-        res.locals.tenantId = tenantIdFromCustomClaim;
+        res.locals.tenantId = tenantId;
         next();
     });
 };
