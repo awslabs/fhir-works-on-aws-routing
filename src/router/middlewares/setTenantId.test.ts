@@ -72,6 +72,36 @@ describe('SetTenantIdMiddleware', () => {
             expect(res.locals.tenantId).toEqual('t1');
         });
 
+        test('simple tenantId in both aud claim and custom claim', async () => {
+            const fhirConfig = {
+                multiTenancyConfig: {
+                    enableMultiTenancy: true,
+                    tenantIdClaimPath: 'tenantId',
+                },
+            } as FhirConfig;
+
+            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
+            const nextMock = jest.fn();
+            const req = ({ params: {} } as unknown) as express.Request;
+            const res = ({
+                locals: {
+                    userIdentity: {
+                        claim1: 'val1',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
+                        tenantId: 't1',
+                    },
+                },
+            } as unknown) as express.Response;
+
+            setTenantIdMiddlewareFn(req, res, nextMock);
+
+            await sleep(1);
+
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(nextMock).toHaveBeenCalledWith();
+            expect(res.locals.tenantId).toEqual('t1');
+        });
+
         test('nested tenantId claim', async () => {
             const fhirConfig = {
                 multiTenancyConfig: {
@@ -180,6 +210,35 @@ describe('SetTenantIdMiddleware', () => {
                         claim1: 'val1',
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                    },
+                },
+            } as unknown) as express.Response;
+
+            setTenantIdMiddlewareFn(req, res, nextMock);
+
+            await sleep(1);
+
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
+        });
+
+        test('tenantId in aud claim does not match tenantId in custom claim', async () => {
+            const fhirConfig = {
+                multiTenancyConfig: {
+                    enableMultiTenancy: true,
+                    tenantIdClaimPath: 'tenantId',
+                },
+            } as FhirConfig;
+
+            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
+            const nextMock = jest.fn();
+            const req = ({ params: { tenantIdFromPath: 't1' } } as unknown) as express.Request;
+            const res = ({
+                locals: {
+                    userIdentity: {
+                        claim1: 'val1',
+                        tenantId: 't1',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/t2',
                     },
                 },
             } as unknown) as express.Response;
