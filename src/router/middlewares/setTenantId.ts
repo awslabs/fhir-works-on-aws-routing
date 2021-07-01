@@ -11,9 +11,9 @@ import RouteHelper from '../routes/routeHelper';
 
 const tenantIdRegex = /^[a-zA-Z0-9\-_]{1,64}$/;
 
-const getTenantIdFromAudClaim = (audClaim: string, baseUrl: string) => {
-    // aud claim should ALWAYS be present
-    if (!audClaim) {
+const getTenantIdFromAudClaim = (audClaim: any, baseUrl: string) => {
+    // aud claim could be an array for some IDP setups, check if aud claim is a string for compatibility
+    if (!audClaim || !(typeof audClaim === 'string')) {
         return undefined;
     }
     if (audClaim.startsWith(`${baseUrl}/tenant/`)) {

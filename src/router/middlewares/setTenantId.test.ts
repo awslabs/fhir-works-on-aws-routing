@@ -123,7 +123,7 @@ describe('SetTenantIdMiddleware', () => {
                         obj: {
                             tenantId: 't1',
                         },
-                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                        aud: ['item1', 'item2'],
                     },
                     serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
