@@ -32,6 +32,7 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -60,6 +61,7 @@ describe('SetTenantIdMiddleware', () => {
                         claim1: 'val1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -90,6 +92,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
                         tenantId: 't1',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -122,6 +125,7 @@ describe('SetTenantIdMiddleware', () => {
                         },
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -154,6 +158,7 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -181,7 +186,38 @@ describe('SetTenantIdMiddleware', () => {
                     userIdentity: {
                         claim1: 'val1',
                         tenantId: 'InvalidTenantId_#$%&*?',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
+            } as unknown) as express.Response;
+
+            setTenantIdMiddlewareFn(req, res, nextMock);
+
+            await sleep(1);
+
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
+        });
+
+        test('invalid aud claim', async () => {
+            const fhirConfig = {
+                multiTenancyConfig: {
+                    enableMultiTenancy: true,
+                    tenantIdClaimPath: 'tenantId',
+                },
+            } as FhirConfig;
+
+            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
+            const nextMock = jest.fn();
+            const req = ({ params: {} } as unknown) as express.Request;
+            const res = ({
+                locals: {
+                    userIdentity: {
+                        claim1: 'val1',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/t1',
+                    },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -211,6 +247,7 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 

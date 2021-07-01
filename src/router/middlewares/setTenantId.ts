@@ -11,16 +11,18 @@ import RouteHelper from '../routes/routeHelper';
 
 const tenantIdRegex = /^[a-zA-Z0-9\-_]{1,64}$/;
 
-const getTenantIdFromAudClaim = (audClaim: string) => {
-    // aud claim should ALWAYS be present regardless of tenancy mode
+const getTenantIdFromAudClaim = (audClaim: string, baseUrl: string) => {
+    // aud claim should ALWAYS be present
     if (!audClaim) {
         throw new UnauthorizedError('Unauthorized');
     }
-    const audClaimSplit = audClaim.split('://')[1].split('/');
-    if (audClaimSplit.length === 2) {
+    if (audClaim === baseUrl) {
         return undefined;
     }
-    return audClaimSplit.pop();
+    if (audClaim.startsWith(`${baseUrl}/tenant/`)) {
+        return audClaim.substring(`${baseUrl}/tenant/`.length);
+    }
+    throw new UnauthorizedError('Unauthorized');
 };
 
 /**
@@ -33,7 +35,7 @@ export const setTenantIdMiddleware: (
     return RouteHelper.wrapAsync(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         // Find tenantId from custom claim and aud claim
         const tenantIdFromCustomClaim = get(res.locals.userIdentity, fhirConfig.multiTenancyConfig?.tenantIdClaimPath!);
-        const tenantIdFromAudClaim = getTenantIdFromAudClaim(res.locals.userIdentity.aud);
+        const tenantIdFromAudClaim = getTenantIdFromAudClaim(res.locals.userIdentity.aud, res.locals.serverUrl);
 
         // TenantId should exist in at least one claim, if exist in both claims, they should be equal
         if (
