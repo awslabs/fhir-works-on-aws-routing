@@ -14,15 +14,12 @@ const tenantIdRegex = /^[a-zA-Z0-9\-_]{1,64}$/;
 const getTenantIdFromAudClaim = (audClaim: string, baseUrl: string) => {
     // aud claim should ALWAYS be present
     if (!audClaim) {
-        throw new UnauthorizedError('Unauthorized');
-    }
-    if (audClaim === baseUrl) {
         return undefined;
     }
     if (audClaim.startsWith(`${baseUrl}/tenant/`)) {
         return audClaim.substring(`${baseUrl}/tenant/`.length);
     }
-    throw new UnauthorizedError('Unauthorized');
+    return undefined;
 };
 
 /**

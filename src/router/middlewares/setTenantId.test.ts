@@ -30,7 +30,7 @@ describe('SetTenantIdMiddleware', () => {
                     userIdentity: {
                         claim1: 'val1',
                         tenantId: 't1',
-                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                        aud: 'aud-Claim-That-Does-Not-Match-For-TenantId-Extraction',
                     },
                     serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
@@ -200,35 +200,6 @@ describe('SetTenantIdMiddleware', () => {
             expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
         });
 
-        test('invalid aud claim', async () => {
-            const fhirConfig = {
-                multiTenancyConfig: {
-                    enableMultiTenancy: true,
-                    tenantIdClaimPath: 'tenantId',
-                },
-            } as FhirConfig;
-
-            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
-            const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
-                locals: {
-                    userIdentity: {
-                        claim1: 'val1',
-                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/t1',
-                    },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
-                },
-            } as unknown) as express.Response;
-
-            setTenantIdMiddlewareFn(req, res, nextMock);
-
-            await sleep(1);
-
-            expect(nextMock).toHaveBeenCalledTimes(1);
-            expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
-        });
-
         test('tenantId in token does not match tenantId in path', async () => {
             const fhirConfig = {
                 multiTenancyConfig: {
@@ -275,8 +246,9 @@ describe('SetTenantIdMiddleware', () => {
                     userIdentity: {
                         claim1: 'val1',
                         tenantId: 't1',
-                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/t2',
+                        aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t2',
                     },
+                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
