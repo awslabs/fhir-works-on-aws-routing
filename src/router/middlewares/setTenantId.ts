@@ -11,6 +11,17 @@ import RouteHelper from '../routes/routeHelper';
 
 const tenantIdRegex = /^[a-zA-Z0-9\-_]{1,64}$/;
 
+const getTenantIdFromAudClaim = (audClaim: any, baseUrl: string) => {
+    // aud claim could be an array for some IDP setups, check if aud claim is a string for compatibility
+    if (!audClaim || !(typeof audClaim === 'string')) {
+        return undefined;
+    }
+    if (audClaim.startsWith(`${baseUrl}/tenant/`)) {
+        return audClaim.substring(`${baseUrl}/tenant/`.length);
+    }
+    return undefined;
+};
+
 /**
  * Sets the value of `res.locals.tenantId`
  * tenantId is used to identify tenants in a multi-tenant setup
@@ -19,9 +30,20 @@ export const setTenantIdMiddleware: (
     fhirConfig: FhirConfig,
 ) => (req: express.Request, res: express.Response, next: express.NextFunction) => void = (fhirConfig: FhirConfig) => {
     return RouteHelper.wrapAsync(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        const tenantId = get(res.locals.userIdentity, fhirConfig.multiTenancyConfig?.tenantIdClaimPath!);
+        // Find tenantId from custom claim and aud claim
+        const tenantIdFromCustomClaim = get(res.locals.userIdentity, fhirConfig.multiTenancyConfig?.tenantIdClaimPath!);
+        const tenantIdFromAudClaim = getTenantIdFromAudClaim(res.locals.userIdentity.aud, res.locals.serverUrl);
+
+        // TenantId should exist in at least one claim, if exist in both claims, they should be equal
         if (
-            tenantId === undefined ||
+            (tenantIdFromCustomClaim === undefined && tenantIdFromAudClaim === undefined) ||
+            (tenantIdFromCustomClaim && tenantIdFromAudClaim && tenantIdFromCustomClaim !== tenantIdFromAudClaim)
+        ) {
+            throw new UnauthorizedError('Unauthorized');
+        }
+        const tenantId = tenantIdFromCustomClaim || tenantIdFromAudClaim;
+
+        if (
             !tenantIdRegex.test(tenantId) ||
             (req.params.tenantIdFromPath !== undefined && req.params.tenantIdFromPath !== tenantId)
         ) {
