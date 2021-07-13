@@ -20,6 +20,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'tenantId',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -32,7 +35,6 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'aud-Claim-That-Does-Not-Match-For-TenantId-Extraction',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -50,6 +52,9 @@ describe('SetTenantIdMiddleware', () => {
                 multiTenancyConfig: {
                     enableMultiTenancy: true,
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -61,7 +66,40 @@ describe('SetTenantIdMiddleware', () => {
                         claim1: 'val1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
+            } as unknown) as express.Response;
+
+            setTenantIdMiddlewareFn(req, res, nextMock);
+
+            await sleep(1);
+
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(nextMock).toHaveBeenCalledWith();
+            expect(res.locals.tenantId).toEqual('t1');
+        });
+
+        test('simple tenantId in aud claim array', async () => {
+            const fhirConfig = {
+                multiTenancyConfig: {
+                    enableMultiTenancy: true,
+                },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
+            } as FhirConfig;
+
+            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
+            const nextMock = jest.fn();
+            const req = ({ params: {} } as unknown) as express.Request;
+            const res = ({
+                locals: {
+                    userIdentity: {
+                        claim1: 'val1',
+                        aud: [
+                            'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
+                            'https://somethingelse.com',
+                        ],
+                    },
                 },
             } as unknown) as express.Response;
 
@@ -80,6 +118,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'tenantId',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -92,7 +133,6 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
                         tenantId: 't1',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -111,6 +151,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'obj.tenantId',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -125,7 +168,6 @@ describe('SetTenantIdMiddleware', () => {
                         },
                         aud: ['item1', 'item2'],
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -146,6 +188,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'somePathThatIsNotInTheToken',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -158,7 +203,6 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -176,6 +220,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'tenantId',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -188,7 +235,6 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 'InvalidTenantId_#$%&*?',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -206,6 +252,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'tenantId',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -218,7 +267,6 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                 },
             } as unknown) as express.Response;
 
@@ -236,6 +284,9 @@ describe('SetTenantIdMiddleware', () => {
                     enableMultiTenancy: true,
                     tenantIdClaimPath: 'tenantId',
                 },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
             } as FhirConfig;
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
@@ -248,7 +299,74 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t2',
                     },
-                    serverUrl: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
+            } as unknown) as express.Response;
+
+            setTenantIdMiddlewareFn(req, res, nextMock);
+
+            await sleep(1);
+
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
+        });
+
+        test('aud claim array with no valid tenantId', async () => {
+            const fhirConfig = {
+                multiTenancyConfig: {
+                    enableMultiTenancy: true,
+                },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
+            } as FhirConfig;
+
+            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
+            const nextMock = jest.fn();
+            const req = ({ params: {} } as unknown) as express.Request;
+            const res = ({
+                locals: {
+                    userIdentity: {
+                        claim1: 'val1',
+                        aud: [
+                            'https://something.com',
+                            'https://somethingelse.com',
+                            'https://aontherdomain.com/some/path/t1',
+                        ],
+                    },
+                },
+            } as unknown) as express.Response;
+
+            setTenantIdMiddlewareFn(req, res, nextMock);
+
+            await sleep(1);
+
+            expect(nextMock).toHaveBeenCalledTimes(1);
+            expect(nextMock).toHaveBeenCalledWith(new UnauthorizedError('Unauthorized'));
+        });
+
+        test('different tenantIds in aud claim array', async () => {
+            const fhirConfig = {
+                multiTenancyConfig: {
+                    enableMultiTenancy: true,
+                },
+                server: {
+                    url: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
+                },
+            } as FhirConfig;
+
+            const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
+            const nextMock = jest.fn();
+            const req = ({ params: {} } as unknown) as express.Request;
+            const res = ({
+                locals: {
+                    userIdentity: {
+                        claim1: 'val1',
+                        aud: [
+                            'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
+                            'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t2',
+                            'https://somethingelse.com',
+                        ],
+                    },
                 },
             } as unknown) as express.Response;
 

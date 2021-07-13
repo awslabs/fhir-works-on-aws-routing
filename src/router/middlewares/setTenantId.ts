@@ -6,20 +6,46 @@
 
 import { FhirConfig, UnauthorizedError } from 'fhir-works-on-aws-interface';
 import express from 'express';
-import { get } from 'lodash';
+import { get, uniq } from 'lodash';
 import RouteHelper from '../routes/routeHelper';
 
 const tenantIdRegex = /^[a-zA-Z0-9\-_]{1,64}$/;
 
-const getTenantIdFromAudClaim = (audClaim: any, baseUrl: string) => {
-    // aud claim could be an array for some IDP setups, check if aud claim is a string for compatibility
-    if (!audClaim || !(typeof audClaim === 'string')) {
-        return undefined;
-    }
+const getTenantIdFromAudString = (audClaim: string, baseUrl: string): string | undefined => {
     if (audClaim.startsWith(`${baseUrl}/tenant/`)) {
         return audClaim.substring(`${baseUrl}/tenant/`.length);
     }
     return undefined;
+};
+
+const getTenantIdFromAudClaim = (audClaim: any, baseUrl: string): string | undefined => {
+    if (!audClaim) {
+        return undefined;
+    }
+    let audClaimAsArray: string[] = [];
+
+    if (typeof audClaim === 'string') {
+        audClaimAsArray = [audClaim];
+    }
+
+    if (Array.isArray(audClaim)) {
+        audClaimAsArray = audClaim;
+    }
+
+    const tenantIds = audClaimAsArray
+        .map((aud: string) => getTenantIdFromAudString(aud, baseUrl))
+        .filter((aud: any) => aud !== undefined);
+
+    const uniqTenantIds = uniq(tenantIds);
+
+    if (uniqTenantIds.length > 1) {
+        // tokens with multiple aud URLs with different tenantIds are not supported
+        return undefined;
+    }
+    if (uniqTenantIds.length === 0) {
+        return undefined;
+    }
+    return uniqTenantIds[0];
 };
 
 /**
@@ -32,7 +58,7 @@ export const setTenantIdMiddleware: (
     return RouteHelper.wrapAsync(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         // Find tenantId from custom claim and aud claim
         const tenantIdFromCustomClaim = get(res.locals.userIdentity, fhirConfig.multiTenancyConfig?.tenantIdClaimPath!);
-        const tenantIdFromAudClaim = getTenantIdFromAudClaim(res.locals.userIdentity.aud, res.locals.serverUrl);
+        const tenantIdFromAudClaim = getTenantIdFromAudClaim(res.locals.userIdentity.aud, fhirConfig.server.url);
 
         // TenantId should exist in at least one claim, if exist in both claims, they should be equal
         if (
