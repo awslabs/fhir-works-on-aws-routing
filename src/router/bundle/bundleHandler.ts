@@ -59,7 +59,7 @@ export default class BundleHandler implements BundleHandlerInterface {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,prettier/prettier
-    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext, tenantId?: string) {
+    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext, serverUrl: string, tenantId?: string) {
         throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
 
@@ -102,6 +102,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         bundleRequestJson: any,
         userIdentity: KeyValueMap,
         requestContext: RequestContext,
+        serverUrl: string,
         tenantId?: string,
     ) {
         const startTime = new Date();
@@ -171,6 +172,7 @@ export default class BundleHandler implements BundleHandlerInterface {
                     userIdentity,
                     requestContext,
                     readResponse: bundleServiceResponse.batchReadWriteResponses[index].resource,
+                    fhirServiceBaseUrl: serverUrl,
                 });
             }
             return Promise.resolve();
