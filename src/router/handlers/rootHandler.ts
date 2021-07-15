@@ -22,11 +22,18 @@ export default class RootHandler {
         this.serverUrl = serverUrl;
     }
 
-    async globalSearch(queryParams: any, userIdentity: KeyValueMap, requestContext: RequestContext, tenantId?: string) {
+    async globalSearch(
+        queryParams: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        serverUrl: string,
+        tenantId?: string,
+    ) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
             requestContext,
             operation: 'search-system',
+            fhirServiceBaseUrl: serverUrl,
         });
         const searchResponse = await this.searchService.globalSearch({
             queryParams,
@@ -41,12 +48,14 @@ export default class RootHandler {
         queryParams: any,
         userIdentity: KeyValueMap,
         requestContext: RequestContext,
+        serverUrl: string,
         tenantId?: string,
     ) {
         const searchFilters = await this.authService.getSearchFilterBasedOnIdentity({
             userIdentity,
             requestContext,
             operation: 'history-system',
+            fhirServiceBaseUrl: serverUrl,
         });
         const historyResponse = await this.historyService.globalHistory({
             queryParams,

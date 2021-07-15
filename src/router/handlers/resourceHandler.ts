@@ -83,6 +83,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
             requestContext,
             operation: 'search-type',
             resourceType,
+            fhirServiceBaseUrl: serverUrl,
         });
 
         const searchResponse = await this.searchService.typeSearch({
@@ -106,6 +107,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
             userIdentity,
             requestContext,
             readResponse: bundle,
+            fhirServiceBaseUrl: serverUrl,
         });
     }
 
@@ -122,6 +124,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
             requestContext,
             operation: 'history-type',
             resourceType,
+            fhirServiceBaseUrl: serverUrl,
         });
 
         const historyResponse = await this.historyService.typeHistory({
@@ -149,6 +152,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
             operation: 'history-instance',
             resourceType,
             id,
+            fhirServiceBaseUrl: serverUrl,
         });
 
         const historyResponse = await this.historyService.instanceHistory({

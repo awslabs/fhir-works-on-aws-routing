@@ -42,6 +42,7 @@ export default class GenericResourceRoute {
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     if (updatedReadResponse && updatedReadResponse.meta) {
                         res.set({
@@ -67,6 +68,7 @@ export default class GenericResourceRoute {
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     if (updatedReadResponse && updatedReadResponse.meta) {
                         res.set({
@@ -99,6 +101,7 @@ export default class GenericResourceRoute {
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     res.send(updatedReadResponse);
                 }),
@@ -126,6 +129,7 @@ export default class GenericResourceRoute {
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     res.send(updatedReadResponse);
                 }),
@@ -195,6 +199,7 @@ export default class GenericResourceRoute {
                         operation: 'create',
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
 
                     const response = await this.handler.create(resourceType, body, res.locals.tenantId);
@@ -224,6 +229,7 @@ export default class GenericResourceRoute {
                         operation: 'update',
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
 
                     const response = await this.handler.update(resourceType, id, body, res.locals.tenantId);
@@ -253,6 +259,7 @@ export default class GenericResourceRoute {
                         operation: 'patch',
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
 
                     const response = await this.handler.patch(resourceType, id, body, res.locals.tenantId);
@@ -278,6 +285,7 @@ export default class GenericResourceRoute {
                         operation: 'delete',
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
 
                     const response = await this.handler.delete(resourceType, id, res.locals.tenantId);

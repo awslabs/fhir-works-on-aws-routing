@@ -115,6 +115,7 @@ export function generateServerlessRouter(
                 ...requestInformation,
                 requestContext: res.locals.requestContext,
                 accessToken: req.headers.authorization,
+                fhirServiceBaseUrl: res.locals.serverUrl,
             });
             next();
         } catch (e) {

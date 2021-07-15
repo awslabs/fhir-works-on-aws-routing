@@ -69,6 +69,7 @@ export default class RootRoute {
                                 req.body,
                                 res.locals.userIdentity,
                                 res.locals.requestContext,
+                                res.locals.serverUrl,
                                 res.locals.tenantId,
                             );
                             res.send(response);
@@ -77,6 +78,7 @@ export default class RootRoute {
                                 req.body,
                                 res.locals.userIdentity,
                                 res.locals.requestContext,
+                                res.locals.serverUrl,
                                 res.locals.tenantId,
                             );
                             res.send(response);
@@ -98,6 +100,7 @@ export default class RootRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.serverUrl,
                         res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
@@ -105,6 +108,7 @@ export default class RootRoute {
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     res.send(updatedReadResponse);
                 }),
@@ -119,6 +123,7 @@ export default class RootRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.serverUrl,
                         res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
@@ -126,6 +131,7 @@ export default class RootRoute {
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     res.send(updatedReadResponse);
                 }),
