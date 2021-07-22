@@ -218,11 +218,16 @@ export default class BundleParser {
                     if (!referenceIsFound && [serverUrl, `${serverUrl}/`].includes(reference.rootUrl)) {
                         try {
                             if (reference.vid) {
+                                let { vid } = reference;
+                                if (vid.startsWith('/_history')) {
+                                    const parts = reference.vid.split('/');
+                                    vid = parts[parts.length - 1];
+                                }
                                 // eslint-disable-next-line no-await-in-loop
                                 await dataService.vReadResource({
                                     resourceType: reference.resourceType,
                                     id: reference.id,
-                                    vid: reference.vid,
+                                    vid,
                                 });
                             } else {
                                 // eslint-disable-next-line no-await-in-loop

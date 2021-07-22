@@ -790,7 +790,8 @@ describe('parseResource', () => {
                                 reference: `${serverUrl}/Patient/111`,
                             },
                             device: {
-                                reference: `${serverUrl}/Device/222`,
+                                // make sure versioned references also work
+                                reference: `${serverUrl}/Device/222/_history/7`,
                             },
                             effectiveDateTime: '2021-01-09T20:00:06Z',
                             valueQuantity: {
