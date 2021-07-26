@@ -830,7 +830,7 @@ describe('parseResource', () => {
                       ],
                     },
                     "device": Object {
-                      "reference": "Device/222",
+                      "reference": "Device/222/_history/7",
                     },
                     "effectiveDateTime": "2021-01-09T20:00:06Z",
                     "resourceType": "Observation",
