@@ -16,8 +16,11 @@ export default class ExportRoute {
 
     private exportHandler: any;
 
-    constructor(bulkDataAccess: BulkDataAccess, authService: Authorization) {
+    private fhirVersion: string;
+
+    constructor(bulkDataAccess: BulkDataAccess, authService: Authorization, fhirVersion: string) {
         this.router = express.Router();
+        this.fhirVersion = fhirVersion;
         this.exportHandler = new ExportHandler(bulkDataAccess, authService);
         this.init();
     }
@@ -27,6 +30,7 @@ export default class ExportRoute {
             req,
             res,
             exportType,
+            this.fhirVersion,
         );
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
@@ -46,9 +50,13 @@ export default class ExportRoute {
             }),
         );
 
-        this.router.get('/Patient/\\$export', () => {
-            throw new createHttpError.BadRequest('We currently do not support Patient export');
-        });
+        this.router.get(
+            '/Patient/\\$export',
+            RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
+                const exportType: ExportType = 'group';
+                await this.initiateExportRequests(req, res, exportType);
+            }),
+        );
 
         this.router.get('/Group/:id/\\$export', () => {
             throw new createHttpError.BadRequest('We currently do not support Group export');

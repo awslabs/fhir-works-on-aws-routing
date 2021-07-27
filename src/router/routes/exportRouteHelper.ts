@@ -6,7 +6,12 @@ import isString from 'lodash/isString';
 import { dateTimeWithTimeZoneRegExp } from '../../regExpressions';
 
 export default class ExportRouteHelper {
-    static buildInitiateExportRequest(req: express.Request, res: express.Response, exportType: ExportType) {
+    static buildInitiateExportRequest(
+        req: express.Request,
+        res: express.Response,
+        exportType: ExportType,
+        fhirVersion?: string,
+    ) {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
             throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
         }
@@ -35,6 +40,8 @@ export default class ExportRouteHelper {
             type: isString(req.query._type) ? req.query._type : undefined,
             groupId: isString(req.params.id) ? req.params.id : undefined,
             tenantId: res.locals.tenantId,
+            serverUrl: res.locals.serverUrl,
+            fhirVersion,
         };
         return initiateExportRequest;
     }
