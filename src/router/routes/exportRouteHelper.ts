@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import express from 'express';
-import { ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
+import { ExportType, FhirVersion, InitiateExportRequest } from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import isString from 'lodash/isString';
 import { dateTimeWithTimeZoneRegExp } from '../../regExpressions';
@@ -10,7 +10,7 @@ export default class ExportRouteHelper {
         req: express.Request,
         res: express.Response,
         exportType: ExportType,
-        fhirVersion?: string,
+        fhirVersion?: FhirVersion,
     ) {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
             throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
