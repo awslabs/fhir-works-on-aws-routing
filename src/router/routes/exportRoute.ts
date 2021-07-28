@@ -35,17 +35,19 @@ export default class ExportRoute {
     }
 
     async initiateExportRequests(req: express.Request, res: express.Response, exportType: ExportType) {
-        const initiateExportRequest: InitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(
-            req,
-            res,
-            exportType,
-            this.fhirVersion,
-        );
-        initiateExportRequest.allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
+        const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
             operation: 'read',
             userIdentity: res.locals.userIdentity,
             requestContext: res.locals.userIdentity,
         });
+        const initiateExportRequest: InitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(
+            req,
+            res,
+            exportType,
+            allowedResourceTypes,
+            this.fhirVersion,
+        );
+
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
         const exportStatusUrl = `${res.locals.serverUrl}/$export/${jobId}`;

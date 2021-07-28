@@ -10,6 +10,7 @@ export default class ExportRouteHelper {
         req: express.Request,
         res: express.Response,
         exportType: ExportType,
+        allowedResourceTypes: string[],
         fhirVersion?: FhirVersion,
     ) {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
@@ -42,6 +43,7 @@ export default class ExportRouteHelper {
             tenantId: res.locals.tenantId,
             serverUrl: res.locals.serverUrl,
             fhirVersion,
+            allowedResourceTypes,
         };
         return initiateExportRequest;
     }
