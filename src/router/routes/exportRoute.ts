@@ -75,7 +75,7 @@ export default class ExportRoute {
         );
 
         this.router.get('/Patient/\\$export', () => {
-            throw new createHttpError.BadRequest('We currently do not support Group export');
+            throw new createHttpError.BadRequest('We currently do not support Patient export');
         });
 
         // Export Job Status
