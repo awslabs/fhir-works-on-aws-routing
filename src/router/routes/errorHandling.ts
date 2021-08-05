@@ -9,6 +9,7 @@ import {
     IssueSeverity,
     IssueCode,
     isInvalidSearchParameterError,
+    isResourceConflictError,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
@@ -43,6 +44,10 @@ export const applicationErrorMapper = (
         next(new createError.BadRequest(err.message));
         return;
     }
+    if (isResourceConflictError(err)) {
+        next(new createError.Conflict(err.message));
+        return;
+    }
     next(err);
 };
 
@@ -50,6 +55,7 @@ const statusToOutcome: Record<number, { severity: IssueSeverity; code: IssueCode
     400: { severity: 'error', code: 'invalid' },
     403: { severity: 'error', code: 'security' },
     404: { severity: 'error', code: 'not-found' },
+    409: { severity: 'error', code: 'conflict' },
     500: { severity: 'error', code: 'exception' },
 };
 
