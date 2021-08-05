@@ -216,13 +216,20 @@ export default class BundleParser {
                     // rootUrl as the server, we check if the server has that reference. If the server does not have the
                     // reference we throw an error
                     if (!referenceIsFound && [serverUrl, `${serverUrl}/`].includes(reference.rootUrl)) {
+                        let parsedVid = reference.vid;
+                        let vidWithHistory = false;
                         try {
-                            if (reference.vid) {
+                            if (parsedVid) {
+                                if (reference.vid.startsWith('/_history')) {
+                                    const parts = parsedVid.split('/');
+                                    parsedVid = parts[parts.length - 1];
+                                    vidWithHistory = true;
+                                }
                                 // eslint-disable-next-line no-await-in-loop
                                 await dataService.vReadResource({
                                     resourceType: reference.resourceType,
                                     id: reference.id,
-                                    vid: reference.vid,
+                                    vid: parsedVid,
                                 });
                             } else {
                                 // eslint-disable-next-line no-await-in-loop
@@ -236,11 +243,10 @@ export default class BundleParser {
                                 `This entry refer to a resource that does not exist on this server. Entry is referring to '${reference.resourceType}/${reference.id}'`,
                             );
                         }
-                        set(
-                            requestWithRef,
-                            `resource.${reference.referencePath}`,
-                            `${reference.resourceType}/${reference.id}`,
-                        );
+                        const ref = vidWithHistory
+                            ? `${reference.resourceType}/${reference.id}/_history/${parsedVid}`
+                            : `${reference.resourceType}/${reference.id}`;
+                        set(requestWithRef, `resource.${reference.referencePath}`, ref);
                         referenceIsFound = true;
                     }
                     if (!referenceIsFound) {

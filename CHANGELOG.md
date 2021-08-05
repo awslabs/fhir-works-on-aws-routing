@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.4.3](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.4.2...v5.4.3) (2021-07-27)
+
+
+### Bug Fixes
+
+* properly handle versioned references in BundleParser ([#101](https://github.com/awslabs/fhir-works-on-aws-routing/issues/101)) ([b57ac06](https://github.com/awslabs/fhir-works-on-aws-routing/commit/b57ac06e8578fd2e701b52e1b262e482536dc999))
+* update FHIR v4 schema and fix the validator ([#102](https://github.com/awslabs/fhir-works-on-aws-routing/issues/102)) ([b9e2f5f](https://github.com/awslabs/fhir-works-on-aws-routing/commit/b9e2f5ffe414031ea29ad0c432c66fc8303a0afe))
+
 ### [5.4.2](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.4.1...v5.4.2) (2021-06-04)
 
 
