@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.4.4](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.4.3...v5.4.4) (2021-08-06)
+
+
+### Bug Fixes
+
+* add routing for 409 errors ([#109](https://github.com/awslabs/fhir-works-on-aws-routing/issues/109)) ([27c80ea](https://github.com/awslabs/fhir-works-on-aws-routing/commit/27c80ea7455d7cb3f9c184742d9667b4105d2ad3))
+* fix invalid capability statement ([#108](https://github.com/awslabs/fhir-works-on-aws-routing/issues/108)) ([0c9d81b](https://github.com/awslabs/fhir-works-on-aws-routing/commit/0c9d81bebdd47a45af23d967b7874d7171ace2bd))
+
 ### [5.4.3](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v5.4.2...v5.4.3) (2021-07-27)
 
 
