@@ -11,6 +11,7 @@ describe('buildInitiateExportRequest', () => {
         locals: {
             userIdentity: { sub: 'abcd-1234' },
             requestContext: { verb: 'GET', hostname: 'test.acme.com' },
+            serverUrl: 'http://test.acme.com',
         },
     });
 
@@ -40,6 +41,7 @@ describe('buildInitiateExportRequest', () => {
             outputFormat: 'ndjson',
             since: '2020-09-01T00:00:00.000Z',
             type: 'Patient',
+            serverUrl: 'http://test.acme.com',
             allowedResourceTypes: mockedAllowedResourceTypes,
             fhirVersion: r4Version,
         });
@@ -72,6 +74,7 @@ describe('buildInitiateExportRequest', () => {
             since: '2020-09-01T00:00:00.000Z',
             type: 'Patient',
             groupId: '1',
+            serverUrl: 'http://test.acme.com',
             allowedResourceTypes: mockedAllowedResourceTypes,
             fhirVersion: r4Version,
         });
@@ -98,6 +101,7 @@ describe('buildInitiateExportRequest', () => {
             since: undefined,
             type: undefined,
             groupId: '1',
+            serverUrl: 'http://test.acme.com',
             allowedResourceTypes: mockedAllowedResourceTypes,
             fhirVersion: r4Version,
         });
