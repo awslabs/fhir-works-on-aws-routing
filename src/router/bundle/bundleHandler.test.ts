@@ -642,7 +642,7 @@ describe('SUCCESS Cases: Testing Bundle with CRUD entries', () => {
             bundleRequestJSON,
             practitionerDecoded,
             dummyRequestContext,
-            dummyServerUrl
+            dummyServerUrl,
         );
 
         expect(actualResult).toMatchObject({
