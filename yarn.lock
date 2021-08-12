@@ -2276,10 +2276,10 @@ fecha@^4.2.0:
   resolved "https://registry.yarnpkg.com/fecha/-/fecha-4.2.1.tgz#0a83ad8f86ef62a091e22bb5a039cd03d23eecce"
   integrity sha512-MMMQ0ludy/nBs1/o0zVOiKTpG7qMbonKUzjJgQFEuvq6INZ1OraKPRAWkBq5vlKLOUMpmNYG1JoN3oDPUQ9m3Q==
 
-fhir-works-on-aws-interface@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-9.0.0.tgz#2e784f7a5c2e476b436558d0954bf3beb2f150de"
-  integrity sha512-qYuWefK54g6RLrXqiyw2wZVEqwR5nesxcD5CmPv9ZWEd6bvAxgzQHV5YIOuHtOI2R0cXRaGqldtJqpT8PX9ISQ==
+fhir-works-on-aws-interface@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/fhir-works-on-aws-interface/-/fhir-works-on-aws-interface-9.1.0.tgz#0df7a9f2216db0e6708f981abf2b7ca406f76c3e"
+  integrity sha512-Gy0vdXEbWPz1cuu2jicsGM+Wn9wdiqw2fQWFGviENHUiIoH9FOJihfN1AxiTPZTCEsNWz2/kfaKMx3C35bgTTw==
   dependencies:
     winston "^3.3.3"
     winston-transport "^4.4.0"
@@ -4149,6 +4149,11 @@ path-parse@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
   integrity sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==
+
+path-parse@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
+  integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
 
 path-to-regexp@0.1.7:
   version "0.1.7"
