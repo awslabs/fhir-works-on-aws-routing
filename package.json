@@ -42,7 +42,6 @@
     "http-errors": "^1.8.0",
     "lodash": "^4.17.15",
     "mime-types": "^2.1.26",
-    "path-parse": "^1.0.7",
     "serverless-http": "^2.3.1",
     "uuid": "^3.4.0"
   },
