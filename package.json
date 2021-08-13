@@ -37,14 +37,14 @@
     "cors": "^2.8.5",
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
-    "fhir-works-on-aws-interface": "^9.1.0",
+    "fhir-works-on-aws-interface": "^10.0.0",
     "flat": "^5.0.0",
     "http-errors": "^1.8.0",
     "lodash": "^4.17.15",
     "mime-types": "^2.1.26",
+    "path-parse": "^1.0.7",
     "serverless-http": "^2.3.1",
-    "uuid": "^3.4.0",
-    "path-parse": "^1.0.7"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@types/errorhandler": "^0.0.32",
