@@ -16,16 +16,21 @@ import fhirV3Schema from './schemas/fhir.schema.v3.json';
 export default class JsonSchemaValidator implements Validator {
     private ajv: any;
 
+    private readonly schemaId: string;
+
     constructor(fhirVersion: FhirVersion) {
         const ajv = new Ajv({ schemaId: 'auto', allErrors: true });
+        let schema;
         if (fhirVersion === '4.0.1') {
             ajv.addMetaSchema(schemaDraft06);
             ajv.addSchema(fhirV4Schema);
-        }
-        if (fhirVersion === '3.0.1') {
+            schema = fhirV4Schema;
+        } else if (fhirVersion === '3.0.1') {
             ajv.addMetaSchema(schemaDraft04);
             ajv.addSchema(fhirV3Schema);
+            schema = fhirV3Schema;
         }
+        this.schemaId = schema && 'id' in schema ? schema.id : '';
         this.ajv = ajv;
     }
 
@@ -34,7 +39,7 @@ export default class JsonSchemaValidator implements Validator {
         if (!definitionName) {
             throw new InvalidResourceError("resource should have required property 'resourceType'");
         }
-        const referenceName = `#/definitions/${definitionName}`;
+        const referenceName = `${this.schemaId}#/definitions/${definitionName}`;
         const result = this.ajv.validate(referenceName, resource);
         if (!result) {
             throw new InvalidResourceError(

@@ -63,6 +63,9 @@ const DynamoDbDataService: Persistence = class {
     static async vReadResource(request: vReadResourceRequest): Promise<GenericResponse> {
         const resourceCopy: any = clone(validPatient);
         resourceCopy.id = request.id;
+        if (request.vid) {
+            expect(request.vid).toMatch(/^\d+$/);
+        }
         resourceCopy.meta = generateMeta(request.vid);
         return {
             message: 'Resource found',
