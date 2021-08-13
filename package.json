@@ -43,8 +43,7 @@
     "lodash": "^4.17.15",
     "mime-types": "^2.1.26",
     "serverless-http": "^2.3.1",
-    "uuid": "^3.4.0",
-    "path-parse": "^1.0.7"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@types/errorhandler": "^0.0.32",
@@ -73,6 +72,9 @@
     "sinon": "^9.0.3",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.3"
+  },
+  "resolutions": {
+    "path-parse": "^1.0.7"
   },
   "jest": {
     "moduleFileExtensions": [
