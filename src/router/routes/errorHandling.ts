@@ -53,6 +53,7 @@ export const applicationErrorMapper = (
 
 const statusToOutcome: Record<number, { severity: IssueSeverity; code: IssueCode }> = {
     400: { severity: 'error', code: 'invalid' },
+    401: { severity: 'error', code: 'security' },
     403: { severity: 'error', code: 'security' },
     404: { severity: 'error', code: 'not-found' },
     409: { severity: 'error', code: 'conflict' },
