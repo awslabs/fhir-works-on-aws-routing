@@ -25,6 +25,8 @@ import ExportRoute from './router/routes/exportRoute';
 import WellKnownUriRouteRoute from './router/routes/wellKnownUriRoute';
 import { FHIRStructureDefinitionRegistry } from './registry';
 import { initializeOperationRegistry } from './operationDefinitions';
+import { setServerUrlMiddleware } from './router/middlewares/setServerUrl';
+import { setTenantIdMiddleware } from './router/middlewares/setTenantId';
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -63,7 +65,7 @@ export function generateServerlessRouter(
     const app = express();
     app.disable('x-powered-by');
 
-    const mainRouter = express.Router();
+    const mainRouter = express.Router({ mergeParams: true });
 
     mainRouter.use(express.urlencoded({ extended: true }));
     mainRouter.use(
@@ -78,6 +80,8 @@ export function generateServerlessRouter(
         mainRouter.use(cors(corsOptions));
         hasCORSEnabled = true;
     }
+
+    mainRouter.use(setServerUrlMiddleware(fhirConfig));
 
     // Metadata
     const metadataRoute: MetadataRoute = new MetadataRoute(
@@ -111,6 +115,7 @@ export function generateServerlessRouter(
                 ...requestInformation,
                 requestContext: res.locals.requestContext,
                 accessToken: req.headers.authorization,
+                fhirServiceBaseUrl: res.locals.serverUrl,
             });
             next();
         } catch (e) {
@@ -118,12 +123,16 @@ export function generateServerlessRouter(
         }
     });
 
+    if (fhirConfig.multiTenancyConfig?.enableMultiTenancy) {
+        mainRouter.use(setTenantIdMiddleware(fhirConfig));
+    }
+
     // Export
     if (fhirConfig.profile.bulkDataAccess) {
         const exportRoute = new ExportRoute(
-            serverUrl,
             fhirConfig.profile.bulkDataAccess,
             fhirConfig.auth.authorization,
+            fhirConfig.profile.fhirVersion,
         );
         mainRouter.use('/', exportRoute.router);
     }
@@ -205,7 +214,11 @@ export function generateServerlessRouter(
     mainRouter.use(httpErrorHandler);
     mainRouter.use(unknownErrorHandler);
 
-    app.use('/', mainRouter);
+    if (fhirConfig.multiTenancyConfig?.enableMultiTenancy && fhirConfig.multiTenancyConfig?.useTenantSpecificUrl) {
+        app.use('/tenant/:tenantIdFromPath([a-zA-Z0-9\\-_]{1,64})', mainRouter);
+    } else {
+        app.use('/', mainRouter);
+    }
 
     return app;
 }

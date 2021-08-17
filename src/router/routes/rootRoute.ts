@@ -69,6 +69,8 @@ export default class RootRoute {
                                 req.body,
                                 res.locals.userIdentity,
                                 res.locals.requestContext,
+                                res.locals.serverUrl,
+                                res.locals.tenantId,
                             );
                             res.send(response);
                         } else if (req.body.type.toLowerCase() === 'batch') {
@@ -76,6 +78,8 @@ export default class RootRoute {
                                 req.body,
                                 res.locals.userIdentity,
                                 res.locals.requestContext,
+                                res.locals.serverUrl,
+                                res.locals.tenantId,
                             );
                             res.send(response);
                         } else {
@@ -96,12 +100,15 @@ export default class RootRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.serverUrl,
+                        res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'search-system',
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     res.send(updatedReadResponse);
                 }),
@@ -116,12 +123,15 @@ export default class RootRoute {
                         searchParamQuery,
                         res.locals.userIdentity,
                         res.locals.requestContext,
+                        res.locals.serverUrl,
+                        res.locals.tenantId,
                     );
                     const updatedReadResponse = await this.authService.authorizeAndFilterReadResponse({
                         operation: 'history-system',
                         userIdentity: res.locals.userIdentity,
                         requestContext: res.locals.requestContext,
                         readResponse: response,
+                        fhirServiceBaseUrl: res.locals.serverUrl,
                     });
                     res.send(updatedReadResponse);
                 }),

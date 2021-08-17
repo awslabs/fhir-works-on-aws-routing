@@ -402,6 +402,7 @@ describe('Testing search', () => {
             { name: 'Henry' },
             {},
             dummyRequestContext,
+            'https://API_URL.com',
         );
 
         // CHECK
@@ -457,6 +458,7 @@ describe('Testing search', () => {
             { name: 'Henry' },
             {},
             dummyRequestContext,
+            'https://API_URL.com',
         );
 
         // CHECK
@@ -481,7 +483,13 @@ describe('Testing search', () => {
         ElasticSearchService.typeSearch = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeSearch('Patient', { name: 'Henry' }, {}, dummyRequestContext);
+            await resourceHandler.typeSearch(
+                'Patient',
+                { name: 'Henry' },
+                {},
+                dummyRequestContext,
+                'https://API_URL.com',
+            );
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -518,6 +526,7 @@ describe('Testing search', () => {
                 },
                 {},
                 dummyRequestContext,
+                'https://API_URL.com',
             );
 
             // CHECK
@@ -575,6 +584,7 @@ describe('Testing search', () => {
                 },
                 {},
                 dummyRequestContext,
+                'https://API_URL.com',
             );
 
             // CHECK
@@ -632,6 +642,7 @@ describe('Testing search', () => {
                 },
                 {},
                 dummyRequestContext,
+                'https://API_URL.com',
             );
 
             // CHECK
@@ -712,6 +723,7 @@ describe('Testing history', () => {
             { name: 'Henry' },
             {},
             dummyRequestContext,
+            'https://API_URL.com',
         );
 
         // CHECK
@@ -753,6 +765,7 @@ describe('Testing history', () => {
             { name: 'Henry' },
             {},
             dummyRequestContext,
+            'https://API_URL.com',
         );
 
         // CHECK
@@ -777,7 +790,13 @@ describe('Testing history', () => {
         stubs.history.typeHistory = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.typeHistory('Patient', { name: 'Henry' }, {}, dummyRequestContext);
+            await resourceHandler.typeHistory(
+                'Patient',
+                { name: 'Henry' },
+                {},
+                dummyRequestContext,
+                'https://API_URL.com',
+            );
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -809,6 +828,7 @@ describe('Testing history', () => {
             { name: 'Henry' },
             {},
             dummyRequestContext,
+            'https://API_URL.com',
         );
 
         // CHECK
@@ -840,7 +860,14 @@ describe('Testing history', () => {
         stubs.history.instanceHistory = jest.fn().mockRejectedValue(new Error('Boom!!'));
         try {
             // OPERATE
-            await resourceHandler.instanceHistory('Patient', 'id123', { name: 'Henry' }, {}, dummyRequestContext);
+            await resourceHandler.instanceHistory(
+                'Patient',
+                'id123',
+                { name: 'Henry' },
+                {},
+                dummyRequestContext,
+                'https://API_URL.com',
+            );
         } catch (e) {
             // CHECK
             expect(e).toEqual(new Error('Boom!!'));
@@ -877,6 +904,7 @@ describe('Testing history', () => {
                 },
                 {},
                 dummyRequestContext,
+                'https://API_URL.com',
             );
 
             // CHECK
@@ -934,6 +962,7 @@ describe('Testing history', () => {
                 },
                 {},
                 dummyRequestContext,
+                'https://API_URL.com',
             );
 
             // CHECK
@@ -992,6 +1021,7 @@ describe('Testing history', () => {
                 },
                 {},
                 dummyRequestContext,
+                'https://API_URL.com',
             );
 
             // CHECK
