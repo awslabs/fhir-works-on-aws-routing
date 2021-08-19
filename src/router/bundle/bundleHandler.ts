@@ -138,6 +138,7 @@ export default class BundleHandler implements BundleHandlerInterface {
             userIdentity,
             requestContext,
             requests,
+            fhirServiceBaseUrl: serverUrl,
         });
 
         if (requests.length > MAX_BUNDLE_ENTRIES) {
