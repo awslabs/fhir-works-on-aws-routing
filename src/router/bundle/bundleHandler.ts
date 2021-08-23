@@ -58,8 +58,8 @@ export default class BundleHandler implements BundleHandlerInterface {
         this.validators = validators;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars,prettier/prettier
+    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext, serverUrl: string, tenantId?: string) {
         throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
 
@@ -98,7 +98,13 @@ export default class BundleHandler implements BundleHandlerInterface {
         return bundleEntriesNotSupported;
     }
 
-    async processTransaction(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext) {
+    async processTransaction(
+        bundleRequestJson: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        serverUrl: string,
+        tenantId?: string,
+    ) {
         const startTime = new Date();
 
         await validateResource(this.validators, bundleRequestJson);
@@ -132,6 +138,7 @@ export default class BundleHandler implements BundleHandlerInterface {
             userIdentity,
             requestContext,
             requests,
+            fhirServiceBaseUrl: serverUrl,
         });
 
         if (requests.length > MAX_BUNDLE_ENTRIES) {
@@ -140,7 +147,7 @@ export default class BundleHandler implements BundleHandlerInterface {
             );
         }
 
-        const bundleServiceResponse = await this.bundleService.transaction({ requests, startTime });
+        const bundleServiceResponse = await this.bundleService.transaction({ requests, startTime, tenantId });
         if (!bundleServiceResponse.success) {
             if (bundleServiceResponse.errorType === 'SYSTEM_ERROR') {
                 throw new createError.InternalServerError(bundleServiceResponse.message);
@@ -168,6 +175,7 @@ export default class BundleHandler implements BundleHandlerInterface {
                     userIdentity,
                     requestContext,
                     readResponse: bundleServiceResponse.batchReadWriteResponses[index].resource,
+                    fhirServiceBaseUrl: serverUrl,
                 });
             }
             return Promise.resolve();

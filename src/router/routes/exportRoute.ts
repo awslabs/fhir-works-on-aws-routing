@@ -5,7 +5,13 @@
 
 /* eslint-disable no-underscore-dangle */
 import express, { Router } from 'express';
-import { Authorization, BulkDataAccess, ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
+import {
+    Authorization,
+    BulkDataAccess,
+    ExportType,
+    FhirVersion,
+    InitiateExportRequest,
+} from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import RouteHelper from './routeHelper';
 import ExportHandler from '../handlers/exportHandler';
@@ -16,24 +22,35 @@ export default class ExportRoute {
 
     private exportHandler: any;
 
-    private serverUrl: string;
+    private fhirVersion: FhirVersion;
 
-    constructor(serverUrl: string, bulkDataAccess: BulkDataAccess, authService: Authorization) {
+    private authService: Authorization;
+
+    constructor(bulkDataAccess: BulkDataAccess, authService: Authorization, fhirVersion: FhirVersion) {
         this.router = express.Router();
-        this.serverUrl = serverUrl;
+        this.fhirVersion = fhirVersion;
+        this.authService = authService;
         this.exportHandler = new ExportHandler(bulkDataAccess, authService);
         this.init();
     }
 
     async initiateExportRequests(req: express.Request, res: express.Response, exportType: ExportType) {
+        const allowedResourceTypes = await this.authService.getAllowedResourceTypesForOperation({
+            operation: 'read',
+            userIdentity: res.locals.userIdentity,
+            requestContext: res.locals.userIdentity,
+        });
         const initiateExportRequest: InitiateExportRequest = ExportRouteHelper.buildInitiateExportRequest(
             req,
             res,
             exportType,
+            allowedResourceTypes,
+            this.fhirVersion,
         );
+
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
-        const exportStatusUrl = `${this.serverUrl}/$export/${jobId}`;
+        const exportStatusUrl = `${res.locals.serverUrl}/$export/${jobId}`;
         res.header('Content-Location', exportStatusUrl)
             .status(202)
             .send();
@@ -49,21 +66,30 @@ export default class ExportRoute {
             }),
         );
 
+        this.router.get(
+            '/Group/:id/\\$export',
+            RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
+                const exportType: ExportType = 'group';
+                await this.initiateExportRequests(req, res, exportType);
+            }),
+        );
+
         this.router.get('/Patient/\\$export', () => {
             throw new createHttpError.BadRequest('We currently do not support Patient export');
-        });
-
-        this.router.get('/Group/:id/\\$export', () => {
-            throw new createHttpError.BadRequest('We currently do not support Group export');
         });
 
         // Export Job Status
         this.router.get(
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
-                const { userIdentity, requestContext } = res.locals;
+                const { userIdentity, requestContext, tenantId } = res.locals;
                 const { jobId } = req.params;
-                const response = await this.exportHandler.getExportJobStatus(jobId, userIdentity, requestContext);
+                const response = await this.exportHandler.getExportJobStatus(
+                    jobId,
+                    userIdentity,
+                    requestContext,
+                    tenantId,
+                );
                 if (response.jobStatus === 'in-progress') {
                     res.status(202)
                         .header('x-progress', 'in-progress')
@@ -76,7 +102,7 @@ export default class ExportRoute {
                     const jsonResponse = {
                         transactionTime: response.transactionTime,
                         request: ExportRouteHelper.getExportUrl(
-                            this.serverUrl,
+                            res.locals.serverUrl,
                             response.exportType,
                             queryParams,
                             groupId,
@@ -99,8 +125,8 @@ export default class ExportRoute {
             '/\\$export/:jobId',
             RouteHelper.wrapAsync(async (req: express.Request, res: express.Response) => {
                 const { jobId } = req.params;
-                const { userIdentity, requestContext } = res.locals;
-                await this.exportHandler.cancelExport(jobId, userIdentity, requestContext);
+                const { userIdentity, requestContext, tenantId } = res.locals;
+                await this.exportHandler.cancelExport(jobId, userIdentity, requestContext, tenantId);
                 res.status(202).send();
             }),
         );

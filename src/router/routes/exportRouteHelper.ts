@@ -1,12 +1,18 @@
 /* eslint-disable no-underscore-dangle */
 import express from 'express';
-import { ExportType, InitiateExportRequest } from 'fhir-works-on-aws-interface';
+import { ExportType, FhirVersion, InitiateExportRequest } from 'fhir-works-on-aws-interface';
 import createHttpError from 'http-errors';
 import isString from 'lodash/isString';
 import { dateTimeWithTimeZoneRegExp } from '../../regExpressions';
 
 export default class ExportRouteHelper {
-    static buildInitiateExportRequest(req: express.Request, res: express.Response, exportType: ExportType) {
+    static buildInitiateExportRequest(
+        req: express.Request,
+        res: express.Response,
+        exportType: ExportType,
+        allowedResourceTypes: string[],
+        fhirVersion?: FhirVersion,
+    ) {
         if (req.query._outputFormat && req.query._outputFormat !== 'ndjson') {
             throw new createHttpError.BadRequest('We only support exporting resources into ndjson formatted file');
         }
@@ -34,6 +40,10 @@ export default class ExportRouteHelper {
                     : undefined,
             type: isString(req.query._type) ? req.query._type : undefined,
             groupId: isString(req.params.id) ? req.params.id : undefined,
+            tenantId: res.locals.tenantId,
+            serverUrl: res.locals.serverUrl,
+            fhirVersion,
+            allowedResourceTypes,
         };
         return initiateExportRequest;
     }
@@ -46,14 +56,15 @@ export default class ExportRouteHelper {
     ) {
         const { outputFormat, since, type } = queryParams;
         const url = new URL(baseUrl);
+        url.pathname += url.pathname.endsWith('/') ? '' : '/';
         if (exportType === 'system') {
-            url.pathname = '/$export';
+            url.pathname += '$export';
         }
         if (exportType === 'patient') {
-            url.pathname = '/Patient/$export';
+            url.pathname += 'Patient/$export';
         }
         if (exportType === 'group') {
-            url.pathname = `/Group/${groupId}/$export`;
+            url.pathname += `Group/${groupId}/$export`;
         }
         if (outputFormat) {
             url.searchParams.append('_outputFormat', outputFormat);
