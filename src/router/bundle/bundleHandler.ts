@@ -153,6 +153,8 @@ export default class BundleHandler implements BundleHandlerInterface {
                 throw new createError.InternalServerError(bundleServiceResponse.message);
             } else if (bundleServiceResponse.errorType === 'USER_ERROR') {
                 throw new createError.BadRequest(bundleServiceResponse.message);
+            } else if (bundleServiceResponse.errorType === 'CONFLICT_ERROR') {
+                throw new createError.Conflict(bundleServiceResponse.message);
             }
         }
 
