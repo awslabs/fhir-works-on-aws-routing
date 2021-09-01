@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.1.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.0.2...v6.1.0) (2021-09-01)
+
+
+### Features
+
+* add group export operation to capability statement ([#125](https://github.com/awslabs/fhir-works-on-aws-routing/issues/125)) ([0bc8e3c](https://github.com/awslabs/fhir-works-on-aws-routing/commit/0bc8e3c6309fa1eae38b8d3ca257aaf86f79bda3))
+
+
+### Bug Fixes
+
+* properly emit throttle error ([#124](https://github.com/awslabs/fhir-works-on-aws-routing/issues/124)) ([7f06815](https://github.com/awslabs/fhir-works-on-aws-routing/commit/7f0681545b4f2dc18151e696a0da1e5c601ebb33))
+
 ### [6.0.2](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.0.1...v6.0.2) (2021-08-26)
 
 
