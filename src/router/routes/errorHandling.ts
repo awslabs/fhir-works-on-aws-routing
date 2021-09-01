@@ -57,6 +57,7 @@ const statusToOutcome: Record<number, { severity: IssueSeverity; code: IssueCode
     403: { severity: 'error', code: 'security' },
     404: { severity: 'error', code: 'not-found' },
     409: { severity: 'error', code: 'conflict' },
+    429: { severity: 'error', code: 'throttled' },
     500: { severity: 'error', code: 'exception' },
 };
 
