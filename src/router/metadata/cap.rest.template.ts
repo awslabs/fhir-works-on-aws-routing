@@ -35,7 +35,13 @@ export default function makeRest(
                 name: 'export',
                 definition: 'http://hl7.org/fhir/uv/bulkdata/OperationDefinition/export',
                 documentation:
-                    'This FHIR Operation initiates the asynchronous generation of data to which the client is authorized. Currently only system level export is supported. For more information please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-kick-off-request. After a bulk data request has been started, the client MAY poll the status URL provided in the Content-Location header. For more details please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-status-request',
+                    'This FHIR Operation initiates the asynchronous generation of data to which the client is authorized. For more information please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-kick-off-request. After a bulk data request has been started, the client MAY poll the status URL provided in the Content-Location header. For more details please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-status-request',
+            },
+            {
+                name: 'group-export',
+                definition: 'http://hl7.org/fhir/uv/bulkdata/OperationDefinition/group-export',
+                documentation:
+                    'This FHIR Operation initiates the asynchronous generation of data for a given Group. For more information please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#endpoint---group-of-patients. After a bulk data request has been started, the client MAY poll the status URL provided in the Content-Location header. For more details please refer here: http://hl7.org/fhir/uv/bulkdata/export/index.html#bulk-data-status-request',
             },
         ];
     }
