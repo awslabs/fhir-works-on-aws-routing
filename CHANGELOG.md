@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.1.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.1.0...v6.1.1) (2021-09-02)
+
+
+### Bug Fixes
+
+* move group export operation under Group resource ([#127](https://github.com/awslabs/fhir-works-on-aws-routing/issues/127)) ([502bd49](https://github.com/awslabs/fhir-works-on-aws-routing/commit/502bd4924acebf24899d6a7dd5e545df4a2fd9ea))
+
 ## [6.1.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.0.2...v6.1.0) (2021-09-01)
 
 
