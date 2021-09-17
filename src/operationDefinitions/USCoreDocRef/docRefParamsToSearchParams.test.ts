@@ -11,7 +11,7 @@ describe('docRefParamsToSearchParams', () => {
         expect(convertDocRefParamsToSearchParams({ patient: 'Patient/1' })).toMatchInlineSnapshot(`
             Object {
               "_count": "1",
-              "_sort": "-period",
+              "_sort": "-date",
               "patient": "Patient/1",
               "type": "http://loinc.org|34133-9",
             }
@@ -32,7 +32,7 @@ describe('docRefParamsToSearchParams', () => {
         ).toMatchInlineSnapshot(`
             Object {
               "patient": "Patient/1",
-              "period": Array [
+              "date": Array [
                 "ge1990-10-10",
                 "le1995-10-10",
               ],
@@ -63,7 +63,7 @@ describe('docRefParamsToSearchParams', () => {
         ).toMatchInlineSnapshot(`
             Object {
               "patient": "Patient/1",
-              "period": Array [
+              "date": Array [
                 "ge1990",
               ],
               "type": "http://loinc.org|34133-9",
@@ -80,7 +80,7 @@ describe('docRefParamsToSearchParams', () => {
         ).toMatchInlineSnapshot(`
             Object {
               "patient": "Patient/1",
-              "period": Array [
+              "date": Array [
                 "le2000",
               ],
               "type": "http://loinc.org|34133-9",
