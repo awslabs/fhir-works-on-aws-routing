@@ -11,7 +11,7 @@ describe('docRefParamsToSearchParams', () => {
         expect(convertDocRefParamsToSearchParams({ patient: 'Patient/1' })).toMatchInlineSnapshot(`
             Object {
               "_count": "1",
-              "_sort": "-period",
+              "_sort": "-period,-date",
               "patient": "Patient/1",
               "type": "http://loinc.org|34133-9",
             }

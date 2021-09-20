@@ -20,7 +20,7 @@ export const convertDocRefParamsToSearchParams = (docRefParams: DocRefParams) =>
 
     if (!start && !end) {
         // only latest document
-        searchParams = { _sort: '-period', _count: '1', ...searchParams };
+        searchParams = { _sort: '-period,-date', _count: '1', ...searchParams };
     } else {
         const dateParams = [];
         if (start) {
