@@ -9,7 +9,7 @@ import express from 'express';
 import { setTenantIdMiddleware } from './setTenantId';
 
 async function sleep(milliseconds: number) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 describe('SetTenantIdMiddleware', () => {
@@ -27,8 +27,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -36,7 +36,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'aud-Claim-That-Does-Not-Match-For-TenantId-Extraction',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -59,15 +59,15 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t1',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -90,8 +90,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -101,7 +101,7 @@ describe('SetTenantIdMiddleware', () => {
                         ],
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -125,8 +125,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -134,7 +134,7 @@ describe('SetTenantIdMiddleware', () => {
                         tenantId: 't1',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -158,8 +158,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -169,7 +169,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: ['item1', 'item2'],
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -195,8 +195,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -204,7 +204,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -227,8 +227,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -236,7 +236,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -259,8 +259,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: { tenantIdFromPath: 't2' } } as unknown) as express.Request;
-            const res = ({
+            const req = { params: { tenantIdFromPath: 't2' } } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -268,7 +268,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -291,8 +291,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: { tenantIdFromPath: 't1' } } as unknown) as express.Request;
-            const res = ({
+            const req = { params: { tenantIdFromPath: 't1' } } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -300,7 +300,7 @@ describe('SetTenantIdMiddleware', () => {
                         aud: 'https://xxxx.execute-api.us-east-2.amazonaws.com/dev/tenant/t2',
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -322,8 +322,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -334,7 +334,7 @@ describe('SetTenantIdMiddleware', () => {
                         ],
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 
@@ -356,8 +356,8 @@ describe('SetTenantIdMiddleware', () => {
 
             const setTenantIdMiddlewareFn = setTenantIdMiddleware(fhirConfig);
             const nextMock = jest.fn();
-            const req = ({ params: {} } as unknown) as express.Request;
-            const res = ({
+            const req = { params: {} } as unknown as express.Request;
+            const res = {
                 locals: {
                     userIdentity: {
                         claim1: 'val1',
@@ -368,7 +368,7 @@ describe('SetTenantIdMiddleware', () => {
                         ],
                     },
                 },
-            } as unknown) as express.Response;
+            } as unknown as express.Response;
 
             setTenantIdMiddlewareFn(req, res, nextMock);
 

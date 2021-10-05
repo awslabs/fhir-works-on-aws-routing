@@ -55,7 +55,7 @@ function makeResourceObject(
 export function makeOperation(operations: (TypeOperation | SystemOperation)[]) {
     const resourceOperations: any[] = [];
 
-    operations.forEach(operation => {
+    operations.forEach((operation) => {
         resourceOperations.push({ code: operation });
     });
 

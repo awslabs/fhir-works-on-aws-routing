@@ -58,10 +58,17 @@ export default class BundleHandler implements BundleHandlerInterface {
         this.validators = validators;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,prettier/prettier
-    async processBatch(bundleRequestJson: any, userIdentity: KeyValueMap, requestContext: RequestContext, serverUrl: string, tenantId?: string) {
+    /* eslint-disable  @typescript-eslint/no-unused-vars,prettier/prettier */
+    async processBatch(
+        bundleRequestJson: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        serverUrl: string,
+        tenantId?: string,
+    ) {
         throw new createError.BadRequest('Currently this server only support transaction Bundles');
     }
+    /* eslint-enable @typescript-eslint/no-unused-vars,prettier/prettier */
 
     resourcesInBundleThatServerDoesNotSupport(
         bundleRequestJson: any,
@@ -79,7 +86,7 @@ export default class BundleHandler implements BundleHandlerInterface {
             const bundleResourceOperations = resourceTypeToOperations[bundleResourceType];
             // 'Generic resource' includes bundle resourceType and Operation
             if (this.supportedGenericResources.includes(bundleResourceType)) {
-                const operationsInBundleThatServerDoesNotSupport = bundleResourceOperations.filter(operation => {
+                const operationsInBundleThatServerDoesNotSupport = bundleResourceOperations.filter((operation) => {
                     return !this.genericResource?.operations.includes(operation);
                 });
                 if (operationsInBundleThatServerDoesNotSupport.length > 0) {
@@ -131,7 +138,7 @@ export default class BundleHandler implements BundleHandlerInterface {
                 throw new Error('Cannot process bundle');
             }
         } catch (e) {
-            throw new createError.BadRequest(e.message);
+            throw new createError.BadRequest((e as any).message);
         }
 
         await this.authService.isBundleRequestAuthorized({

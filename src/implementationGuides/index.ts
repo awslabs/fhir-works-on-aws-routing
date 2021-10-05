@@ -41,7 +41,7 @@ export class RoutingImplementationGuides implements ImplementationGuides {
     // eslint-disable-next-line class-methods-use-this
     async compile(resources: any[]): Promise<any> {
         const validDefinitions: (FhirStructureDefinition | FhirOperationDefinition)[] = [];
-        resources.forEach(s => {
+        resources.forEach((s) => {
             if (
                 RoutingImplementationGuides.isFhirStructureDefinition(s) ||
                 RoutingImplementationGuides.isFhirOperationDefinition(s)
@@ -54,7 +54,7 @@ export class RoutingImplementationGuides implements ImplementationGuides {
             }
         });
 
-        return validDefinitions.map(fhirDefinition => {
+        return validDefinitions.map((fhirDefinition) => {
             switch (fhirDefinition.resourceType) {
                 case 'StructureDefinition':
                     return {

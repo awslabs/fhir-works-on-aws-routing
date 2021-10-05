@@ -57,8 +57,8 @@ export default class HapiFhirLambdaValidator implements Validator {
         }
 
         const allErrorMessages = hapiValidatorResponse.errorMessages
-            .filter(e => e.severity === 'error')
-            .map(e => e.msg)
+            .filter((e) => e.severity === 'error')
+            .map((e) => e.msg)
             .join('\n');
 
         throw new InvalidResourceError(allErrorMessages);

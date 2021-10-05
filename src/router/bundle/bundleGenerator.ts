@@ -101,7 +101,7 @@ export default class BundleGenerator {
         };
 
         const entries: any = [];
-        bundleEntryResponses.forEach(bundleEntryResponse => {
+        bundleEntryResponses.forEach((bundleEntryResponse) => {
             let status = '200 OK';
             if (bundleEntryResponse.operation === 'create') {
                 status = '201 Created';
