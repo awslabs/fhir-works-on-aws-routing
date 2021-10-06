@@ -18,7 +18,7 @@ describe('validateResource', () => {
         async validate(resource: any) {
             // Sleep for one second, so if validatorA and validatorB are in validators array we can ensure validatorA
             // takes longer to run than validator B. This is helpful for testing that the validators are run sequentially
-            await new Promise(r => setTimeout(r, 10));
+            await new Promise((r) => setTimeout(r, 10));
             throw new InvalidResourceError('Failed validation from validator A');
         },
     };

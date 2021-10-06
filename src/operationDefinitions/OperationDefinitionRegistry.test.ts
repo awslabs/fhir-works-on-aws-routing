@@ -10,7 +10,7 @@ import { OperationDefinitionRegistry } from './OperationDefinitionRegistry';
 import { OperationDefinitionImplementation } from './types';
 import ResourceHandler from '../router/handlers/resourceHandler';
 
-const fakeRouter = (jest.fn() as unknown) as Router;
+const fakeRouter = jest.fn() as unknown as Router;
 const fakeOperation: OperationDefinitionImplementation = {
     canonicalUrl: 'https://fwoa.com/operation/fakeOperation',
     name: 'fakeOperation',
@@ -32,7 +32,7 @@ describe('OperationDefinitionRegistry', () => {
         };
 
         const operationDefinitionRegistry = new OperationDefinitionRegistry(
-            (configHandlerMock as unknown) as ConfigHandler,
+            configHandlerMock as unknown as ConfigHandler,
             [fakeOperation],
         );
 
@@ -46,7 +46,7 @@ describe('OperationDefinitionRegistry', () => {
         };
 
         const operationDefinitionRegistry = new OperationDefinitionRegistry(
-            (configHandlerMock as unknown) as ConfigHandler,
+            configHandlerMock as unknown as ConfigHandler,
             [fakeOperation],
         );
 
@@ -62,7 +62,7 @@ describe('OperationDefinitionRegistry', () => {
         };
 
         const operationDefinitionRegistry = new OperationDefinitionRegistry(
-            (configHandlerMock as unknown) as ConfigHandler,
+            configHandlerMock as unknown as ConfigHandler,
             [fakeOperation],
         );
 
@@ -87,7 +87,7 @@ describe('OperationDefinitionRegistry', () => {
         };
 
         expect(
-            () => new OperationDefinitionRegistry((configHandlerMock as unknown) as ConfigHandler, [fakeOperation]),
+            () => new OperationDefinitionRegistry(configHandlerMock as unknown as ConfigHandler, [fakeOperation]),
         ).toThrowErrorMatchingInlineSnapshot(
             `"Failed to initialize operation https://fwoa.com/operation/fakeOperation. Is your FhirConfig correct?"`,
         );

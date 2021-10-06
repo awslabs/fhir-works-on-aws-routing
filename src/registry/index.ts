@@ -17,13 +17,13 @@ export class FHIRStructureDefinitionRegistry {
 
         if (compiledImplementationGuides !== undefined) {
             compiledStructureDefinitions = [
-                ...compiledImplementationGuides.filter(x => x.resourceType === 'StructureDefinition'),
+                ...compiledImplementationGuides.filter((x) => x.resourceType === 'StructureDefinition'),
             ];
         }
 
         this.capabilityStatement = {};
 
-        compiledStructureDefinitions.forEach(compiledStructureDefinition => {
+        compiledStructureDefinitions.forEach((compiledStructureDefinition) => {
             const structuredDefinition = this.capabilityStatement[compiledStructureDefinition.type];
 
             if (structuredDefinition) {

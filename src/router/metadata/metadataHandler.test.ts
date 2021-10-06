@@ -332,7 +332,7 @@ const overrideStubs = {
 };
 const registry: FHIRStructureDefinitionRegistry = new FHIRStructureDefinitionRegistry();
 
-const operationRegistryMock: OperationDefinitionRegistry = ({
+const operationRegistryMock: OperationDefinitionRegistry = {
     getCapabilities: jest.fn().mockReturnValue({
         Account: {
             operation: [
@@ -344,7 +344,7 @@ const operationRegistryMock: OperationDefinitionRegistry = ({
             ],
         },
     }),
-} as unknown) as OperationDefinitionRegistry;
+} as unknown as OperationDefinitionRegistry;
 
 describe('ERROR: test cases', () => {
     beforeEach(() => {
@@ -363,9 +363,9 @@ describe('ERROR: test cases', () => {
             await metadataHandler.capabilities({ fhirVersion: '4.0.1', mode: 'full' });
         } catch (e) {
             // CHECK
-            expect(e.name).toEqual('NotFoundError');
-            expect(e.statusCode).toEqual(404);
-            expect(e.message).toEqual(`FHIR version 4.0.1 is not supported`);
+            expect((e as any).name).toEqual('NotFoundError');
+            expect((e as any).statusCode).toEqual(404);
+            expect((e as any).message).toEqual(`FHIR version 4.0.1 is not supported`);
         }
     });
 
@@ -381,9 +381,9 @@ describe('ERROR: test cases', () => {
             await metadataHandler.capabilities({ fhirVersion: '3.0.1', mode: 'full' });
         } catch (e) {
             // CHECK
-            expect(e.name).toEqual('NotFoundError');
-            expect(e.statusCode).toEqual(404);
-            expect(e.message).toEqual(`FHIR version 3.0.1 is not supported`);
+            expect((e as any).name).toEqual('NotFoundError');
+            expect((e as any).statusCode).toEqual(404);
+            expect((e as any).message).toEqual(`FHIR version 3.0.1 is not supported`);
         }
     });
 });

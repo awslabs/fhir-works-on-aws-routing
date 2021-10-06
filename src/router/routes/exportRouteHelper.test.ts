@@ -127,8 +127,8 @@ describe('buildInitiateExportRequest', () => {
                 r4Version,
             );
         } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.message).toEqual('We only support exporting resources into ndjson formatted file');
+            expect((e as any).name).toEqual('BadRequestError');
+            expect((e as any).message).toEqual('We only support exporting resources into ndjson formatted file');
         }
     });
     test('Group Export request with non-supported since', () => {
@@ -151,8 +151,8 @@ describe('buildInitiateExportRequest', () => {
                 r4Version,
             );
         } catch (e) {
-            expect(e.name).toEqual('BadRequestError');
-            expect(e.message).toEqual(
+            expect((e as any).name).toEqual('BadRequestError');
+            expect((e as any).message).toEqual(
                 "Query '_since' should be in the FHIR Instant format: YYYY-MM-DDThh:mm:ss.sss+zz:zz (e.g. 2015-02-07T13:28:17.239+02:00 or 2017-01-01T00:00:00Z)",
             );
         }

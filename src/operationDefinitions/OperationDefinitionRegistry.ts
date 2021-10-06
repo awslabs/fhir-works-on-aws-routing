@@ -28,7 +28,7 @@ export class OperationDefinitionRegistry {
     constructor(configHandler: ConfigHandler, operations: OperationDefinitionImplementation[]) {
         this.operations = operations;
 
-        this.routers = operations.map(operation => {
+        this.routers = operations.map((operation) => {
             const resourceHandler = configHandler.getResourceHandler(operation.targetResourceType);
             if (!resourceHandler) {
                 throw new Error(
@@ -41,7 +41,7 @@ export class OperationDefinitionRegistry {
     }
 
     getOperation(method: string, path: string): OperationDefinitionImplementation | undefined {
-        return this.operations.find(o => o.path === path && o.httpVerbs.includes(method));
+        return this.operations.find((o) => o.path === path && o.httpVerbs.includes(method));
     }
 
     getAllRouters(): Router[] {
@@ -51,7 +51,7 @@ export class OperationDefinitionRegistry {
     getCapabilities(): OperationCapabilityStatement {
         const capabilities: OperationCapabilityStatement = {};
 
-        this.operations.forEach(operation => {
+        this.operations.forEach((operation) => {
             if (!capabilities[operation.targetResourceType]) {
                 capabilities[operation.targetResourceType] = {
                     operation: [],

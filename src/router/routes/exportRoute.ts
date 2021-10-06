@@ -51,9 +51,7 @@ export default class ExportRoute {
         const jobId = await this.exportHandler.initiateExport(initiateExportRequest);
 
         const exportStatusUrl = `${res.locals.serverUrl}/$export/${jobId}`;
-        res.header('Content-Location', exportStatusUrl)
-            .status(202)
-            .send();
+        res.header('Content-Location', exportStatusUrl).status(202).send();
     }
 
     init() {
@@ -91,9 +89,7 @@ export default class ExportRoute {
                     tenantId,
                 );
                 if (response.jobStatus === 'in-progress') {
-                    res.status(202)
-                        .header('x-progress', 'in-progress')
-                        .send();
+                    res.status(202).header('x-progress', 'in-progress').send();
                 } else if (response.jobStatus === 'failed') {
                     throw new createHttpError.InternalServerError(response.errorMessage);
                 } else if (response.jobStatus === 'completed') {

@@ -53,7 +53,7 @@ export default class MetadataHandler implements Capabilities {
         // Add the special resources
         generatedResources.push(
             ...(await Promise.all(
-                specialResourceTypes.map(resourceType =>
+                specialResourceTypes.map((resourceType) =>
                     makeResource(resourceType, this.configHandler.config.profile.resources![resourceType]),
                 ),
             )),

@@ -138,13 +138,13 @@ export function generateServerlessRouter(
     }
 
     // Operations defined by OperationDefinition resources
-    operationRegistry.getAllRouters().forEach(router => {
+    operationRegistry.getAllRouters().forEach((router) => {
         mainRouter.use('/', router);
     });
 
     // Special Resources
     if (fhirConfig.profile.resources) {
-        Object.entries(fhirConfig.profile.resources).forEach(async resourceEntry => {
+        Object.entries(fhirConfig.profile.resources).forEach(async (resourceEntry) => {
             const { operations, persistence, typeSearch, typeHistory, fhirVersions } = resourceEntry[1];
             if (fhirVersions.includes(fhirVersion)) {
                 const resourceHandler: ResourceHandler = new ResourceHandler(

@@ -37,7 +37,7 @@ export default class ConfigHandler {
         const { resources } = this.config.profile;
         if (resources) {
             let specialResources = Object.keys(resources);
-            specialResources = specialResources.filter(r => resources[r].fhirVersions.includes(fhirVersion));
+            specialResources = specialResources.filter((r) => resources[r].fhirVersions.includes(fhirVersion));
             return specialResources;
         }
         return [];
@@ -62,7 +62,7 @@ export default class ConfigHandler {
     getGenericResources(fhirVersion: FhirVersion, specialResources: string[] = []): string[] {
         const excludedResources = this.getExcludedResourceTypes(fhirVersion);
         const resources = this.supportedGenericResources.filter(
-            r => !excludedResources.includes(r) && !specialResources.includes(r),
+            (r) => !excludedResources.includes(r) && !specialResources.includes(r),
         );
 
         return resources;

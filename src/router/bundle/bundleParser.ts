@@ -132,7 +132,7 @@ export default class BundleParser {
         const requestsWithoutReference: BatchReadWriteRequest[] = [];
         const orderedBundleEntriesId: string[] = [];
 
-        requests.forEach(req => {
+        requests.forEach((req) => {
             orderedBundleEntriesId.push(req.id);
             if (req.references) {
                 requestsWithReference.push(req);
@@ -141,7 +141,7 @@ export default class BundleParser {
             }
         });
 
-        requestsWithoutReference.forEach(request => {
+        requestsWithoutReference.forEach((request) => {
             if (request.fullUrl) {
                 fullUrlToRequest[request.fullUrl] = request;
             } else {
@@ -150,7 +150,7 @@ export default class BundleParser {
             }
         });
 
-        requestsWithReference.forEach(request => {
+        requestsWithReference.forEach((request) => {
             idToRequestWithRef[request.id] = request;
             // request with a fullUrl have the potential of being referenced
             if (request.fullUrl) {
@@ -190,7 +190,7 @@ export default class BundleParser {
             const requestWithRef = Object.values(idToRequestWithRef)[i];
             if (requestWithRef.references) {
                 for (let j = 0; j < requestWithRef.references.length; j += 1) {
-                    const reference = requestWithRef.references[j];
+                    const reference: Reference = requestWithRef.references[j];
 
                     let referenceIsFound = false;
                     if (reference.referenceFullUrl === this.SELF_CONTAINED_REFERENCE) {
@@ -256,25 +256,25 @@ export default class BundleParser {
                 allRequests.push(requestWithRef);
             }
         }
-        const allRequestIds = allRequests.map(req => {
+        const allRequestIds = allRequests.map((req) => {
             return req.id;
         });
 
         // Add to allRequests, request with fullUrl but was not referenced by any bundle entry
-        Object.values(fullUrlToRequest).forEach(req => {
+        Object.values(fullUrlToRequest).forEach((req) => {
             if (!allRequestIds.includes(req.id)) {
                 allRequests.push(req);
             }
         });
 
         // @ts-ignore
-        const orderedAllRequests: BatchReadWriteRequest[] = orderedBundleEntriesId.map(id => {
-            return allRequests.find(request => {
+        const orderedAllRequests: BatchReadWriteRequest[] = orderedBundleEntriesId.map((id) => {
+            return allRequests.find((request) => {
                 return id === request.id;
             });
         });
 
-        return Object.values(orderedAllRequests).map(request => {
+        return Object.values(orderedAllRequests).map((request) => {
             const updatedRequest = request;
             delete updatedRequest.references;
             return updatedRequest;
@@ -315,12 +315,12 @@ export default class BundleParser {
      */
     private static getReferences(entry: any): Reference[] {
         const flattenResource: any = flatten(get(entry, 'resource', {}));
-        const referencePaths: string[] = Object.keys(flattenResource).filter(key => key.endsWith('.reference'));
+        const referencePaths: string[] = Object.keys(flattenResource).filter((key) => key.endsWith('.reference'));
         if (referencePaths.length === 0) {
             return [];
         }
 
-        const references: Reference[] = referencePaths.map(referencePath => {
+        const references: Reference[] = referencePaths.map((referencePath) => {
             const entryReference = get(entry.resource, referencePath);
             const idFromUrnMatch = entryReference.match(captureIdFromUrn);
             if (idFromUrnMatch) {

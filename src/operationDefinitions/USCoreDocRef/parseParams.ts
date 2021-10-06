@@ -199,8 +199,8 @@ export const parsePostParams = (postParams: any): DocRefParams => {
 
     const docRefParams: any = {};
 
-    allowedNames.forEach(name => {
-        const matches = params.filter(param => param.name === name);
+    allowedNames.forEach((name) => {
+        const matches = params.filter((param) => param.name === name);
         if (matches.length > 1) {
             throw new createError.BadRequest('parameter names cannot repeat');
         }
