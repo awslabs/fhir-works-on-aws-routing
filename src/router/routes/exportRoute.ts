@@ -103,7 +103,7 @@ export default class ExportRoute {
                             queryParams,
                             groupId,
                         ),
-                        requiresAccessToken: false,
+                        requiresAccessToken: response.requiresAccessToken,
                         output: response.exportedFileUrls,
                         error: response.errorArray,
                     };
