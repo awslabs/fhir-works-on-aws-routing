@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.2.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.1.2...v6.2.0) (2021-10-13)
+
+
+### Features
+
+* use requiresAccessToken value from GetExportStatusResponse ([#138](https://github.com/awslabs/fhir-works-on-aws-routing/issues/138)) ([0cdfc53](https://github.com/awslabs/fhir-works-on-aws-routing/commit/0cdfc530e30024453d3200d331b25dc8089b8cce))
+
 ### [6.1.2](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.1.1...v6.1.2) (2021-09-20)
 
 
