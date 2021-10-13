@@ -1,6 +1,6 @@
 {
   "name": "fhir-works-on-aws-routing",
-  "version": "6.1.2",
+  "version": "6.2.0",
   "description": "FHIR Works on AWS routing implementation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
