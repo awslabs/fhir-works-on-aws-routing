@@ -419,7 +419,7 @@ describe('Testing search', () => {
             },
             resourceType: 'Patient',
             searchFilters: [],
-            sessionId: '99914b932bd37a50b983c5e7c90ae93b', // hash of user identity
+            sessionId: '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', // hash of user identity
         });
         expect(searchResponse.resourceType).toEqual('Bundle');
         expect(searchResponse.meta).toBeDefined();
