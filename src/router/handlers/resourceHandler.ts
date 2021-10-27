@@ -12,10 +12,13 @@ import {
     Validator,
     RequestContext,
 } from 'fhir-works-on-aws-interface';
+import { createHash } from 'crypto';
 import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
 import { validateResource } from '../validation/validationUtilities';
+
+const hash = (o: any): string => createHash('md5').update(JSON.stringify(o)).digest('hex');
 
 export default class ResourceHandler implements CrudHandlerInterface {
     private validators: Validator[];
@@ -93,6 +96,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
             allowedResourceTypes,
             searchFilters,
             tenantId,
+            sessionId: hash(userIdentity),
         });
         const bundle = BundleGenerator.generateBundle(
             serverUrl,
