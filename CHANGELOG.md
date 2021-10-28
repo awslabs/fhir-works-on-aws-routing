@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.3.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.2.0...v6.3.0) (2021-10-28)
+
+
+### Features
+
+* pass sessionId param to search ([#140](https://github.com/awslabs/fhir-works-on-aws-routing/issues/140)) ([0607652](https://github.com/awslabs/fhir-works-on-aws-routing/commit/06076527ccc3b90880733ca78e38eceabcab3a61))
+
 ## [6.2.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.1.2...v6.2.0) (2021-10-13)
 
 
