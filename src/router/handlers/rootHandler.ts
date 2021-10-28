@@ -5,6 +5,7 @@
 
 import { Search, History, KeyValueMap, Authorization, RequestContext } from 'fhir-works-on-aws-interface';
 import BundleGenerator from '../bundle/bundleGenerator';
+import { hash } from './utils';
 
 export default class RootHandler {
     private searchService: Search;
@@ -40,6 +41,7 @@ export default class RootHandler {
             baseUrl: this.serverUrl,
             searchFilters,
             tenantId,
+            sessionId: hash(userIdentity),
         });
         return BundleGenerator.generateBundle(this.serverUrl, queryParams, searchResponse.result, 'searchset');
     }

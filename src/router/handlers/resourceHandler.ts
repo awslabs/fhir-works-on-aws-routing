@@ -16,6 +16,7 @@ import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
 import { validateResource } from '../validation/validationUtilities';
+import { hash } from './utils';
 
 export default class ResourceHandler implements CrudHandlerInterface {
     private validators: Validator[];
@@ -93,6 +94,7 @@ export default class ResourceHandler implements CrudHandlerInterface {
             allowedResourceTypes,
             searchFilters,
             tenantId,
+            sessionId: hash(userIdentity),
         });
         const bundle = BundleGenerator.generateBundle(
             serverUrl,
