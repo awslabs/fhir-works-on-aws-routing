@@ -83,6 +83,18 @@ export function generateServerlessRouter(
 
     mainRouter.use(setServerUrlMiddleware(fhirConfig));
 
+    // Set default content-type to 'application/fhir+json'
+    mainRouter.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        try {
+            res.contentType(
+                req.headers['content-type'] === 'application/json' ? 'application/json' : 'application/fhir+json',
+            );
+            next();
+        } catch (e) {
+            next(e);
+        }
+    });
+
     // Metadata
     const metadataRoute: MetadataRoute = new MetadataRoute(
         fhirVersion,
