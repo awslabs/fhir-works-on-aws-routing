@@ -27,6 +27,7 @@ import { FHIRStructureDefinitionRegistry } from './registry';
 import { initializeOperationRegistry } from './operationDefinitions';
 import { setServerUrlMiddleware } from './router/middlewares/setServerUrl';
 import { setTenantIdMiddleware } from './router/middlewares/setTenantId';
+import {setContentTypeMiddleware} from "./router/middlewares/setContentType";
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -82,18 +83,7 @@ export function generateServerlessRouter(
     }
 
     mainRouter.use(setServerUrlMiddleware(fhirConfig));
-
-    // Set default content-type to 'application/fhir+json'
-    mainRouter.use(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        try {
-            res.contentType(
-                req.headers['content-type'] === 'application/json' ? 'application/json' : 'application/fhir+json',
-            );
-            next();
-        } catch (e) {
-            next(e);
-        }
-    });
+    mainRouter.use(setContentTypeMiddleware);
 
     // Metadata
     const metadataRoute: MetadataRoute = new MetadataRoute(
