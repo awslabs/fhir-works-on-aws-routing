@@ -27,7 +27,7 @@ import { FHIRStructureDefinitionRegistry } from './registry';
 import { initializeOperationRegistry } from './operationDefinitions';
 import { setServerUrlMiddleware } from './router/middlewares/setServerUrl';
 import { setTenantIdMiddleware } from './router/middlewares/setTenantId';
-import {setContentTypeMiddleware} from "./router/middlewares/setContentType";
+import { setContentTypeMiddleware } from './router/middlewares/setContentType';
 
 const configVersionSupported: ConfigVersion = 1;
 
