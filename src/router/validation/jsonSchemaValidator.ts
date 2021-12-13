@@ -23,11 +23,11 @@ export default class JsonSchemaValidator implements Validator {
         let schema;
         if (fhirVersion === '4.0.1') {
             ajv.addMetaSchema(schemaDraft06);
-            ajv.addSchema(fhirV4Schema);
+            ajv.compile(fhirV4Schema);
             schema = fhirV4Schema;
         } else if (fhirVersion === '3.0.1') {
             ajv.addMetaSchema(schemaDraft04);
-            ajv.addSchema(fhirV3Schema);
+            ajv.compile(fhirV3Schema);
             schema = fhirV3Schema;
         }
         this.schemaId = schema && 'id' in schema ? schema.id : '';
