@@ -28,6 +28,7 @@ import { initializeOperationRegistry } from './operationDefinitions';
 import { setServerUrlMiddleware } from './router/middlewares/setServerUrl';
 import { setTenantIdMiddleware } from './router/middlewares/setTenantId';
 import { setContentTypeMiddleware } from './router/middlewares/setContentType';
+import getComponentLogger from './loggerBuilder'
 
 const configVersionSupported: ConfigVersion = 1;
 
@@ -51,6 +52,7 @@ function prepareRequestContext(req: express.Request): RequestContext {
 export function generateServerlessRouter(
     fhirConfig: FhirConfig,
     supportedGenericResources: string[],
+    headers?: any,
     corsOptions?: CorsOptions,
 ): Express {
     if (configVersionSupported !== fhirConfig.configVersion) {
@@ -80,6 +82,16 @@ export function generateServerlessRouter(
     if (corsOptions) {
         mainRouter.use(cors(corsOptions));
         hasCORSEnabled = true;
+    }
+
+    // Log Geolocation headers
+    if (headers) {
+        const logger = getComponentLogger();
+        logger.log(headers["CloudFront-Viewer-Country"]);
+        logger.log(headers["CloudFront-Is-Desktop-Viewer"]);
+        logger.log(headers["CloudFront-Is-Mobile-Viewer"]);
+        logger.log(headers["CloudFront-Is-SmartTV-Viewer"]);
+        logger.log(headers["CloudFront-Is-Tablet-Viewer"]);
     }
 
     mainRouter.use(setServerUrlMiddleware(fhirConfig));
