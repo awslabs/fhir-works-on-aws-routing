@@ -8,7 +8,7 @@ name: Code Coverage Report
 on: [push, pull_request]
 
 jobs:
-  report test coverage:
+  report-test-coverage:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2 # Check out your repository
