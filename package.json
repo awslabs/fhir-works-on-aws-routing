@@ -26,8 +26,7 @@
     "clean": "rm -rf build/* node_modules/* dist/* .serverless/* .nyc_output/* lib/*",
     "local": "node .",
     "prepublish": "tsc",
-    "standard-version": "standard-version --skip.tag=true",
-    "codecov": "./node_modules/.bin/codecov -f ./coverage/coverage-final.json"
+    "standard-version": "standard-version --skip.tag=true"
   },
   "dependencies": {
     "@types/cors": "^2.8.7",
