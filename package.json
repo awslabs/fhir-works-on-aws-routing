@@ -27,7 +27,7 @@
     "local": "node .",
     "prepublish": "tsc",
     "standard-version": "standard-version --skip.tag=true",
-    "codecov": "./node_modules/.bin/codecov -f coverage/coverage-final.json"
+    "codecov": "./node_modules/.bin/codecov -f ./coverage/coverage-final.json"
   },
   "dependencies": {
     "@types/cors": "^2.8.7",
