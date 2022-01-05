@@ -14,4 +14,4 @@ jobs:
     - uses: actions/checkout@v2 # Check out your repository
     - run: yarn install # Install dependencies
     - run: yarn test-coverage # Run test
-    - run: yarn codecov # Upload to Codecov
+    - run: codecov/codecov-action@v1 # Upload to Codecov
