@@ -34,7 +34,8 @@ export default class JsonSchemaValidator implements Validator {
         this.ajv = ajv;
     }
 
-    async validate(resource: any): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async validate(resource: any, tenantId?: string): Promise<void> {
         const definitionName = resource.resourceType;
         if (!definitionName) {
             throw new InvalidResourceError("resource should have required property 'resourceType'");

@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "resourceType": {
+      "const": "Subscription"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["requested", "off"]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "criteria": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "rest-hook"
+        },
+        "endpoint": {
+          "type": "string",
+          "pattern": "^https:"
+        },
+        "payload": {
+          "const": "application/fhir+json"
+        },
+        "header": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "endpoint"
+      ]
+    }
+  },
+  "required": [
+    "resourceType",
+    "status",
+    "criteria",
+    "channel"
+  ]
+}

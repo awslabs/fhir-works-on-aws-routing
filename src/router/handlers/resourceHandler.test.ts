@@ -231,6 +231,10 @@ describe('ERROR CASES: Testing create, read, update, delete of resources', () =>
         ): Promise<GenericResponse> {
             throw new Error('Method not implemented.');
         }
+
+        static getActiveSubscriptions(params: { tenantId?: string }): Promise<Record<string, any>[]> {
+            throw new Error('Method not implemented');
+        }
     };
 
     const resourceHandler = new ResourceHandler(
