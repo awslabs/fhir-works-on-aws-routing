@@ -60,11 +60,11 @@ describe('createServerUrlMiddleware', () => {
         expect(res.locals.serverUrl).toEqual('https://fwoa.com/some/path');
     });
 
-    test('alternativeUrl host used', async () => {
+    test('dynamic host used', async () => {
         const fhirConfig = {
             server: {
                 url: 'https://fwoa.com',
-                alternativeUrls: ['https://private.api.gateway.example.com', 'https://custom.dns.example.com'],
+                dynamicHostName: true,
             },
         } as FhirConfig;
 
@@ -86,11 +86,11 @@ describe('createServerUrlMiddleware', () => {
         expect(res.locals.serverUrl).toEqual('https://private.api.gateway.example.com');
     });
 
-    test('alternativeUrl host used and path appended', async () => {
+    test('dynamic host used and path appended', async () => {
         const fhirConfig = {
             server: {
                 url: 'https://fwoa.com',
-                alternativeUrls: ['https://private.api.gateway.example.com', 'https://custom.dns.example.com'],
+                dynamicHostName: true,
             },
         } as FhirConfig;
 
@@ -112,18 +112,18 @@ describe('createServerUrlMiddleware', () => {
         expect(res.locals.serverUrl).toEqual('https://private.api.gateway.example.com/some/path');
     });
 
-    test('alternativeUrl host not used with no match', async () => {
+    test('dynamic host not used w/no host header', async () => {
         const fhirConfig = {
             server: {
                 url: 'https://fwoa.com',
-                alternativeUrls: ['https://private.api.gateway.example.com', 'https://custom.dns.example.com'],
+                dynamicHostName: true,
             },
         } as FhirConfig;
 
         const serverUrlMiddleware = setServerUrlMiddleware(fhirConfig);
 
         const nextMock = jest.fn();
-        const req = { baseUrl: '/', headers: { host: 'something.else.example.com' } } as unknown as express.Request;
+        const req = { baseUrl: '/', headers: {} } as unknown as express.Request;
         const res = {
             locals: {},
         } as unknown as express.Response;

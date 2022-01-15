@@ -7,7 +7,6 @@
 
 import { FhirConfig } from 'fhir-works-on-aws-interface';
 import express from 'express';
-import { isEmpty, isUndefined } from 'lodash';
 import RouteHelper from '../routes/routeHelper';
 
 /**
@@ -19,14 +18,13 @@ export const setServerUrlMiddleware: (
 ) => (req: express.Request, res: express.Response, next: express.NextFunction) => void = (fhirConfig: FhirConfig) => {
     return RouteHelper.wrapAsync(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         let serverUrl = fhirConfig.server.url;
-        if (!isEmpty(fhirConfig.server.alternativeUrls)) {
-            const hostMatch = fhirConfig.server.alternativeUrls?.find((alternativeUrl: string) => {
-                const myUrl = new URL(alternativeUrl);
-                return myUrl.hostname === req.headers.host;
-            });
-            if (!isUndefined(hostMatch)) {
-                serverUrl = hostMatch;
-            }
+        if (fhirConfig.server.dynamicHostName && req.headers.host !== undefined) {
+            // use the request's hostname instead of the configured url
+            // this is useful when requests can come from multiple TLDs
+            // examples: private API gateway, custom DNS values, CNAMES
+            const parsedUrl = new URL(serverUrl);
+            parsedUrl.hostname = req.headers.host;
+            serverUrl = parsedUrl.href.substring(0, parsedUrl.href.length - 1);
         }
 
         if (req.baseUrl && req.baseUrl !== '/') {
