@@ -779,3 +779,50 @@ test('R4: FHIR Config V4 with all productInfo params', async () => {
 
     expect(response.resource).toMatchObject(expectedResponse);
 });
+
+test('R4: dynamic hostname used in implementation.url', async () => {
+    const r4ConfigWithAllProductInfo = r4FhirConfigGeneric(overrideStubs);
+    r4ConfigWithAllProductInfo.productInfo = {
+        orgName: 'Organization Name',
+        productVersion: '1.0.0',
+        productTitle: 'Product Title',
+        productMachineName: 'product.machine.name',
+        productDescription: 'Product Description',
+        productPurpose: 'Product Purpose',
+        copyright: 'Copyright',
+    };
+    const configHandler: ConfigHandler = new ConfigHandler(r4ConfigWithAllProductInfo, SUPPORTED_R4_RESOURCES);
+    configHandler.config.server.dynamicHostName = true;
+    const metadataHandler: MetadataHandler = new MetadataHandler(configHandler, registry, operationRegistryMock);
+    const response = await metadataHandler.capabilities({
+        fhirVersion: '4.0.1',
+        mode: 'full',
+        hostName: 'different.host.example.com',
+    });
+
+    const expectedResponse: any = {
+        resourceType: 'CapabilityStatement',
+        name: 'product.machine.name',
+        title: 'Product Title Capability Statement',
+        description: 'Product Description',
+        purpose: 'Product Purpose',
+        copyright: 'Copyright',
+        status: 'active',
+        date: expect.stringMatching(utcTimeRegExp),
+        publisher: 'Organization Name',
+        kind: 'instance',
+        software: {
+            name: 'Product Title',
+            version: '1.0.0',
+        },
+        implementation: {
+            description: 'Product Description',
+            url: 'http://different.host.example.com',
+        },
+        fhirVersion: '4.0.1',
+        format: ['json'],
+        rest: response.resource.rest,
+    };
+
+    expect(response.resource).toMatchObject(expectedResponse);
+});
