@@ -53,6 +53,7 @@ const extractSubscriptionResources = (
                 (singleResource: { resourceType: string }) =>
                     singleResource && singleResource.resourceType === SUBSCRIPTION_RESOURCE_TYPE,
             );
+        // Here we're NOT considering active subscriptions that might be deleted or deactivated as part of the bundle for simplicity
         numberOfPOSTSubscription = resource.entry.filter((ent: any) => ent.request.method === 'POST').length;
     }
     return { subscriptionResources, numberOfPOSTSubscription };
