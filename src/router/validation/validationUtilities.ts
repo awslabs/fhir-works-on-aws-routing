@@ -3,11 +3,15 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { Validator } from 'fhir-works-on-aws-interface';
+import { Validator, VerbType } from 'fhir-works-on-aws-interface';
 
-export async function validateResource(validators: Validator[], resource: any, tenantId?: string): Promise<void> {
+export async function validateResource(
+    validators: Validator[],
+    resource: any,
+    params: { tenantId?: string; httpVerb?: VerbType } = {},
+): Promise<void> {
     for (let i = 0; i < validators.length; i += 1) {
         // eslint-disable-next-line no-await-in-loop
-        await validators[i].validate(resource, tenantId);
+        await validators[i].validate(resource, params);
     }
 }

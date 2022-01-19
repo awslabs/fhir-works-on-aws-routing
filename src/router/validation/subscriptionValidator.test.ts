@@ -3,13 +3,15 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { InvalidResourceError, Search } from 'fhir-works-on-aws-interface';
+import { InvalidResourceError, Search, Persistence } from 'fhir-works-on-aws-interface';
 import ElasticSearchService from '../__mocks__/elasticSearchService';
+import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import SubscriptionValidator, { SubscriptionEndpoint } from './subscriptionValidator';
 import validPatient from '../../../sampleData/validV4Patient.json';
 import invalidPatient from '../../../sampleData/invalidV4Patient.json';
 
 const search: Search = ElasticSearchService;
+const persistence: Persistence = DynamoDbDataService;
 
 const getSubscriptionResource = (endpoint: string) => {
     return {
@@ -81,8 +83,14 @@ const singleTenantAllowList: SubscriptionEndpoint[] = [
     },
 ];
 
-const multiTenantValidator = new SubscriptionValidator(search, multiTenantAllowList, true);
-const singleTenantValidator = new SubscriptionValidator(search, singleTenantAllowList, false);
+const multiTenantValidator = new SubscriptionValidator(search, persistence, multiTenantAllowList, {
+    enableMultiTenancy: true,
+});
+const singleTenantValidator = new SubscriptionValidator(search, persistence, singleTenantAllowList);
+
+beforeEach(() => {
+    persistence.getActiveSubscriptions = jest.fn().mockResolvedValueOnce(Array(20));
+});
 
 describe.each([
     ['multi-tenancy mode', multiTenantValidator, 'https://fake-end-point-tenant1', 'tenant1'],
@@ -92,22 +100,22 @@ describe.each([
     (testName: string, validator: SubscriptionValidator, endpoint: string, tenantId: string | undefined) => {
         test('No error when validating valid Subscription resource', async () => {
             const subscription = getSubscriptionResource(endpoint);
-            await expect(validator.validate(subscription, tenantId)).resolves.toEqual(undefined);
+            await expect(validator.validate(subscription, { tenantId })).resolves.toEqual(undefined);
         });
 
         test('No error when validating valid Bundle resource that contains valid Subscription resource', async () => {
             const subscription = getSubscriptionResource(endpoint);
             const bundle = getBundleResource(subscription);
-            await expect(validator.validate(bundle, tenantId)).resolves.toEqual(undefined);
+            await expect(validator.validate(bundle, { tenantId })).resolves.toEqual(undefined);
         });
 
         test('No error when validating resources that are not Subscription or Bundle', async () => {
-            await expect(validator.validate(invalidPatient, tenantId)).resolves.toEqual(undefined);
+            await expect(validator.validate(invalidPatient, { tenantId })).resolves.toEqual(undefined);
         });
 
         test('No error when validating Bundle that does not contain Subscription resource', async () => {
             const bundle = getBundleResource(validPatient);
-            await expect(validator.validate(bundle, tenantId)).resolves.toEqual(undefined);
+            await expect(validator.validate(bundle, { tenantId })).resolves.toEqual(undefined);
         });
     },
 );
@@ -121,9 +129,9 @@ describe.each([
         test('Show error when status is not "requested" or "off"', async () => {
             const subscription = getSubscriptionResource(endpoint);
             subscription.status = 'active';
-            await expect(validator.validate(subscription, tenantId)).rejects.toThrowError(
+            await expect(validator.validate(subscription, { tenantId })).rejects.toThrowError(
                 new InvalidResourceError(
-                    'Subscription resource is not valid. Error was: data.status should be equal to one of the allowed values',
+                    "Subscription resource is not valid. Error was: data/status should be 'requested' or 'off'",
                 ),
             );
         });
@@ -131,9 +139,9 @@ describe.each([
         test('Show error when payload is not application/fhir+json', async () => {
             const subscription = getSubscriptionResource(endpoint);
             subscription.channel.payload = 'application/xml';
-            await expect(validator.validate(subscription, tenantId)).rejects.toThrowError(
+            await expect(validator.validate(subscription, { tenantId })).rejects.toThrowError(
                 new InvalidResourceError(
-                    'Subscription resource is not valid. Error was: data.channel.payload should be equal to constant',
+                    "Subscription resource is not valid. Error was: data/channel/payload should be equal to 'application/fhir+json'",
                 ),
             );
         });
@@ -141,9 +149,9 @@ describe.each([
         test('Show error when endpoint is not https', async () => {
             const subscription = getSubscriptionResource(endpoint);
             subscription.channel.endpoint = 'http://fake-end-point';
-            await expect(validator.validate(subscription, tenantId)).rejects.toThrowError(
+            await expect(validator.validate(subscription, { tenantId })).rejects.toThrowError(
                 new InvalidResourceError(
-                    'Subscription resource is not valid. Error was: data.channel.endpoint should match pattern "^https:"',
+                    'Subscription resource is not valid. Error was: data/channel/endpoint should match pattern "^https:"',
                 ),
             );
         });
@@ -152,10 +160,35 @@ describe.each([
             const subscription = getSubscriptionResource(endpoint);
             subscription.channel.type = 'email';
             const bundle = getBundleResource(subscription);
-            await expect(validator.validate(bundle, tenantId)).rejects.toThrowError(
+            await expect(validator.validate(bundle, { tenantId })).rejects.toThrowError(
                 new InvalidResourceError(
-                    'Subscription resource is not valid. Error was: data.channel.type should be equal to constant',
+                    "Subscription resource is not valid. Error was: data/channel/type should be equal to 'rest-hook'",
                 ),
+            );
+        });
+
+        test('Show error when creating new Subscription if active subscription is already at 300', async () => {
+            persistence.getActiveSubscriptions = jest.fn().mockResolvedValueOnce(Array(300));
+            const subscription = getSubscriptionResource(endpoint);
+            await expect(validator.validate(subscription, { httpVerb: 'POST', tenantId })).rejects.toThrowError(
+                new Error('Number of active subscriptions are exceeding the limit of 300'),
+            );
+        });
+
+        test('Show error when creating 2 new Subscriptions with Bundle if active subscription is at 299', async () => {
+            persistence.getActiveSubscriptions = jest.fn().mockResolvedValueOnce(Array(300));
+            const subscription = getSubscriptionResource(endpoint);
+            const bundle = getBundleResource(subscription);
+            bundle.entry.push({
+                fullUrl: 'urn:uuid:another-fake-uuid-2',
+                resource: subscription,
+                request: {
+                    method: 'POST',
+                    url: subscription.resourceType,
+                },
+            });
+            await expect(validator.validate(bundle, { tenantId })).rejects.toThrowError(
+                new Error('Number of active subscriptions are exceeding the limit of 300'),
             );
         });
     },
@@ -164,7 +197,7 @@ describe.each([
 describe('Multi-tenancy mode', () => {
     test('Show error when endpoint is not allow listed', async () => {
         const subscription = getSubscriptionResource('https://fake-end-point-tenant1');
-        await expect(multiTenantValidator.validate(subscription, 'tenant2')).rejects.toThrowError(
+        await expect(multiTenantValidator.validate(subscription, { tenantId: 'tenant2' })).rejects.toThrowError(
             new InvalidResourceError(
                 'Subscription resource is not valid. Endpoint https://fake-end-point-tenant1 is not allow listed.',
             ),
@@ -173,7 +206,7 @@ describe('Multi-tenancy mode', () => {
 
     test('Show error when tenantId is undefined', async () => {
         const subscription = getSubscriptionResource('https://fake-end-point-tenant1');
-        await expect(multiTenantValidator.validate(subscription)).rejects.toThrowError(
+        await expect(multiTenantValidator.validate(subscription, {})).rejects.toThrowError(
             new InvalidResourceError(
                 'This instance has multi-tenancy enabled, but the incoming request is missing tenantId',
             ),
@@ -184,7 +217,7 @@ describe('Multi-tenancy mode', () => {
 describe('Single-tenancy mode', () => {
     test('Show error when endpoint is not allow listed', async () => {
         const subscription = getSubscriptionResource('https://fake-end-point-3');
-        await expect(singleTenantValidator.validate(subscription)).rejects.toThrowError(
+        await expect(singleTenantValidator.validate(subscription, {})).rejects.toThrowError(
             new InvalidResourceError(
                 'Subscription resource is not valid. Endpoint https://fake-end-point-3 is not allow listed.',
             ),
@@ -193,7 +226,7 @@ describe('Single-tenancy mode', () => {
 
     test('Show error when tenantId is defined', async () => {
         const subscription = getSubscriptionResource('https://fake-end-point-1');
-        await expect(singleTenantValidator.validate(subscription, 'tenant1')).rejects.toThrowError(
+        await expect(singleTenantValidator.validate(subscription, { tenantId: 'tenant1' })).rejects.toThrowError(
             new InvalidResourceError(
                 'This instance has multi-tenancy disabled, but the incoming request has a tenantId',
             ),

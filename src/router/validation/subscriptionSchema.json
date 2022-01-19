@@ -6,7 +6,8 @@
     },
     "status": {
       "type": "string",
-      "enum": ["requested", "off"]
+      "enum": ["requested", "off"],
+      "errorMessage": "should be 'requested' or 'off'"
     },
     "reason": {
       "type": "string"
@@ -18,14 +19,16 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "rest-hook"
+          "const": "rest-hook",
+          "errorMessage": "should be equal to 'rest-hook'"
         },
         "endpoint": {
           "type": "string",
           "pattern": "^https:"
         },
         "payload": {
-          "const": "application/fhir+json"
+          "const": "application/fhir+json",
+          "errorMessage": "should be equal to 'application/fhir+json'"
         },
         "header": {
           "type": "array",
