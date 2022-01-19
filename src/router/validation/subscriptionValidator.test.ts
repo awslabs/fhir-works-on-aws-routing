@@ -188,7 +188,9 @@ describe.each([
                 },
             });
             await expect(validator.validate(bundle, { tenantId })).rejects.toThrowError(
-                new Error('Number of active subscriptions are exceeding the limit of 300'),
+                new Error(
+                    'Number of active subscriptions are exceeding the limit of 300. Please delete or deactivate subscriptions first, then create new Subscriptions in another request.',
+                ),
             );
         });
     },

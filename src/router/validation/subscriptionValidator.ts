@@ -38,10 +38,11 @@ const isEndpointAllowListed = (allowList: (string | RegExp)[], endpoint: string)
 const extractSubscriptionResources = (
     resource: any,
     httpVerb?: VerbType,
-): { subscriptionResources: any[]; numberOfPOSTSubscription: number } => {
+): { subscriptionResources: any[]; numberOfPOSTSubscription: number; errorMessageIfExceedsNumberLimit: string } => {
     const { resourceType } = resource;
     let subscriptionResources = [];
     let numberOfPOSTSubscription = 0;
+    let errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS}`;
     if (resourceType === SUBSCRIPTION_RESOURCE_TYPE) {
         subscriptionResources = [resource];
         numberOfPOSTSubscription = httpVerb === 'POST' ? 1 : 0;
@@ -55,8 +56,9 @@ const extractSubscriptionResources = (
             );
         // Here we're NOT considering active subscriptions that might be deleted or deactivated as part of the bundle for simplicity
         numberOfPOSTSubscription = resource.entry.filter((ent: any) => ent.request.method === 'POST').length;
+        errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS}. Please delete or deactivate subscriptions first, then create new Subscriptions in another request.`;
     }
-    return { subscriptionResources, numberOfPOSTSubscription };
+    return { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit };
 };
 
 export default class SubscriptionValidator implements Validator {
@@ -105,10 +107,8 @@ export default class SubscriptionValidator implements Validator {
     }
 
     async validate(resource: any, params: { tenantId?: string; httpVerb?: VerbType } = {}): Promise<void> {
-        const { subscriptionResources, numberOfPOSTSubscription } = extractSubscriptionResources(
-            resource,
-            params.httpVerb,
-        );
+        const { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit } =
+            extractSubscriptionResources(resource, params.httpVerb);
         if (isEmpty(subscriptionResources)) {
             return;
         }
@@ -116,9 +116,7 @@ export default class SubscriptionValidator implements Validator {
             await this.persistence.getActiveSubscriptions({ tenantId: params.tenantId })
         ).length;
         if (numberOfActiveSubscriptions + numberOfPOSTSubscription > ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS) {
-            throw new Error(
-                `Number of active subscriptions are exceeding the limit of ${ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS}`,
-            );
+            throw new Error(errorMessageIfExceedsNumberLimit);
         }
         const allowList: (string | RegExp)[] = this.getAllowListForRequest(params.tenantId);
 
