@@ -117,6 +117,14 @@ describe.each([
             const bundle = getBundleResource(validPatient);
             await expect(validator.validate(bundle, { tenantId })).resolves.toEqual(undefined);
         });
+
+        test('No error when updating existing Subscription if active subscription is already at 300', async () => {
+            persistence.getActiveSubscriptions = jest.fn().mockResolvedValueOnce(Array(300));
+            const subscription = getSubscriptionResource(endpoint);
+            await expect(validator.validate(subscription, { typeOperation: 'update', tenantId })).resolves.toEqual(
+                undefined,
+            );
+        });
     },
 );
 
@@ -170,7 +178,7 @@ describe.each([
         test('Show error when creating new Subscription if active subscription is already at 300', async () => {
             persistence.getActiveSubscriptions = jest.fn().mockResolvedValueOnce(Array(300));
             const subscription = getSubscriptionResource(endpoint);
-            await expect(validator.validate(subscription, { httpVerb: 'POST', tenantId })).rejects.toThrowError(
+            await expect(validator.validate(subscription, { typeOperation: 'create', tenantId })).rejects.toThrowError(
                 new Error('Number of active subscriptions are exceeding the limit of 300'),
             );
         });

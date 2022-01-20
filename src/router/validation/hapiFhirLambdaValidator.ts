@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { InvalidResourceError, Validator, VerbType } from 'fhir-works-on-aws-interface';
+import { InvalidResourceError, TypeOperation, Validator } from 'fhir-works-on-aws-interface';
 import { Lambda } from 'aws-sdk';
 import AWS from '../../AWS';
 import getComponentLogger from '../../loggerBuilder';
@@ -36,7 +36,7 @@ export default class HapiFhirLambdaValidator implements Validator {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async validate(resource: any, params: { tenantId?: string; httpVerb?: VerbType } = {}): Promise<void> {
+    async validate(resource: any, params: { tenantId?: string; typeOperation?: TypeOperation } = {}): Promise<void> {
         const lambdaParams = {
             FunctionName: this.hapiValidatorLambdaArn,
             InvocationType: 'RequestResponse',

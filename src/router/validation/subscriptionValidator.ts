@@ -9,7 +9,7 @@ import ajvErrors from 'ajv-errors';
 
 import { isEmpty, groupBy } from 'lodash';
 
-import { InvalidResourceError, Validator, Search, VerbType, Persistence } from 'fhir-works-on-aws-interface';
+import { InvalidResourceError, Validator, Search, Persistence, TypeOperation } from 'fhir-works-on-aws-interface';
 import subscriptionSchema from './subscriptionSchema.json';
 
 export interface SubscriptionEndpoint {
@@ -37,7 +37,7 @@ const isEndpointAllowListed = (allowList: (string | RegExp)[], endpoint: string)
 
 const extractSubscriptionResources = (
     resource: any,
-    httpVerb?: VerbType,
+    typeOperation?: TypeOperation,
 ): { subscriptionResources: any[]; numberOfPOSTSubscription: number; errorMessageIfExceedsNumberLimit: string } => {
     const { resourceType } = resource;
     let subscriptionResources = [];
@@ -45,7 +45,7 @@ const extractSubscriptionResources = (
     let errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS}`;
     if (resourceType === SUBSCRIPTION_RESOURCE_TYPE) {
         subscriptionResources = [resource];
-        numberOfPOSTSubscription = httpVerb === 'POST' ? 1 : 0;
+        numberOfPOSTSubscription = typeOperation === 'create' ? 1 : 0;
     }
     if (resourceType === BUNDLE_RESOURCE_TYPE) {
         subscriptionResources = resource.entry
@@ -106,19 +106,20 @@ export default class SubscriptionValidator implements Validator {
         }
     }
 
-    async validate(resource: any, params: { tenantId?: string; httpVerb?: VerbType } = {}): Promise<void> {
+    async validate(
+        resource: any,
+        { tenantId, typeOperation }: { tenantId?: string; typeOperation?: TypeOperation } = {},
+    ): Promise<void> {
         const { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit } =
-            extractSubscriptionResources(resource, params.httpVerb);
+            extractSubscriptionResources(resource, typeOperation);
         if (isEmpty(subscriptionResources)) {
             return;
         }
-        const numberOfActiveSubscriptions = (
-            await this.persistence.getActiveSubscriptions({ tenantId: params.tenantId })
-        ).length;
+        const numberOfActiveSubscriptions = (await this.persistence.getActiveSubscriptions({ tenantId })).length;
         if (numberOfActiveSubscriptions + numberOfPOSTSubscription > ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS) {
             throw new Error(errorMessageIfExceedsNumberLimit);
         }
-        const allowList: (string | RegExp)[] = this.getAllowListForRequest(params.tenantId);
+        const allowList: (string | RegExp)[] = this.getAllowListForRequest(tenantId);
 
         subscriptionResources.forEach((res) => {
             const result = this.validateJSON(res);
