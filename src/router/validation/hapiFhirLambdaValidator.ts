@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { InvalidResourceError, Validator } from 'fhir-works-on-aws-interface';
+import { InvalidResourceError, TypeOperation, Validator } from 'fhir-works-on-aws-interface';
 import { Lambda } from 'aws-sdk';
 import AWS from '../../AWS';
 import getComponentLogger from '../../loggerBuilder';
@@ -35,14 +35,15 @@ export default class HapiFhirLambdaValidator implements Validator {
         });
     }
 
-    async validate(resource: any): Promise<void> {
-        const params = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async validate(resource: any, params: { tenantId?: string; typeOperation?: TypeOperation } = {}): Promise<void> {
+        const lambdaParams = {
             FunctionName: this.hapiValidatorLambdaArn,
             InvocationType: 'RequestResponse',
             Payload: JSON.stringify(JSON.stringify(resource)),
         };
 
-        const lambdaResponse = await this.lambdaClient.invoke(params).promise();
+        const lambdaResponse = await this.lambdaClient.invoke(lambdaParams).promise();
 
         if (lambdaResponse.FunctionError) {
             // this means that the lambda function crashed, not necessarily that the resource is invalid.
