@@ -24,7 +24,12 @@ export const setServerUrlMiddleware: (
             // examples: private API gateway, custom DNS values, CNAMES
             const parsedUrl = new URL(serverUrl);
             parsedUrl.hostname = req.headers.host;
-            serverUrl = parsedUrl.href.substring(0, parsedUrl.href.length - 1);
+
+            // downstream code expects no trailing `/` char
+            serverUrl = parsedUrl.href;
+            if (serverUrl.endsWith('/')) {
+                serverUrl = serverUrl.substring(0, parsedUrl.href.length - 1);
+            }
         }
 
         if (req.baseUrl && req.baseUrl !== '/') {

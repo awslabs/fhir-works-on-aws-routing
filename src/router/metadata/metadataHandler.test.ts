@@ -797,7 +797,7 @@ test('R4: dynamic hostname used in implementation.url', async () => {
     const response = await metadataHandler.capabilities({
         fhirVersion: '4.0.1',
         mode: 'full',
-        hostName: 'different.host.example.com',
+        fhirServiceBaseUrl: 'https://different.host.example.com/mystage',
     });
 
     const expectedResponse: any = {
@@ -817,7 +817,7 @@ test('R4: dynamic hostname used in implementation.url', async () => {
         },
         implementation: {
             description: 'Product Description',
-            url: 'http://different.host.example.com',
+            url: 'https://different.host.example.com/mystage',
         },
         fhirVersion: '4.0.1',
         format: ['json'],

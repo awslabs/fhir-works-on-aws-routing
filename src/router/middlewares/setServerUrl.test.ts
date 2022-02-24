@@ -7,6 +7,8 @@
 
 import { FhirConfig } from 'fhir-works-on-aws-interface';
 import express from 'express';
+import { argv } from 'process';
+import { notDeepStrictEqual } from 'assert';
 import { setServerUrlMiddleware } from './setServerUrl';
 
 async function sleep(milliseconds: number) {
@@ -70,20 +72,24 @@ describe('createServerUrlMiddleware', () => {
 
         const serverUrlMiddleware = setServerUrlMiddleware(fhirConfig);
 
-        const nextMock = jest.fn();
+        const sendMock = jest.fn();
         const req = {
             baseUrl: '/',
             headers: { host: 'private.api.gateway.example.com' },
         } as unknown as express.Request;
         const res = {
             locals: {},
+            status: () => {
+                return { send: sendMock };
+            },
         } as unknown as express.Response;
 
-        await serverUrlMiddleware(req, res, nextMock);
+        serverUrlMiddleware(req, res, (err: unknown) => {
+            expect(err).toBeUndefined();
 
-        expect(nextMock).toHaveBeenCalledTimes(1);
-        expect(nextMock).toHaveBeenCalledWith();
-        expect(res.locals.serverUrl).toEqual('https://private.api.gateway.example.com');
+            expect(sendMock).not.toHaveBeenCalled();
+            expect(res.locals.serverUrl).toEqual('https://private.api.gateway.example.com');
+        });
     });
 
     test('dynamic host used and path appended', async () => {
@@ -96,20 +102,24 @@ describe('createServerUrlMiddleware', () => {
 
         const serverUrlMiddleware = setServerUrlMiddleware(fhirConfig);
 
-        const nextMock = jest.fn();
+        const sendMock = jest.fn();
         const req = {
             baseUrl: '/some/path',
             headers: { host: 'private.api.gateway.example.com' },
         } as unknown as express.Request;
         const res = {
             locals: {},
+            status: () => {
+                return { send: sendMock };
+            },
         } as unknown as express.Response;
 
-        await serverUrlMiddleware(req, res, nextMock);
+        serverUrlMiddleware(req, res, (err: unknown) => {
+            expect(err).toBeUndefined();
 
-        expect(nextMock).toHaveBeenCalledTimes(1);
-        expect(nextMock).toHaveBeenCalledWith();
-        expect(res.locals.serverUrl).toEqual('https://private.api.gateway.example.com/some/path');
+            expect(sendMock).not.toHaveBeenCalled();
+            expect(res.locals.serverUrl).toEqual('https://private.api.gateway.example.com/some/path');
+        });
     });
 
     test('dynamic host not used w/no host header', async () => {
@@ -122,16 +132,19 @@ describe('createServerUrlMiddleware', () => {
 
         const serverUrlMiddleware = setServerUrlMiddleware(fhirConfig);
 
-        const nextMock = jest.fn();
+        const sendMock = jest.fn();
         const req = { baseUrl: '/', headers: {} } as unknown as express.Request;
         const res = {
             locals: {},
+            status: () => {
+                return { send: sendMock };
+            },
         } as unknown as express.Response;
 
-        await serverUrlMiddleware(req, res, nextMock);
+        serverUrlMiddleware(req, res, (err: unknown) => {
+            expect(err).toBeUndefined();
 
-        expect(nextMock).toHaveBeenCalledTimes(1);
-        expect(nextMock).toHaveBeenCalledWith();
-        expect(res.locals.serverUrl).toEqual('https://fwoa.com');
+            expect(res.locals.serverUrl).toEqual('https://fwoa.com');
+        });
     });
 });
