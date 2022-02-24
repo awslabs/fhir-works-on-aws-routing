@@ -24,7 +24,7 @@ const BUNDLE_RESOURCE_TYPE = 'Bundle';
 
 const SINGLE_TENANT_ALLOW_LIST_KEY = 'SINGLE_TENANT_ALLOW_LIST_KEY';
 
-const ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS = 300;
+const DEFAULT_MAX_NUMBER_OF_ACTIVE_SUBSCRIPTIONS = 300;
 
 const isEndpointAllowListed = (allowList: (string | RegExp)[], endpoint: string): boolean => {
     return allowList.some((allowedEndpoint) => {
@@ -33,32 +33,6 @@ const isEndpointAllowListed = (allowList: (string | RegExp)[], endpoint: string)
         }
         return allowedEndpoint === endpoint;
     });
-};
-
-const extractSubscriptionResources = (
-    resource: any,
-    typeOperation?: TypeOperation,
-): { subscriptionResources: any[]; numberOfPOSTSubscription: number; errorMessageIfExceedsNumberLimit: string } => {
-    const { resourceType } = resource;
-    let subscriptionResources = [];
-    let numberOfPOSTSubscription = 0;
-    let errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS}`;
-    if (resourceType === SUBSCRIPTION_RESOURCE_TYPE) {
-        subscriptionResources = [resource];
-        numberOfPOSTSubscription = typeOperation === 'create' ? 1 : 0;
-    }
-    if (resourceType === BUNDLE_RESOURCE_TYPE) {
-        subscriptionResources = resource.entry
-            .map((ent: { resource: any }) => ent.resource)
-            .filter(
-                (singleResource: { resourceType: string }) =>
-                    singleResource && singleResource.resourceType === SUBSCRIPTION_RESOURCE_TYPE,
-            );
-        // Here we're NOT considering active subscriptions that might be deleted or deactivated as part of the bundle for simplicity
-        numberOfPOSTSubscription = resource.entry.filter((ent: any) => ent.request.method === 'POST').length;
-        errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS}. Please delete or deactivate subscriptions first, then create new Subscriptions in another request.`;
-    }
-    return { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit };
 };
 
 export default class SubscriptionValidator implements Validator {
@@ -74,15 +48,21 @@ export default class SubscriptionValidator implements Validator {
 
     private readonly enableMultiTenancy: boolean;
 
+    private readonly maxActiveSubscriptions: number;
+
     constructor(
         search: Search,
         persistence: Persistence,
         allowList: SubscriptionEndpoint[],
-        { enableMultiTenancy = false }: { enableMultiTenancy?: boolean } = {},
+        {
+            enableMultiTenancy = false,
+            maxActiveSubscriptions = DEFAULT_MAX_NUMBER_OF_ACTIVE_SUBSCRIPTIONS,
+        }: { enableMultiTenancy?: boolean; maxActiveSubscriptions?: number } = {},
     ) {
         this.search = search;
         this.persistence = persistence;
         this.enableMultiTenancy = enableMultiTenancy;
+        this.maxActiveSubscriptions = maxActiveSubscriptions;
         this.loadAllowList(allowList);
         this.ajv = ajvErrors(new Ajv({ allErrors: true, jsonPointers: true }));
         this.validateJSON = this.ajv.compile(subscriptionSchema);
@@ -111,12 +91,12 @@ export default class SubscriptionValidator implements Validator {
         { tenantId, typeOperation }: { tenantId?: string; typeOperation?: TypeOperation } = {},
     ): Promise<void> {
         const { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit } =
-            extractSubscriptionResources(resource, typeOperation);
+            this.extractSubscriptionResources(resource, typeOperation);
         if (isEmpty(subscriptionResources)) {
             return;
         }
         const numberOfActiveSubscriptions = (await this.persistence.getActiveSubscriptions({ tenantId })).length;
-        if (numberOfActiveSubscriptions + numberOfPOSTSubscription > ALLOWED_NUMBER_OF_ACTIVE_SUBSCRIPTIONS) {
+        if (numberOfActiveSubscriptions + numberOfPOSTSubscription > this.maxActiveSubscriptions) {
             throw new Error(errorMessageIfExceedsNumberLimit);
         }
         const allowList: (string | RegExp)[] = this.getAllowListForRequest(tenantId);
@@ -136,6 +116,32 @@ export default class SubscriptionValidator implements Validator {
             this.search.validateSubscriptionSearchCriteria(res.criteria);
         });
     }
+
+    private extractSubscriptionResources = (
+        resource: any,
+        typeOperation?: TypeOperation,
+    ): { subscriptionResources: any[]; numberOfPOSTSubscription: number; errorMessageIfExceedsNumberLimit: string } => {
+        const { resourceType } = resource;
+        let subscriptionResources = [];
+        let numberOfPOSTSubscription = 0;
+        let errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${this.maxActiveSubscriptions}`;
+        if (resourceType === SUBSCRIPTION_RESOURCE_TYPE) {
+            subscriptionResources = [resource];
+            numberOfPOSTSubscription = typeOperation === 'create' ? 1 : 0;
+        }
+        if (resourceType === BUNDLE_RESOURCE_TYPE) {
+            subscriptionResources = resource.entry
+                .map((ent: { resource: any }) => ent.resource)
+                .filter(
+                    (singleResource: { resourceType: string }) =>
+                        singleResource && singleResource.resourceType === SUBSCRIPTION_RESOURCE_TYPE,
+                );
+            // Here we're NOT considering active subscriptions that might be deleted or deactivated as part of the bundle for simplicity
+            numberOfPOSTSubscription = resource.entry.filter((ent: any) => ent.request.method === 'POST').length;
+            errorMessageIfExceedsNumberLimit = `Number of active subscriptions are exceeding the limit of ${this.maxActiveSubscriptions}. Please delete or deactivate subscriptions first, then create new Subscriptions in another request.`;
+        }
+        return { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit };
+    };
 
     private getAllowListForRequest(tenantId?: string): (string | RegExp)[] {
         if (this.enableMultiTenancy) {
