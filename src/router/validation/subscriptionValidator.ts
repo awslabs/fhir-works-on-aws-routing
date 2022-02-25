@@ -97,7 +97,7 @@ export default class SubscriptionValidator implements Validator {
         }
         const numberOfActiveSubscriptions = (await this.persistence.getActiveSubscriptions({ tenantId })).length;
         if (numberOfActiveSubscriptions + numberOfPOSTSubscription > this.maxActiveSubscriptions) {
-            throw new Error(errorMessageIfExceedsNumberLimit);
+            throw new InvalidResourceError(errorMessageIfExceedsNumberLimit);
         }
         const allowList: (string | RegExp)[] = this.getAllowListForRequest(tenantId);
 
