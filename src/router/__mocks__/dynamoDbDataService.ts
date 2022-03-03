@@ -121,5 +121,9 @@ const DynamoDbDataService: Persistence = class {
     static getExportStatus(jobId: string): Promise<GetExportStatusResponse> {
         throw new Error('Method not implemented');
     }
+
+    static getActiveSubscriptions(params: { tenantId?: string }): Promise<Record<string, any>[]> {
+        throw new Error('Method not implemented');
+    }
 };
 export default DynamoDbDataService;

@@ -30,5 +30,9 @@ const ElasticSearchService: Search = class {
     static async getCapabilities(): Promise<SearchCapabilityStatement> {
         throw new Error('Method not implemented.');
     }
+
+    static validateSubscriptionSearchCriteria(searchCriteria: string): void {
+        console.log(searchCriteria);
+    }
 };
 export default ElasticSearchService;
