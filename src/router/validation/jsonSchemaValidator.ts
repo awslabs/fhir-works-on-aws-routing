@@ -2,14 +2,11 @@
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
  */
-
 import Ajv from 'ajv';
-// @ts-ignore
 import schemaDraft06 from 'ajv/lib/refs/json-schema-draft-06.json';
 import schemaDraft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 
-// @ts-ignore
-import { FhirVersion, InvalidResourceError, Validator } from 'fhir-works-on-aws-interface';
+import { FhirVersion, InvalidResourceError, TypeOperation, Validator } from 'fhir-works-on-aws-interface';
 import fhirV4Schema from './schemas/fhir.schema.v4.json';
 import fhirV3Schema from './schemas/fhir.schema.v3.json';
 
@@ -34,7 +31,8 @@ export default class JsonSchemaValidator implements Validator {
         this.ajv = ajv;
     }
 
-    async validate(resource: any): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async validate(resource: any, params: { tenantId?: string; typeOperation?: TypeOperation } = {}): Promise<void> {
         const definitionName = resource.resourceType;
         if (!definitionName) {
             throw new InvalidResourceError("resource should have required property 'resourceType'");
