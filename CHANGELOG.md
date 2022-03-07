@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.4.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.4.0...v6.4.1) (2022-03-07)
+
+
+### Bug Fixes
+
+* fix content type for .well-known/smart-configuration ([#160](https://github.com/awslabs/fhir-works-on-aws-routing/issues/160)) ([9074b41](https://github.com/awslabs/fhir-works-on-aws-routing/commit/9074b41f842449fe91eb9cae1187474d48a5c616))
+
 ## [6.4.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.3.1...v6.4.0) (2022-03-03)
 
 
