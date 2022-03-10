@@ -58,7 +58,6 @@ export default class BundleHandler implements BundleHandlerInterface {
         this.validators = validators;
     }
 
-    /* eslint-disable  @typescript-eslint/no-unused-vars,prettier/prettier */
     async processBatch(
         bundleRequestJson: any,
         userIdentity: KeyValueMap,
@@ -66,9 +65,93 @@ export default class BundleHandler implements BundleHandlerInterface {
         serverUrl: string,
         tenantId?: string,
     ) {
-        throw new createError.BadRequest('Currently this server only support transaction Bundles');
+        const startTime = new Date();
+
+        await validateResource(this.validators, bundleRequestJson, { tenantId });
+
+        let requests: BatchReadWriteRequest[];
+        try {
+            // TODO use the correct persistence layer
+            const resourcesServerDoesNotSupport = this.resourcesInBundleThatServerDoesNotSupport(bundleRequestJson);
+            if (resourcesServerDoesNotSupport.length > 0) {
+                let message = '';
+                resourcesServerDoesNotSupport.forEach(({ resource, operations }) => {
+                    message += `${resource}: ${operations},`;
+                });
+                message = message.substring(0, message.length - 1);
+                throw new Error(`Server does not support these resource and operations: {${message}}`);
+            }
+            if (this.genericResource) {
+                requests = await BundleParser.parseResource(
+                    bundleRequestJson,
+                    this.genericResource.persistence,
+                    this.serverUrl,
+                );
+            } else {
+                throw new Error('Cannot process bundle');
+            }
+        } catch (e) {
+            throw new createError.BadRequest((e as any).message);
+        }
+
+        await this.authService.isBundleRequestAuthorized({
+            userIdentity,
+            requestContext,
+            requests,
+            fhirServiceBaseUrl: serverUrl,
+        });
+
+        const bundleServiceResponse = await this.bundleService.batch({ requests, startTime, tenantId });
+        if (!bundleServiceResponse.success) {
+            if (bundleServiceResponse.errorType === 'SYSTEM_ERROR') {
+                throw new createError.InternalServerError(bundleServiceResponse.message);
+            } else if (bundleServiceResponse.errorType === 'USER_ERROR') {
+                throw new createError.BadRequest(bundleServiceResponse.message);
+            } else if (bundleServiceResponse.errorType === 'CONFLICT_ERROR') {
+                throw new createError.Conflict(bundleServiceResponse.message);
+            }
+        }
+
+        const readOperations = [
+            'read',
+            'vread',
+            'history-type',
+            'history-instance',
+            'history-system',
+            'search-type',
+            'search-system',
+        ];
+
+        const authAndFilterReadPromises = requests.map((request, index) => {
+            if (readOperations.includes(request.operation)) {
+                return this.authService.authorizeAndFilterReadResponse({
+                    operation: request.operation,
+                    userIdentity,
+                    requestContext,
+                    readResponse: bundleServiceResponse.batchReadWriteResponses[index].resource,
+                    fhirServiceBaseUrl: serverUrl,
+                });
+            }
+            return Promise.resolve();
+        });
+
+        const readResponses = await Promise.allSettled(authAndFilterReadPromises);
+
+        requests.forEach((request, index) => {
+            const entryResponse = bundleServiceResponse.batchReadWriteResponses[index];
+            if (readOperations.includes(request.operation)) {
+                const readResponse: { status: string; reason?: any; value?: any } = readResponses[index];
+                if (readResponse.reason && isUnauthorizedError(readResponse.reason)) {
+                    entryResponse.resource = {};
+                } else {
+                    entryResponse.resource = readResponse.value;
+                }
+            }
+            bundleServiceResponse.batchReadWriteResponses[index] = entryResponse;
+        });
+
+        return BundleGenerator.generateBatchBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
     }
-    /* eslint-enable @typescript-eslint/no-unused-vars,prettier/prettier */
 
     resourcesInBundleThatServerDoesNotSupport(
         bundleRequestJson: any,
