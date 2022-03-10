@@ -21,6 +21,7 @@ export default class WellKnownUriRouteRoute {
     private init() {
         this.router.get('/', async (req: express.Request, res: express.Response) => {
             const response = getWellKnownUriResponse(this.smartStrategy);
+            res.contentType('application/json');
             res.send(response);
         });
     }
