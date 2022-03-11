@@ -8,6 +8,12 @@ import {
     TransactionRequest,
 } from 'fhir-works-on-aws-interface';
 
+let expectedBundleEntryResponses: BatchReadWriteResponse[] = [];
+
+export function setExpectedBundleEntryResponses(responses: BatchReadWriteResponse[]) {
+    expectedBundleEntryResponses = responses;
+}
+
 const DynamoDbBundleService: Bundle = class {
     static batch(request: BatchRequest): Promise<BundleResponse> {
         throw new Error('Method not implemented.');
@@ -83,7 +89,8 @@ const DynamoDbBundleService: Bundle = class {
         return {
             success: true,
             message: 'Successfully committed requests to DB',
-            batchReadWriteResponses: bundleEntryResponses,
+            batchReadWriteResponses:
+                expectedBundleEntryResponses.length !== 0 ? expectedBundleEntryResponses : bundleEntryResponses,
         };
     }
 };

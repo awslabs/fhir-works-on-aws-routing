@@ -6,6 +6,12 @@ import {
     SearchCapabilityStatement,
 } from 'fhir-works-on-aws-interface';
 
+let expectedSearchSet: any[] = [];
+
+export function setExpectedSearchSet(entries: any[]) {
+    expectedSearchSet = entries;
+}
+
 const ElasticSearchService: Search = class {
     /*
     searchParams => {field: value}
@@ -15,9 +21,14 @@ const ElasticSearchService: Search = class {
         return {
             success: true,
             result: {
-                numberOfResults: 0,
+                numberOfResults: expectedSearchSet.length,
                 message: '',
-                entries: [],
+                entries: expectedSearchSet.map((x) => {
+                    // Adapt fullUrl with base server url
+                    const entry = x;
+                    entry.fullUrl = `${request.baseUrl}/${x.fullUrl}`;
+                    return entry;
+                }),
             },
         };
     }
@@ -28,7 +39,8 @@ const ElasticSearchService: Search = class {
     }
 
     static async getCapabilities(): Promise<SearchCapabilityStatement> {
-        throw new Error('Method not implemented.');
+        const dummy: SearchCapabilityStatement = {};
+        return dummy;
     }
 
     static validateSubscriptionSearchCriteria(searchCriteria: string): void {

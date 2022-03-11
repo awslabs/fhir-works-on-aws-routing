@@ -132,7 +132,7 @@ export default class BundleHandler implements BundleHandlerInterface {
                 requests = await BundleParser.parseResource(
                     bundleRequestJson,
                     this.genericResource.persistence,
-                    this.serverUrl,
+                    serverUrl,
                 );
             } else {
                 throw new Error('Cannot process bundle');
@@ -203,6 +203,6 @@ export default class BundleHandler implements BundleHandlerInterface {
             bundleServiceResponse.batchReadWriteResponses[index] = entryResponse;
         });
 
-        return BundleGenerator.generateTransactionBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
+        return BundleGenerator.generateTransactionBundle(serverUrl, bundleServiceResponse.batchReadWriteResponses);
     }
 }
