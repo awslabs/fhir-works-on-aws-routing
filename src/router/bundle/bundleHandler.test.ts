@@ -32,6 +32,12 @@ const sampleBundleRequestJSON = {
     entry: [],
 };
 
+const sampleBatchRequestJSON = {
+    resourceType: 'Bundle',
+    type: 'batch',
+    entry: [],
+};
+
 const practitionerDecoded = {
     sub: 'fake',
     'cognito:groups': ['practitioner'],
@@ -412,14 +418,6 @@ describe('ERROR Cases: Validation of Bundle request', () => {
         // Ensures that for each test, we test the assertions in the catch block
         expect.hasAssertions();
     });
-    test('Batch processing', async () => {
-        const bundleRequestJSON = clone(sampleBundleRequestJSON);
-        bundleRequestJSON.type = 'batch';
-
-        await expect(
-            bundleHandlerR4.processBatch(bundleRequestJSON, practitionerDecoded, dummyRequestContext, dummyServerUrl),
-        ).rejects.toThrowError(new createError.BadRequest('Currently this server only support transaction Bundles'));
-    });
 
     test('Bundle V4 JSON format not correct', async () => {
         const invalidReadRequest = {
@@ -657,6 +655,112 @@ describe('SUCCESS Cases: Testing Bundle with CRUD entries', () => {
             ],
             entry: [],
         });
+    });
+});
+
+describe('SUCCESS Cases: Testing Batch with CRUD entries', () => {
+    test('empty Batch', async () => {
+        const bundleRequestJSON = clone(sampleBatchRequestJSON);
+        bundleRequestJSON.type = 'batch';
+
+        await expect(
+            bundleHandlerR4.processBatch(bundleRequestJSON, practitionerDecoded, dummyRequestContext, dummyServerUrl),
+        ).resolves.toMatchObject({
+            resourceType: 'Bundle',
+            id: expect.stringMatching(uuidRegExp),
+            type: 'batch-response',
+            link: [
+                {
+                    relation: 'self',
+                    url: 'https://API_URL.com',
+                },
+            ],
+            entry: [],
+        });
+    });
+
+    test('Handle CRUD requests in a Batch bundle', async () => {
+        const bundleRequestJSON = clone(sampleBundleRequestJSON);
+        bundleRequestJSON.entry = bundleRequestJSON.entry.concat(sampleCrudEntries);
+
+        const actualResult = await bundleHandlerR4.processBatch(
+            bundleRequestJSON,
+            practitionerDecoded,
+            dummyRequestContext,
+            dummyServerUrl,
+        );
+
+        const expectedResult = {
+            resourceType: 'Bundle',
+            id: expect.stringMatching(uuidRegExp),
+            type: 'batch-response',
+            link: [
+                {
+                    relation: 'self',
+                    url: 'https://API_URL.com',
+                },
+            ],
+            entry: [
+                {
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/8cafa46d-08b4-4ee4-b51b-803e20ae8126',
+                        etag: '3',
+                        lastModified: '2020-04-23T21:19:35.592Z',
+                    },
+                },
+                {
+                    response: {
+                        status: '201 Created',
+                        location: 'Patient/7c7cf4ca-4ba7-4326-b0dd-f3275b735827',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+                {
+                    resource: {
+                        active: true,
+                        resourceType: 'Patient',
+                        birthDate: '1995-09-24',
+                        meta: {
+                            lastUpdated: expect.stringMatching(utcTimeRegExp),
+                            versionId: '1',
+                        },
+                        managingOrganization: {
+                            reference: 'Organization/2.16.840.1.113883.19.5',
+                            display: 'Good Health Clinic',
+                        },
+                        text: {
+                            div: '<div xmlns="http://www.w3.org/1999/xhtml"><p></p></div>',
+                            status: 'generated',
+                        },
+                        id: '47135b80-b721-430b-9d4b-1557edc64947',
+                        name: [
+                            {
+                                family: 'Langard',
+                                given: ['Abby'],
+                            },
+                        ],
+                        gender: 'female',
+                    },
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/47135b80-b721-430b-9d4b-1557edc64947',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+                {
+                    response: {
+                        status: '200 OK',
+                        location: 'Patient/bce8411e-c15e-448c-95dd-69155a837405',
+                        etag: '1',
+                        lastModified: expect.stringMatching(utcTimeRegExp),
+                    },
+                },
+            ],
+        };
+        expect(actualResult).toMatchObject(expectedResult);
     });
 });
 

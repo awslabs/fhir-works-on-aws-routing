@@ -155,6 +155,8 @@ export default class BundleGenerator {
                 isEmpty(bundleEntryResponse.resource)
             ) {
                 status = '403 Forbidden';
+            } else if (bundleEntryResponse.operation === undefined || bundleEntryResponse.vid === '') {
+                status = '404 Not Found';
             }
             const entry: any = {
                 response: {
