@@ -19,16 +19,15 @@ export function setExpectedTokenDecoded(newTokenDecoded: any): void {
 }
 const AuthorizationService: Authorization = class {
     static async verifyAccessToken(request: VerifyAccessTokenRequest): Promise<KeyValueMap> {
-        if (!expectedtokenDecoded) {
-            const practitionerDecoded = {
-                sub: 'fake',
-                'cognito:groups': ['practitioner'],
-                name: 'not real',
-                iat: 1516239022,
-            };
-            return practitionerDecoded;
+        if (expectedtokenDecoded) {
+            return expectedtokenDecoded;
         }
-        return expectedtokenDecoded;
+        return {
+            sub: 'fake',
+            'cognito:groups': ['practitioner'],
+            name: 'not real',
+            iat: 1516239022,
+        };
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function

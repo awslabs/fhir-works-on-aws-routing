@@ -11,6 +11,27 @@ import RouteHelper from '../routes/routeHelper';
 
 const tenantIdRegex = /^[a-zA-Z0-9\-_]{1,64}$/;
 
+/**
+ * Filters out a non matching tenant id value by using regular repressions and an optional tenant id url param value.
+ *
+ * @param tenantIdCandidate The tenant id value candidate
+ * @param tenantIdFromPath The optional tenant id url parameter used for filtering
+ * @returns The tenant id on successfull match, otherwise return undefined
+ */
+function filterTenantId(
+    tenantIdCandidate: string | undefined,
+    tenantIdFromPath: string | undefined,
+): string | undefined {
+    if (
+        tenantIdCandidate &&
+        tenantIdRegex.test(tenantIdCandidate) &&
+        (!tenantIdFromPath || tenantIdFromPath === tenantIdCandidate)
+    ) {
+        return tenantIdCandidate;
+    }
+    return undefined;
+}
+
 const getTenantIdFromAudString = (audClaim: string, baseUrl: string): string | undefined => {
     if (audClaim.startsWith(`${baseUrl}/tenant/`)) {
         return audClaim.substring(`${baseUrl}/tenant/`.length);
@@ -54,14 +75,11 @@ const getTenantIdFromAudClaim = (audClaim: any, baseUrl: string): string | undef
  * @param fhirConfig The config, which includes multi-tenant setup.
  * @returns true access granted, false denied
  */
-function grantAccessForAllTenants(userIdentity: any, fhirConfig: FhirConfig): boolean {
-    if (fhirConfig.multiTenancyConfig?.grantAccessAllTenantsScope) {
-        const scopes: string[] = userIdentity.scope ?? [];
-        if (scopes.includes(fhirConfig.multiTenancyConfig?.grantAccessAllTenantsScope)) {
-            return true;
-        }
-    }
-    return false;
+function evaluateAccessForAllTenants(userIdentity: any, fhirConfig: FhirConfig): boolean {
+    return (
+        fhirConfig.multiTenancyConfig?.grantAccessAllTenantsScope &&
+        userIdentity.scope?.includes(fhirConfig.multiTenancyConfig?.grantAccessAllTenantsScope)
+    );
 }
 
 const getTenantIdFromCustomClaimValue = (tenantIdClaimValue: string, prefix?: string): string | undefined => {
@@ -80,18 +98,18 @@ const getTenantIdFromCustomClaimValue = (tenantIdClaimValue: string, prefix?: st
  * @param tenantIdFromCustomClaim Possible tenant id values from custom claim
  * @param prefix The optional prefix for tenantIdClaimValue
  * @param tenantIdFromPath The tenant id url parameter to test
- * @returns true access granted, false denied
+ * @returns The tenant id if it was found in custom claim, otherwise return undefined
  */
-function grantAccessForCustomClaim(
+function getTenantIdFromCustomClaim(
     tenantIdFromCustomClaim: any,
     prefix: string | undefined,
-    tenantIdFromPath: string,
+    tenantIdFromPath: string | undefined,
 ): string | undefined {
     let tenantIdFromCustomClaimAsArray: (string | undefined)[] = [];
     if (tenantIdFromCustomClaim && Array.isArray(tenantIdFromCustomClaim)) {
         tenantIdFromCustomClaimAsArray = tenantIdFromCustomClaim
             .map((tenantIdClaimValue: string) => getTenantIdFromCustomClaimValue(tenantIdClaimValue, prefix))
-            .filter((tenantIdCandidate: any) => tenantIdCandidate !== undefined);
+            .filter((tenantIdCandidate: any) => tenantIdCandidate);
     }
 
     if (typeof tenantIdFromCustomClaim === 'string') {
@@ -99,7 +117,7 @@ function grantAccessForCustomClaim(
     }
 
     // Multiple possible tenant id values in custom claim is only supported, if a tenantId from url path is available
-    if (tenantIdFromCustomClaimAsArray.length > 1 && tenantIdFromPath !== undefined) {
+    if (tenantIdFromCustomClaimAsArray.length > 1 && tenantIdFromPath) {
         if (tenantIdRegex.test(tenantIdFromPath) && tenantIdFromCustomClaimAsArray.includes(tenantIdFromPath)) {
             return tenantIdFromPath;
         }
@@ -107,29 +125,7 @@ function grantAccessForCustomClaim(
 
     if (tenantIdFromCustomClaimAsArray.length === 1) {
         const tenantIdCandidate: string = tenantIdFromCustomClaimAsArray[0]!;
-        if (
-            tenantIdRegex.test(tenantIdCandidate) &&
-            (tenantIdFromPath === undefined || tenantIdFromPath === tenantIdCandidate)
-        ) {
-            return tenantIdCandidate;
-        }
-    }
-
-    return undefined;
-}
-
-/**
- * Evaluates if tenant id url param value matches with aud claim value, or not.
- * @param tenantIdFromAudClaim Possible tenant id value from aud claim
- * @param tenantId The tenant id url parameter to test
- * @returns true access granted, false denied
- */
-function grantAccessForAudClaim(tenantIdFromAudClaim: any | undefined, tenantIdFromPath: string): string | undefined {
-    if (
-        tenantIdRegex.test(tenantIdFromAudClaim) &&
-        (tenantIdFromPath === undefined || tenantIdFromPath === tenantIdFromAudClaim)
-    ) {
-        return tenantIdFromAudClaim;
+        return filterTenantId(tenantIdCandidate, tenantIdFromPath);
     }
     return undefined;
 }
@@ -149,7 +145,7 @@ export const setTenantIdMiddleware: (
             // Also check for an "all tenants" scope, this is relevant for machine to machine access tokens issued via client credential flow (Oauthv2)
             if (
                 req.params.tenantIdFromPath === 'DEFAULT' ||
-                grantAccessForAllTenants(res.locals.userIdentity, fhirConfig)
+                evaluateAccessForAllTenants(res.locals.userIdentity, fhirConfig)
             ) {
                 res.locals.tenantId = req.params.tenantIdFromPath;
                 next();
@@ -172,11 +168,11 @@ export const setTenantIdMiddleware: (
         }
         // Check whether to grant access based on given custom claim or aud claim values
         const tenantId =
-            grantAccessForCustomClaim(
+            getTenantIdFromCustomClaim(
                 tenantIdFromCustomClaim,
                 fhirConfig.multiTenancyConfig?.tenantIdClaimValuePrefix,
                 req.params.tenantIdFromPath,
-            ) || grantAccessForAudClaim(tenantIdFromAudClaim, req.params.tenantIdFromPath);
+            ) || filterTenantId(tenantIdFromAudClaim, req.params.tenantIdFromPath);
 
         if (!tenantId) {
             throw new UnauthorizedError('Unauthorized');
