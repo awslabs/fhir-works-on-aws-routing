@@ -813,6 +813,14 @@ describe('ERROR Cases: Bundle not authorized', () => {
                 dummyServerUrl,
             ),
         ).rejects.toThrowError(new UnauthorizedError('An entry within the Bundle is not authorized'));
+        await expect(
+            bundleHandlerWithStubbedAuthZ.processBatch(
+                bundleRequestJSON,
+                practitionerDecoded,
+                dummyRequestContext,
+                dummyServerUrl,
+            ),
+        ).rejects.toThrowError(new UnauthorizedError('An entry within the Bundle is not authorized'));
     });
 
     test('After filtering Bundle, read request is not Authorized', async () => {
@@ -901,6 +909,15 @@ describe('ERROR Cases: Bundle not authorized', () => {
         };
         await expect(
             bundleHandlerWithStubbedAuthZ.processTransaction(
+                bundleRequestJSON,
+                practitionerDecoded,
+                dummyRequestContext,
+                dummyServerUrl,
+            ),
+        ).resolves.toMatchObject(expectedResult);
+        expectedResult.type = 'batch-response';
+        await expect(
+            bundleHandlerWithStubbedAuthZ.processBatch(
                 bundleRequestJSON,
                 practitionerDecoded,
                 dummyRequestContext,
