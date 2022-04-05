@@ -166,11 +166,7 @@ export default class BundleGenerator {
                     lastModified: bundleEntryResponse.lastModified,
                 },
             };
-            // remove unnecessary fields from response
-            if (bundleEntryResponse.error) {
-                entry.response.etag = undefined;
-                entry.response.lastModified = undefined;
-            }
+            
             if (bundleEntryResponse.operation === 'read') {
                 entry.resource = bundleEntryResponse.resource;
             }

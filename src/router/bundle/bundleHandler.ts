@@ -18,7 +18,7 @@ import {
 } from 'fhir-works-on-aws-interface';
 import createError from 'http-errors';
 import isEmpty from 'lodash/isEmpty';
-import { MAX_BATCH_ENTRIES, MAX_BUNDLE_ENTRIES } from '../../constants';
+import { MAX_BUNDLE_ENTRIES } from '../../constants';
 import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
@@ -72,7 +72,6 @@ export default class BundleHandler implements BundleHandlerInterface {
             userIdentity,
             requestContext,
             serverUrl,
-            MAX_BATCH_ENTRIES,
             tenantId,
         );
 
@@ -137,9 +136,14 @@ export default class BundleHandler implements BundleHandlerInterface {
             userIdentity,
             requestContext,
             serverUrl,
-            MAX_BUNDLE_ENTRIES,
             tenantId,
         );
+
+        if (requests.length > MAX_BUNDLE_ENTRIES) {
+            throw new createError.BadRequest(
+                `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${requests.length} entries in this Bundle`,
+            );
+        }
 
         let bundleServiceResponse = await this.bundleService.transaction({ requests, startTime, tenantId });
         bundleServiceResponse = await this.filterBundleResult(
@@ -158,7 +162,6 @@ export default class BundleHandler implements BundleHandlerInterface {
         userIdentity: KeyValueMap,
         requestContext: RequestContext,
         serverUrl: string,
-        maxEntries: Number,
         tenantId?: string,
     ) {
         await validateResource(this.validators, bundleRequestJson, { tenantId });
@@ -195,11 +198,6 @@ export default class BundleHandler implements BundleHandlerInterface {
             fhirServiceBaseUrl: serverUrl,
         });
 
-        if (requests.length > maxEntries) {
-            throw new createError.BadRequest(
-                `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${requests.length} entries in this Bundle`,
-            );
-        }
         return requests;
     }
 
