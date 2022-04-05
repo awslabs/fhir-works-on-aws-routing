@@ -148,15 +148,15 @@ export default class BundleGenerator {
         const entries: any = [];
         bundleEntryResponses.forEach((bundleEntryResponse) => {
             let status = '200 OK';
-            if (bundleEntryResponse.operation === 'create') {
+            if (bundleEntryResponse.error) {
+                status = bundleEntryResponse.error;
+            } else if (bundleEntryResponse.operation === 'create') {
                 status = '201 Created';
             } else if (
                 ['read', 'vread'].includes(bundleEntryResponse.operation) &&
                 isEmpty(bundleEntryResponse.resource)
             ) {
                 status = '403 Forbidden';
-            } else if (bundleEntryResponse.vid === '') {
-                status = '404 Not Found';
             }
             const entry: any = {
                 response: {
@@ -166,6 +166,11 @@ export default class BundleGenerator {
                     lastModified: bundleEntryResponse.lastModified,
                 },
             };
+            // remove unnecessary fields from response
+            if (bundleEntryResponse.error) {
+                entry.response.etag = undefined;
+                entry.response.lastModified = undefined;
+            }
             if (bundleEntryResponse.operation === 'read') {
                 entry.resource = bundleEntryResponse.resource;
             }
