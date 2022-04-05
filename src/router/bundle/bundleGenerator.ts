@@ -85,57 +85,12 @@ export default class BundleGenerator {
         };
     }
 
-    static generateTransactionBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
+    static generateGenericBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[], bundleType: string) {
         const id = uuidv4();
         const response = {
             resourceType: 'Bundle',
             id,
-            type: 'transaction-response',
-            link: [
-                {
-                    relation: 'self',
-                    url: baseUrl,
-                },
-            ],
-            entry: [],
-        };
-
-        const entries: any = [];
-        bundleEntryResponses.forEach((bundleEntryResponse) => {
-            let status = '200 OK';
-            if (bundleEntryResponse.operation === 'create') {
-                status = '201 Created';
-            } else if (
-                ['read', 'vread'].includes(bundleEntryResponse.operation) &&
-                isEmpty(bundleEntryResponse.resource)
-            ) {
-                status = '403 Forbidden';
-            }
-            const entry: any = {
-                response: {
-                    status,
-                    location: `${bundleEntryResponse.resourceType}/${bundleEntryResponse.id}`,
-                    etag: bundleEntryResponse.vid,
-                    lastModified: bundleEntryResponse.lastModified,
-                },
-            };
-            if (bundleEntryResponse.operation === 'read') {
-                entry.resource = bundleEntryResponse.resource;
-            }
-
-            entries.push(entry);
-        });
-
-        response.entry = entries;
-        return response;
-    }
-
-    static generateBatchBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
-        const id = uuidv4();
-        const response = {
-            resourceType: 'Bundle',
-            id,
-            type: 'batch-response',
+            type: bundleType,
             link: [
                 {
                     relation: 'self',
@@ -166,7 +121,6 @@ export default class BundleGenerator {
                     lastModified: bundleEntryResponse.lastModified,
                 },
             };
-            
             if (bundleEntryResponse.operation === 'read') {
                 entry.resource = bundleEntryResponse.resource;
             }
@@ -176,5 +130,13 @@ export default class BundleGenerator {
 
         response.entry = entries;
         return response;
+    }
+
+    static generateTransactionBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
+        return this.generateGenericBundle(baseUrl, bundleEntryResponses, 'transaction-response');
+    }
+
+    static generateBatchBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
+        return this.generateGenericBundle(baseUrl, bundleEntryResponses, 'batch-response');
     }
 }
