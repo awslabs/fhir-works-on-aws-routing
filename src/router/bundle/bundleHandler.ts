@@ -58,7 +58,6 @@ export default class BundleHandler implements BundleHandlerInterface {
         this.validators = validators;
     }
 
-    /* eslint-disable  @typescript-eslint/no-unused-vars,prettier/prettier */
     async processBatch(
         bundleRequestJson: any,
         userIdentity: KeyValueMap,
@@ -66,9 +65,27 @@ export default class BundleHandler implements BundleHandlerInterface {
         serverUrl: string,
         tenantId?: string,
     ) {
-        throw new createError.BadRequest('Currently this server only support transaction Bundles');
+        const startTime = new Date();
+
+        const requests = await this.validateBundleResource(
+            bundleRequestJson,
+            userIdentity,
+            requestContext,
+            serverUrl,
+            tenantId,
+        );
+
+        let bundleServiceResponse = await this.bundleService.batch({ requests, startTime, tenantId });
+        bundleServiceResponse = await this.filterBundleResult(
+            bundleServiceResponse,
+            requests,
+            userIdentity,
+            requestContext,
+            serverUrl,
+        );
+
+        return BundleGenerator.generateBatchBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
     }
-    /* eslint-enable @typescript-eslint/no-unused-vars,prettier/prettier */
 
     resourcesInBundleThatServerDoesNotSupport(
         bundleRequestJson: any,
@@ -114,6 +131,39 @@ export default class BundleHandler implements BundleHandlerInterface {
     ) {
         const startTime = new Date();
 
+        const requests = await this.validateBundleResource(
+            bundleRequestJson,
+            userIdentity,
+            requestContext,
+            serverUrl,
+            tenantId,
+        );
+
+        if (requests.length > MAX_BUNDLE_ENTRIES) {
+            throw new createError.BadRequest(
+                `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${requests.length} entries in this Bundle`,
+            );
+        }
+
+        let bundleServiceResponse = await this.bundleService.transaction({ requests, startTime, tenantId });
+        bundleServiceResponse = await this.filterBundleResult(
+            bundleServiceResponse,
+            requests,
+            userIdentity,
+            requestContext,
+            serverUrl,
+        );
+
+        return BundleGenerator.generateTransactionBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
+    }
+
+    async validateBundleResource(
+        bundleRequestJson: any,
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        serverUrl: string,
+        tenantId?: string,
+    ) {
         await validateResource(this.validators, bundleRequestJson, { tenantId });
 
         let requests: BatchReadWriteRequest[];
@@ -148,13 +198,16 @@ export default class BundleHandler implements BundleHandlerInterface {
             fhirServiceBaseUrl: serverUrl,
         });
 
-        if (requests.length > MAX_BUNDLE_ENTRIES) {
-            throw new createError.BadRequest(
-                `Maximum number of entries for a Bundle is ${MAX_BUNDLE_ENTRIES}. There are currently ${requests.length} entries in this Bundle`,
-            );
-        }
+        return requests;
+    }
 
-        const bundleServiceResponse = await this.bundleService.transaction({ requests, startTime, tenantId });
+    async filterBundleResult(
+        bundleServiceResponse: any,
+        requests: any[],
+        userIdentity: KeyValueMap,
+        requestContext: RequestContext,
+        serverUrl: string,
+    ) {
         if (!bundleServiceResponse.success) {
             if (bundleServiceResponse.errorType === 'SYSTEM_ERROR') {
                 throw new createError.InternalServerError(bundleServiceResponse.message);
@@ -200,9 +253,10 @@ export default class BundleHandler implements BundleHandlerInterface {
                     entryResponse.resource = readResponse.value;
                 }
             }
+            // eslint-disable-next-line no-param-reassign
             bundleServiceResponse.batchReadWriteResponses[index] = entryResponse;
         });
 
-        return BundleGenerator.generateTransactionBundle(this.serverUrl, bundleServiceResponse.batchReadWriteResponses);
+        return bundleServiceResponse;
     }
 }
