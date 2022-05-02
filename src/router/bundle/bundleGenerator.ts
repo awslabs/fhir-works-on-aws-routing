@@ -85,12 +85,12 @@ export default class BundleGenerator {
         };
     }
 
-    static generateTransactionBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
+    static generateGenericBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[], bundleType: string) {
         const id = uuidv4();
         const response = {
             resourceType: 'Bundle',
             id,
-            type: 'transaction-response',
+            type: bundleType,
             link: [
                 {
                     relation: 'self',
@@ -103,7 +103,9 @@ export default class BundleGenerator {
         const entries: any = [];
         bundleEntryResponses.forEach((bundleEntryResponse) => {
             let status = '200 OK';
-            if (bundleEntryResponse.operation === 'create') {
+            if (bundleEntryResponse.error) {
+                status = bundleEntryResponse.error;
+            } else if (bundleEntryResponse.operation === 'create') {
                 status = '201 Created';
             } else if (
                 ['read', 'vread'].includes(bundleEntryResponse.operation) &&
@@ -128,5 +130,13 @@ export default class BundleGenerator {
 
         response.entry = entries;
         return response;
+    }
+
+    static generateTransactionBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
+        return this.generateGenericBundle(baseUrl, bundleEntryResponses, 'transaction-response');
+    }
+
+    static generateBatchBundle(baseUrl: string, bundleEntryResponses: BatchReadWriteResponse[]) {
+        return this.generateGenericBundle(baseUrl, bundleEntryResponses, 'batch-response');
     }
 }
