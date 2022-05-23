@@ -33,7 +33,7 @@ describe('setContentTypeMiddleware', () => {
         const nextMock = jest.fn();
         const req = {
             headers: {
-                'content-type': 'application/json',
+                accept: 'application/json',
             },
         } as unknown as express.Request;
         const contentType = jest.fn();
