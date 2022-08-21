@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.6.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.5.1...v6.6.0) (2022-08-21)
+
+
+### Features
+
+* Issue 674 support for up to 100 entries in a FHIR transaction ([#170](https://github.com/awslabs/fhir-works-on-aws-routing/issues/170)) ([6048e17](https://github.com/awslabs/fhir-works-on-aws-routing/commit/6048e17b69ed56b6aea3a74ce96553294763f5e8))
+
 ### [6.5.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.5.0...v6.5.1) (2022-06-06)
 
 
