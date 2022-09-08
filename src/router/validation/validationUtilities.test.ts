@@ -28,19 +28,30 @@ describe('validateResource', () => {
             throw new InvalidResourceError('Failed validation from validator B');
         },
     };
+    const fakeResourceType = 'Patient';
+    const fakeResource = { resourceType: fakeResourceType };
+    test('non-matching resourceType', async () => {
+        await expect(
+            validateResource([mockedSuccessValidator, mockedSuccessValidator], 'Fake', fakeResource),
+        ).rejects.toThrowError(new InvalidResourceError("not a valid 'Fake'"));
+    });
     test('All validators passes', async () => {
-        await expect(validateResource([mockedSuccessValidator, mockedSuccessValidator], {})).resolves.toEqual(
-            undefined,
-        );
+        await expect(
+            validateResource([mockedSuccessValidator, mockedSuccessValidator], fakeResourceType, fakeResource),
+        ).resolves.toEqual(undefined);
     });
     test('One validator fails', async () => {
-        await expect(validateResource([mockedSuccessValidator, mockedFailedValidatorB], {})).rejects.toThrowError(
-            new InvalidResourceError('Failed validation from validator B'),
-        );
+        await expect(
+            validateResource([mockedSuccessValidator, mockedFailedValidatorB], fakeResourceType, fakeResource),
+        ).rejects.toThrowError(new InvalidResourceError('Failed validation from validator B'));
     });
     test('Validator fails in order', async () => {
         await expect(
-            validateResource([mockedSuccessValidator, mockedFailedValidatorA, mockedFailedValidatorB], {}),
+            validateResource(
+                [mockedSuccessValidator, mockedFailedValidatorA, mockedFailedValidatorB],
+                fakeResourceType,
+                fakeResource,
+            ),
         ).rejects.toThrowError(new InvalidResourceError('Failed validation from validator A'));
     });
 });
