@@ -11,7 +11,7 @@ export async function validateResource(
     resource: any,
     params: { tenantId?: string; typeOperation?: TypeOperation } = {},
 ): Promise<void> {
-    if (resourceType !== resource.resourceType){
+    if (resourceType !== resource.resourceType) {
         throw new InvalidResourceError(`not a valid '${resourceType}'`);
     }
     for (let i = 0; i < validators.length; i += 1) {
