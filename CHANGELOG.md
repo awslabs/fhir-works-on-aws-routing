@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.6.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.6.0...v6.6.1) (2022-09-08)
+
+
+### Bug Fixes
+
+* Throw error if url and POSTed resourceType do not match ([#172](https://github.com/awslabs/fhir-works-on-aws-routing/issues/172)) ([b1bd6e4](https://github.com/awslabs/fhir-works-on-aws-routing/commit/b1bd6e4b6772ff82a2450ce8bf073c10d2201bbd))
+
 ## [6.6.0](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.5.1...v6.6.0) (2022-08-21)
 
 
