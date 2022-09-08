@@ -164,7 +164,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         serverUrl: string,
         tenantId?: string,
     ) {
-        await validateResource(this.validators, bundleRequestJson, { tenantId });
+        await validateResource(this.validators, 'Bundle', bundleRequestJson, { tenantId });
 
         let requests: BatchReadWriteRequest[];
         try {

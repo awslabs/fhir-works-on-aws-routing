@@ -474,7 +474,7 @@ describe('ERROR Cases: Validation of Bundle request', () => {
                 dummyRequestContext,
                 dummyServerUrl,
             ),
-        ).rejects.toThrowError(new InvalidResourceError("resource should have required property 'resourceType'"));
+        ).rejects.toThrowError(new InvalidResourceError("not a valid 'Bundle'"));
     });
 
     test('Bundle request has unsupported operation: SEARCH', async () => {
