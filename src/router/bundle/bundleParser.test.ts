@@ -1539,5 +1539,124 @@ describe('parseResource', () => {
 
             expect(actualRequests).toEqual([expectedRequest]);
         });
+
+        test('An entry with URI type reference', async () => {
+            // BUILD
+            const bundleRequestJson = {
+                resourceType: 'Bundle',
+                type: 'transaction',
+                entry: [
+                    {
+                        fullUrl: 'https://API_URL.com/PlanDefinition/1',
+                        resource: {
+                            id: '1',
+                            resourceType: 'PlanDefinition',
+                            version: '0.9.11',
+                            name: 'plan definition 1',
+                            status: 'active',
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'PlanDefinition',
+                        },
+                    },
+                    {
+                        fullUrl: 'https://API_URL.com/PlanDefinition/2',
+                        resource: {
+                            resourceType: 'PlanDefinition',
+                            id: '2',
+                            url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
+                            name: 'plan definition 2',
+                            status: 'active',
+                            action: [
+                                {
+                                    definitionUri: 'PlanDefinition/1',
+                                },
+                            ],
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'PlanDefinition',
+                        },
+                    },
+                    {
+                        fullUrl: 'https://API_URL.com/PlanDefinition/3',
+                        resource: {
+                            resourceType: 'PlanDefinition',
+                            id: '3',
+                            url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
+                            name: 'plan definition 3',
+                            status: 'active',
+                            action: [
+                                {
+                                    definitionUri: 'PlanDefinition/a2beadea-3839-11ed-a261-0242ac120002',
+                                },
+                            ],
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'PlanDefinition',
+                        },
+                    },
+                ],
+            };
+
+            // OPERATE
+            const actualRequests = await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
+
+            // CHECK
+            const expectedRequests: BatchReadWriteRequest[] = [
+                {
+                    operation: 'create',
+                    id: expect.stringMatching(uuidRegExp),
+                    resource: {
+                        id: '1',
+                        resourceType: 'PlanDefinition',
+                        version: '0.9.11',
+                        name: 'plan definition 1',
+                        status: 'active',
+                    },
+                    fullUrl: 'https://API_URL.com/PlanDefinition/1',
+                    resourceType: 'PlanDefinition',
+                },
+                {
+                    operation: 'create',
+                    id: expect.stringMatching(uuidRegExp),
+                    resource: {
+                        resourceType: 'PlanDefinition',
+                        id: '2',
+                        url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
+                        name: 'plan definition 2',
+                        status: 'active',
+                        action: [
+                            {
+                                definitionUri: expect.stringMatching(uuidRegExp),
+                            },
+                        ],
+                    },
+                    fullUrl: 'https://API_URL.com/PlanDefinition/2',
+                    resourceType: 'PlanDefinition',
+                },
+                {
+                    operation: 'create',
+                    id: expect.stringMatching(uuidRegExp),
+                    resource: {
+                        resourceType: 'PlanDefinition',
+                        id: '3',
+                        url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
+                        name: 'plan definition 3',
+                        status: 'active',
+                        action: [
+                            {
+                                definitionUri: 'PlanDefinition/a2beadea-3839-11ed-a261-0242ac120002',
+                            },
+                        ],
+                    },
+                    fullUrl: 'https://API_URL.com/PlanDefinition/3',
+                    resourceType: 'PlanDefinition',
+                },
+            ];
+            expect(actualRequests).toEqual(expectedRequests);
+        });
     });
 });
