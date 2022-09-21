@@ -327,7 +327,7 @@ export default class BundleParser {
      */
     private static getReferences(entry: any): Reference[] {
         const flattenResource: any = flatten(get(entry, 'resource', {}));
-        const referenceKeyRegExpressions: RegExp[] = [/.*\.reference$/, /.*uri$/i, /.*url$/i];
+        const referenceKeyRegExpressions: RegExp[] = [/.*reference$/, /.*uri$/i, /.*url$/i];
         const referencePaths: string[] = Object.keys(flattenResource).filter((key) =>
             referenceKeyRegExpressions.some((regExp) => regExp.test(key)),
         );

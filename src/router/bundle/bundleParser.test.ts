@@ -1565,7 +1565,6 @@ describe('parseResource', () => {
                         resource: {
                             resourceType: 'PlanDefinition',
                             id: '2',
-                            url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
                             name: 'plan definition 2',
                             status: 'active',
                             action: [
@@ -1584,7 +1583,6 @@ describe('parseResource', () => {
                         resource: {
                             resourceType: 'PlanDefinition',
                             id: '3',
-                            url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
                             name: 'plan definition 3',
                             status: 'active',
                             action: [
@@ -1596,6 +1594,17 @@ describe('parseResource', () => {
                         request: {
                             method: 'POST',
                             url: 'PlanDefinition',
+                        },
+                    },
+                    {
+                        fullUrl: 'https://API_URL.com/DetectedIssue/1',
+                        resource: {
+                            resourceType: 'DetectedIssue',
+                            reference: 'PlanDefinition/1',
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'DetectedIssue',
                         },
                     },
                 ],
@@ -1625,7 +1634,6 @@ describe('parseResource', () => {
                     resource: {
                         resourceType: 'PlanDefinition',
                         id: '2',
-                        url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
                         name: 'plan definition 2',
                         status: 'active',
                         action: [
@@ -1643,7 +1651,6 @@ describe('parseResource', () => {
                     resource: {
                         resourceType: 'PlanDefinition',
                         id: '3',
-                        url: 'http://resmed.com/fhir/PlanDefinition/non-compliant-patients-template',
                         name: 'plan definition 3',
                         status: 'active',
                         action: [
@@ -1654,6 +1661,16 @@ describe('parseResource', () => {
                     },
                     fullUrl: 'https://API_URL.com/PlanDefinition/3',
                     resourceType: 'PlanDefinition',
+                },
+                {
+                    operation: 'create',
+                    id: expect.stringMatching(uuidRegExp),
+                    resource: {
+                        resourceType: 'DetectedIssue',
+                        reference: expect.stringMatching(uuidRegExp),
+                    },
+                    fullUrl: 'https://API_URL.com/DetectedIssue/1',
+                    resourceType: 'DetectedIssue',
                 },
             ];
             expect(actualRequests).toEqual(expectedRequests);
