@@ -33,3 +33,29 @@ describe('generateServerlessRouter', () => {
         expect(res.headers['content-type']).toEqual('application/json; charset=utf-8');
     });
 });
+
+describe('generateServerlessRouter with prefix url', () => {
+    const fhirConfig = r4FhirConfigNoGeneric();
+    fhirConfig.server.prefix = 'server';
+    fhirConfig.profile.genericResource!.typeSearch = {
+        async getCapabilities() {
+            return {};
+        },
+        typeSearch(request) {
+            throw new Error('Method not implemented.');
+        },
+        globalSearch(request) {
+            throw new Error('Method not implemented.');
+        },
+        validateSubscriptionSearchCriteria(searchCriteria) {
+            throw new Error('Method not implemented.');
+        },
+    };
+    const app = generateServerlessRouter(fhirConfig, ['Patient']);
+    const requestWithSupertest = request(app);
+
+    test('Get metadata request with baseUrl should return status 200', async () => {
+        const res = await requestWithSupertest.get('/server/metadata');
+        expect(res.status).toEqual(200);
+    });
+});

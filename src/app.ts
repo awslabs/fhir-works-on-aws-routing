@@ -216,10 +216,11 @@ export function generateServerlessRouter(
     mainRouter.use(httpErrorHandler);
     mainRouter.use(unknownErrorHandler);
 
+    const baseUrl = fhirConfig.server.prefix ? `/${fhirConfig.server.prefix}` : '';
     if (fhirConfig.multiTenancyConfig?.enableMultiTenancy && fhirConfig.multiTenancyConfig?.useTenantSpecificUrl) {
-        app.use('/tenant/:tenantIdFromPath([a-zA-Z0-9\\-_]{1,64})', mainRouter);
+        app.use(`${baseUrl}/tenant/:tenantIdFromPath([a-zA-Z0-9\\-_]{1,64})`, mainRouter);
     } else {
-        app.use('/', mainRouter);
+        app.use(`${baseUrl}/`, mainRouter);
     }
 
     return app;
