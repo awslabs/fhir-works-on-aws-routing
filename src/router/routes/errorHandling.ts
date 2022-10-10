@@ -10,6 +10,7 @@ import {
     IssueCode,
     isInvalidSearchParameterError,
     isResourceConflictError,
+    isResourceDeletedError,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
@@ -46,6 +47,14 @@ export const applicationErrorMapper = (
     }
     if (isResourceConflictError(err)) {
         next(new createError.Conflict(err.message));
+        return;
+    }
+    if (isResourceDeletedError(err) && req.method === 'DELETE') {
+        res.status(204).send();
+        return;
+    }
+    if (isResourceDeletedError(err) && req.method === 'GET') {
+        res.status(410).send();
         return;
     }
     next(err);
