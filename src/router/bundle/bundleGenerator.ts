@@ -112,6 +112,8 @@ export default class BundleGenerator {
                 isEmpty(bundleEntryResponse.resource)
             ) {
                 status = '403 Forbidden';
+            } else if (bundleEntryResponse.operation === 'update' && bundleEntryResponse.recreate) {
+                status = '201 Created';
             }
             const entry: any = {
                 response: {

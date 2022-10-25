@@ -124,12 +124,12 @@ describe('SUCCESS CASES: Testing create, read, update, delete of resources', () 
 
         // CHECK
         // TODO spy on DS and ensure ID being passed in is the expectedValidPatient.id & versionId is set to 2
-        expect(updateResponse.id).toEqual(id);
-        expect(updateResponse.meta).toBeDefined();
-        expect(updateResponse.meta.versionId).toEqual('2');
-        expect(updateResponse.meta.lastUpdated).toBeDefined();
-        delete updateResponse.meta;
-        expect(updateResponse).toMatchObject(expectedValidPatient);
+        expect(updateResponse.resource.id).toEqual(id);
+        expect(updateResponse.resource.meta).toBeDefined();
+        expect(updateResponse.resource.meta.versionId).toEqual('2');
+        expect(updateResponse.resource.meta.lastUpdated).toBeDefined();
+        delete updateResponse.resource.meta;
+        expect(updateResponse.resource).toMatchObject(expectedValidPatient);
     });
 
     test('patch: patient', async () => {

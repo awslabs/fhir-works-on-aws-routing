@@ -233,10 +233,17 @@ export default class GenericResourceRoute {
                     });
 
                     const response = await this.handler.update(resourceType, id, body, res.locals.tenantId);
-                    if (response && response.meta) {
-                        res.set({ ETag: `W/"${response.meta.versionId}"`, 'Last-Modified': response.meta.lastUpdated });
+                    let statusCode = 200;
+                    if (response && response.recreate) {
+                        statusCode = 201;
                     }
-                    res.send(response);
+                    if (response && response.resource && response.resource.meta) {
+                        res.set({
+                            ETag: `W/"${response.resource.meta.versionId}"`,
+                            'Last-Modified': response.resource.meta.lastUpdated,
+                        });
+                    }
+                    res.status(statusCode).send(response.resource);
                 }),
             );
         }
