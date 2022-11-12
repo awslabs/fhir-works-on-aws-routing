@@ -3,6 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
+import 'urlpattern-polyfill';
 import { InvalidResourceError, Search, Persistence } from 'fhir-works-on-aws-interface';
 import ElasticSearchService from '../__mocks__/elasticSearchService';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
@@ -61,12 +62,12 @@ const getBundleResource = (resourceToAdd: { resourceType: string }) => {
 
 const multiTenantAllowList: SubscriptionEndpoint[] = [
     {
-        endpoint: 'https://fake-end-point-tenant1',
+        endpoint: new URLPattern('https://fake-end-point-tenant1'),
         headers: ['header-name: header-value'],
         tenantId: 'tenant1',
     },
     {
-        endpoint: new RegExp('^https://fake-end-point-tenant2'),
+        endpoint: new URLPattern('https://fake-end-point-tenant2*'),
         headers: ['header-name: header-value'],
         tenantId: 'tenant2',
     },
@@ -74,11 +75,11 @@ const multiTenantAllowList: SubscriptionEndpoint[] = [
 
 const singleTenantAllowList: SubscriptionEndpoint[] = [
     {
-        endpoint: 'https://fake-end-point-1',
+        endpoint: new URLPattern('https://fake-end-point-1'),
         headers: ['header-name: header-value'],
     },
     {
-        endpoint: new RegExp('^https://fake-end-point-2'),
+        endpoint: new URLPattern('https://fake-end-point-2*'),
         headers: ['header-name: header-value'],
     },
 ];

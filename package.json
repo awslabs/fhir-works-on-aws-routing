@@ -44,6 +44,7 @@
     "lodash": "^4.17.15",
     "mime-types": "^2.1.26",
     "serverless-http": "^2.3.1",
+    "urlpattern-polyfill": "^6.0.1",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
