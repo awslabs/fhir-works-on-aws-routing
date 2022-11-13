@@ -10,11 +10,11 @@ import ajvErrors from 'ajv-errors';
 import { isEmpty, groupBy } from 'lodash';
 
 import { InvalidResourceError, Validator, Search, Persistence, TypeOperation } from 'fhir-works-on-aws-interface';
-import 'urlpattern-polyfill';
 import subscriptionSchema from './subscriptionSchema.json';
+import SubscriptionUrlPattern from './subscriptionUrlPattern';
 
 export interface SubscriptionEndpoint {
-    endpoint: URLPattern;
+    endpoint: SubscriptionUrlPattern;
     headers?: string[];
     tenantId?: string;
 }
@@ -27,8 +27,8 @@ const SINGLE_TENANT_ALLOW_LIST_KEY = 'SINGLE_TENANT_ALLOW_LIST_KEY';
 
 const DEFAULT_MAX_NUMBER_OF_ACTIVE_SUBSCRIPTIONS = 300;
 
-const isEndpointAllowListed = (allowList: URLPattern[], endpoint: string): boolean => {
-    return allowList.some((allowedEndpoint) => allowedEndpoint.test(endpoint));
+const isEndpointAllowListed = (allowList: SubscriptionUrlPattern[], endpoint: string): boolean => {
+    return allowList.some((allowedEndpoint) => allowedEndpoint.matches(endpoint));
 };
 
 export default class SubscriptionValidator implements Validator {
@@ -40,7 +40,7 @@ export default class SubscriptionValidator implements Validator {
 
     private persistence: Persistence;
 
-    private allowListMap: { [key: string]: URLPattern[] } = {};
+    private allowListMap: { [key: string]: SubscriptionUrlPattern[] } = {};
 
     private readonly enableMultiTenancy: boolean;
 
@@ -95,7 +95,7 @@ export default class SubscriptionValidator implements Validator {
         if (numberOfActiveSubscriptions + numberOfPOSTSubscription > this.maxActiveSubscriptions) {
             throw new InvalidResourceError(errorMessageIfExceedsNumberLimit);
         }
-        const allowList: URLPattern[] = this.getAllowListForRequest(tenantId);
+        const allowList: SubscriptionUrlPattern[] = this.getAllowListForRequest(tenantId);
 
         subscriptionResources.forEach((res) => {
             const result = this.validateJSON(res);
@@ -139,7 +139,7 @@ export default class SubscriptionValidator implements Validator {
         return { subscriptionResources, numberOfPOSTSubscription, errorMessageIfExceedsNumberLimit };
     };
 
-    private getAllowListForRequest(tenantId?: string): URLPattern[] {
+    private getAllowListForRequest(tenantId?: string): SubscriptionUrlPattern[] {
         if (this.enableMultiTenancy) {
             if (tenantId !== undefined) {
                 return this.allowListMap[tenantId];
