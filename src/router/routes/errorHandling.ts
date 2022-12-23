@@ -10,6 +10,7 @@ import {
     IssueCode,
     isInvalidSearchParameterError,
     isResourceConflictError,
+    isBadRequestError,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
@@ -28,7 +29,7 @@ export const applicationErrorMapper = (
         next(new createError.NotFound(err.message));
         return;
     }
-    if (isInvalidResourceError(err)) {
+    if (isInvalidResourceError(err) || isBadRequestError(err)) {
         next(new createError.BadRequest(err.message));
         return;
     }
