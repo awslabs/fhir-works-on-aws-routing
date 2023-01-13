@@ -79,7 +79,8 @@
   "resolutions": {
     "path-parse": "^1.0.7",
     "set-value": "^4.0.1",
-    "qs": "6.10.3"
+    "qs": "6.10.3",
+    "json5": "2.2.3"
   },
   "jest": {
     "moduleFileExtensions": [
