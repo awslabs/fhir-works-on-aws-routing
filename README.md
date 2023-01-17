@@ -11,9 +11,7 @@ This package is an implementation of the routing of the [FHIR Works interface](h
 This package assumes certain infrastructure:
 
 - API Gateway - We expect all the routing to invoke the FHIR Works Lambda
-  - What is the recommended transport layer security (TLS) setting?
-  
-    FHIR Works on AWS does not deploy a custom domain, so API Gateway does not allow FHIR Works on AWS to require TLS 1.2. Customers should configure FHIR Works on AWS to meet their internal security policies.
+  - [Best Practices](https://github.com/awslabs/fhir-works-on-aws-deployment/tree/smart-mainline#best-practices)
 - Lambda - We expect the input to be entering our function in a certain way
 
 ## Usage
