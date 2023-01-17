@@ -11,7 +11,7 @@ import {
     isInvalidSearchParameterError,
     isResourceConflictError,
     isBadRequestError,
-    isMethodNotAllowed
+    isMethodNotAllowed,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
