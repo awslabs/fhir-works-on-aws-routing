@@ -23,6 +23,7 @@ import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
 import { validateResource } from '../validation/validationUtilities';
+import { validateXHTMLResource } from '../handlers/utils';
 
 export default class BundleHandler implements BundleHandlerInterface {
     private bundleService: Bundle;
@@ -164,6 +165,7 @@ export default class BundleHandler implements BundleHandlerInterface {
         serverUrl: string,
         tenantId?: string,
     ) {
+        bundleRequestJson = validateXHTMLResource(bundleRequestJson);
         await validateResource(this.validators, 'Bundle', bundleRequestJson, { tenantId });
 
         let requests: BatchReadWriteRequest[];
