@@ -165,13 +165,14 @@ export default class BundleHandler implements BundleHandlerInterface {
         serverUrl: string,
         tenantId?: string,
     ) {
-        bundleRequestJson = validateXHTMLResource(bundleRequestJson);
-        await validateResource(this.validators, 'Bundle', bundleRequestJson, { tenantId });
+        const strippedBundleRequestJson = validateXHTMLResource(bundleRequestJson);
+        await validateResource(this.validators, 'Bundle', strippedBundleRequestJson, { tenantId });
 
         let requests: BatchReadWriteRequest[];
         try {
             // TODO use the correct persistence layer
-            const resourcesServerDoesNotSupport = this.resourcesInBundleThatServerDoesNotSupport(bundleRequestJson);
+            const resourcesServerDoesNotSupport =
+                this.resourcesInBundleThatServerDoesNotSupport(strippedBundleRequestJson);
             if (resourcesServerDoesNotSupport.length > 0) {
                 let message = '';
                 resourcesServerDoesNotSupport.forEach(({ resource, operations }) => {
@@ -182,7 +183,7 @@ export default class BundleHandler implements BundleHandlerInterface {
             }
             if (this.genericResource) {
                 requests = await BundleParser.parseResource(
-                    bundleRequestJson,
+                    strippedBundleRequestJson,
                     this.genericResource.persistence,
                     this.serverUrl,
                 );
