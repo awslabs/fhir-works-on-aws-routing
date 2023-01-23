@@ -23,7 +23,6 @@ import BundleHandlerInterface from './bundleHandlerInterface';
 import BundleGenerator from './bundleGenerator';
 import BundleParser from './bundleParser';
 import { validateResource } from '../validation/validationUtilities';
-import { validateXHTMLResource } from '../handlers/utils';
 
 export default class BundleHandler implements BundleHandlerInterface {
     private bundleService: Bundle;
@@ -165,14 +164,12 @@ export default class BundleHandler implements BundleHandlerInterface {
         serverUrl: string,
         tenantId?: string,
     ) {
-        const strippedBundleRequestJson = validateXHTMLResource(bundleRequestJson);
-        await validateResource(this.validators, 'Bundle', strippedBundleRequestJson, { tenantId });
+        await validateResource(this.validators, 'Bundle', bundleRequestJson, { tenantId });
 
         let requests: BatchReadWriteRequest[];
         try {
             // TODO use the correct persistence layer
-            const resourcesServerDoesNotSupport =
-                this.resourcesInBundleThatServerDoesNotSupport(strippedBundleRequestJson);
+            const resourcesServerDoesNotSupport = this.resourcesInBundleThatServerDoesNotSupport(bundleRequestJson);
             if (resourcesServerDoesNotSupport.length > 0) {
                 let message = '';
                 resourcesServerDoesNotSupport.forEach(({ resource, operations }) => {
@@ -183,7 +180,7 @@ export default class BundleHandler implements BundleHandlerInterface {
             }
             if (this.genericResource) {
                 requests = await BundleParser.parseResource(
-                    strippedBundleRequestJson,
+                    bundleRequestJson,
                     this.genericResource.persistence,
                     this.serverUrl,
                 );

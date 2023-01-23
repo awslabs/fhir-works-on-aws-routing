@@ -1072,7 +1072,7 @@ describe('Testing xhtml validation', () => {
         const validatedPatient = validateXHTMLResource(validPatient);
 
         // CHECK
-        expect(validatedPatient).toMatchObject(validPatient);
+        expect(validatedPatient).toBe(true);
     });
 
     test('invalid patient resource is filtered', () => {
@@ -1094,6 +1094,6 @@ describe('Testing xhtml validation', () => {
         const validatedPatient = validateXHTMLResource(scriptedPatient);
 
         // CHECK
-        expect(validatedPatient).toMatchObject(validPatient);
+        expect(validatedPatient).toBe(false);
     });
 });

@@ -16,7 +16,7 @@ import BundleGenerator from '../bundle/bundleGenerator';
 import CrudHandlerInterface from './CrudHandlerInterface';
 import OperationsGenerator from '../operationsGenerator';
 import { validateResource } from '../validation/validationUtilities';
-import { hash, validateXHTMLResource } from './utils';
+import { hash } from './utils';
 
 export default class ResourceHandler implements CrudHandlerInterface {
     private validators: Validator[];
@@ -45,25 +45,23 @@ export default class ResourceHandler implements CrudHandlerInterface {
     }
 
     async create(resourceType: string, resource: any, tenantId?: string) {
-        const strippedResource = validateXHTMLResource(resource);
-        await validateResource(this.validators, resourceType, strippedResource, { tenantId, typeOperation: 'create' });
+        await validateResource(this.validators, resourceType, resource, { tenantId, typeOperation: 'create' });
 
         const createResponse = await this.dataService.createResource({
             resourceType,
-            resource: strippedResource,
+            resource,
             tenantId,
         });
         return createResponse.resource;
     }
 
     async update(resourceType: string, id: string, resource: any, tenantId?: string) {
-        const strippedResource = validateXHTMLResource(resource);
-        await validateResource(this.validators, resourceType, strippedResource, { tenantId, typeOperation: 'update' });
+        await validateResource(this.validators, resourceType, resource, { tenantId, typeOperation: 'update' });
 
         const updateResponse = await this.dataService.updateResource({
             resourceType,
             id,
-            resource: strippedResource,
+            resource,
             tenantId,
         });
         return updateResponse.resource;
