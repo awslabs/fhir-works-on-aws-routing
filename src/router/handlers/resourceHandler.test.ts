@@ -1065,9 +1065,6 @@ describe('Testing history', () => {
 
 describe('Testing xhtml validation', () => {
     test('valid patient resource is not affected', () => {
-        if (process.env.VALIDATE_XHTML !== 'true') {
-            return;
-        }
         // BUILD & OPERATE
         const validatedPatient = validateXHTMLResource(validPatient);
 
@@ -1076,9 +1073,6 @@ describe('Testing xhtml validation', () => {
     });
 
     test('invalid patient resource is filtered', () => {
-        if (process.env.VALIDATE_XHTML !== 'true') {
-            return;
-        }
         // BUILD
         const scriptedPatient = {
             ...validPatient,
