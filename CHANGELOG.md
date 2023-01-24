@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.6.2](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.6.1...v6.6.2) (2023-01-24)
+
+
+### Bug Fixes
+
+* add optional input validation ([#193](https://github.com/awslabs/fhir-works-on-aws-routing/issues/193)) ([e8d9c8d](https://github.com/awslabs/fhir-works-on-aws-routing/commit/e8d9c8d1fad0b653869773cf88fa501c586f3004))
+
 ### [6.6.1](https://github.com/awslabs/fhir-works-on-aws-routing/compare/v6.6.0...v6.6.1) (2022-09-08)
 
 
