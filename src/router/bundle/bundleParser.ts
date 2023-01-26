@@ -337,7 +337,7 @@ export default class BundleParser {
         const references: Reference[] = referencePaths.map((referencePath) => {
             const entryReference = get(entry.resource, referencePath);
             if (entryReference.length > MAX_REFERENCE_URL_LENGTH) {
-                throw new Error(`Reference URL exceeds length limit of ${MAX_REFERENCE_URL_LENGTH}`);
+                throw new Error(`Reference URL exceeds length limit.`);
             }
             const idFromUrnMatch = entryReference.match(captureIdFromUrn);
             if (idFromUrnMatch) {
@@ -360,9 +360,7 @@ export default class BundleParser {
                 if (rootUrl === undefined) {
                     if (entry.fullUrl) {
                         if (entry.fullUrl.length > MAX_BUNDLE_ENTRY_URL_LENGTH) {
-                            throw new Error(
-                                `Entry full URL length exceeds length limit of ${MAX_BUNDLE_ENTRY_URL_LENGTH}`,
-                            );
+                            throw new Error(`Entry full URL length exceeds length limit.`);
                         }
                         // eslint-disable-next-line prefer-destructuring
                         rootUrl = entry.fullUrl.match(captureFullUrlParts)

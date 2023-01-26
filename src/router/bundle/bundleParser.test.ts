@@ -108,7 +108,7 @@ describe('parseResource', () => {
             } catch (e) {
                 // CHECK
                 expect((e as any).name).toEqual('Error');
-                expect((e as any).message).toEqual('Reference URL exceeds length limit of 500');
+                expect((e as any).message).toEqual('Reference URL exceeds length limit.');
             }
         });
 
@@ -141,7 +141,7 @@ describe('parseResource', () => {
             } catch (e) {
                 // CHECK
                 expect((e as any).name).toEqual('Error');
-                expect((e as any).message).toEqual('Entry full URL length exceeds length limit of 500');
+                expect((e as any).message).toEqual('Entry full URL length exceeds length limit.');
             }
         });
 
