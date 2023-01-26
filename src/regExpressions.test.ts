@@ -3,7 +3,12 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { captureFullUrlParts, dateTimeWithTimeZoneRegExp } from './regExpressions';
+import {
+    captureFullUrlParts,
+    dateTimeWithTimeZoneRegExp,
+    captureResourceTypeRegExp,
+    captureResourceIdRegExp,
+} from './regExpressions';
 
 describe('captureFullUrlParts', () => {
     test('Capture rootUrl, resourceType, id, versionId', () => {
@@ -52,6 +57,7 @@ describe('captureFullUrlParts', () => {
         // @ts-ignore
         expect([...actualMatch]).toEqual([...expectedMatch]);
     });
+
     test('dateTimeWithTimeZoneRegExp', () => {
         const utcTimeZone = '2020-09-02T00:00:00Z';
         const estTimeZone = '2020-09-02T00:00:00-05:00';
@@ -62,5 +68,41 @@ describe('captureFullUrlParts', () => {
         expect(dateTimeWithTimeZoneRegExp.test(estTimeZone)).toBeTruthy();
         expect(dateTimeWithTimeZoneRegExp.test(invalidUtcTimeZone)).toBeFalsy();
         expect(dateTimeWithTimeZoneRegExp.test(timeWithoutTimeZone)).toBeFalsy();
+    });
+});
+
+describe('captureResourceTypeRegExp', () => {
+    test('Success match', () => {
+        const resourceString = `Patient/12345678`;
+        const actualMatch = resourceString.match(captureResourceTypeRegExp);
+
+        const expectedMatch = ['Patient/12345678', 'Patient'];
+
+        for (let i = 0; i < expectedMatch.length; i += 1) {
+            // @ts-ignore
+            expect(actualMatch[i]).toEqual(expectedMatch[i]);
+        }
+    });
+    test('Extra long resource type fail to match', () => {
+        const resourceString = `${'Patient'.repeat(30)}/12345678`;
+        expect(resourceString.match(captureResourceTypeRegExp)).toBeNull();
+    });
+});
+
+describe('captureResourceIdRegExp', () => {
+    test('Success match', () => {
+        const resourceString = `Patient/12345678`;
+        const actualMatch = resourceString.match(captureResourceIdRegExp);
+
+        const expectedMatch = ['Patient/12345678', 'Patient'];
+
+        for (let i = 0; i < expectedMatch.length; i += 1) {
+            // @ts-ignore
+            expect(actualMatch[i]).toEqual(expectedMatch[i]);
+        }
+    });
+    test('Extra long resource id fail to match', () => {
+        const resourceString = `Patient/${'12345678'.repeat(14)}`;
+        expect(resourceString.match(captureResourceTypeRegExp)).toBeNull();
     });
 });

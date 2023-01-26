@@ -80,6 +80,71 @@ describe('parseResource', () => {
             }
         });
 
+        test('Bundle has extra long reference', async () => {
+            // BUILD
+            const bundleRequestJson = {
+                resourceType: 'Bundle',
+                type: 'transaction',
+                entry: [
+                    {
+                        resource: {
+                            resourceType: 'Observation',
+                            status: 'final',
+                            subject: {
+                                reference: `https://${'a'.repeat(700)}/Patient/111`,
+                            },
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'Observation',
+                        },
+                    },
+                ],
+            };
+
+            try {
+                // OPERATE
+                await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
+            } catch (e) {
+                // CHECK
+                expect((e as any).name).toEqual('Error');
+                expect((e as any).message).toEqual('Reference URL exceeds length limit.');
+            }
+        });
+
+        test('Bundle has extra long full URL', async () => {
+            // BUILD
+            const bundleRequestJson = {
+                resourceType: 'Bundle',
+                type: 'transaction',
+                entry: [
+                    {
+                        fullUrl: `https://${'a'.repeat(700)}`,
+                        resource: {
+                            resourceType: 'Observation',
+                            status: 'final',
+                            subject: {
+                                reference: 'Patient/111',
+                            },
+                        },
+                        request: {
+                            method: 'POST',
+                            url: 'Observation',
+                        },
+                    },
+                ],
+            };
+
+            try {
+                // OPERATE
+                await BundleParser.parseResource(bundleRequestJson, DynamoDbDataService, serverUrl);
+            } catch (e) {
+                // CHECK
+                expect((e as any).name).toEqual('Error');
+                expect((e as any).message).toEqual('Entry full URL length exceeds length limit.');
+            }
+        });
+
         test('Bundle has a vread request', async () => {
             // BUILD
             const bundleRequestJson = {
