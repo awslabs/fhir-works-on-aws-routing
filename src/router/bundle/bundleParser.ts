@@ -357,12 +357,14 @@ export default class BundleParser {
             if (fullUrlMatch) {
                 let rootUrl = fullUrlMatch[1];
                 // If the reference doesn't have a urlRoot, check if the entry's fullUrl has a urlRoot
-                if (rootUrl === undefined && entry.fullUrl && entry.fullUrl.length > MAX_BUNDLE_ENTRY_URL_LENGTH) {
-                    throw new Error(`Entry full URL length exceeds length limit.`);
-                }
-                if (rootUrl === undefined && entry.fullUrl && entry.fullUrl.match(captureFullUrlParts)) {
-                    // eslint-disable-next-line prefer-destructuring
-                    rootUrl = entry.fullUrl.match(captureFullUrlParts)[1];
+                if (rootUrl === undefined && entry.fullUrl) {
+                    if (entry.fullUrl.length > MAX_BUNDLE_ENTRY_URL_LENGTH) {
+                        throw new Error(`Entry full URL length exceeds length limit.`);
+                    }
+                    if (entry.fullUrl.match(captureFullUrlParts)) {
+                        // eslint-disable-next-line prefer-destructuring
+                        rootUrl = entry.fullUrl.match(captureFullUrlParts)[1];
+                    }
                 }
                 const resourceType = fullUrlMatch[2];
                 const id = fullUrlMatch[3];
