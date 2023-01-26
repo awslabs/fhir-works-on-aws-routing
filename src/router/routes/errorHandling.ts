@@ -10,6 +10,8 @@ import {
     IssueCode,
     isInvalidSearchParameterError,
     isResourceConflictError,
+    isBadRequestError,
+    isMethodNotAllowed,
 } from 'fhir-works-on-aws-interface';
 import OperationsGenerator from '../operationsGenerator';
 
@@ -20,6 +22,10 @@ export const applicationErrorMapper = (
     next: express.NextFunction,
 ) => {
     console.error(err);
+    if (isMethodNotAllowed(err)) {
+        next(new createError.MethodNotAllowed(err.message));
+        return;
+    }
     if (isResourceNotFoundError(err)) {
         next(new createError.NotFound(err.message));
         return;
@@ -28,7 +34,7 @@ export const applicationErrorMapper = (
         next(new createError.NotFound(err.message));
         return;
     }
-    if (isInvalidResourceError(err)) {
+    if (isInvalidResourceError(err) || isBadRequestError(err)) {
         next(new createError.BadRequest(err.message));
         return;
     }

@@ -34,6 +34,7 @@ import OperationsGenerator from '../operationsGenerator';
 import ElasticSearchService from '../__mocks__/elasticSearchService';
 import DynamoDbDataService from '../__mocks__/dynamoDbDataService';
 import JsonSchemaValidator from '../validation/jsonSchemaValidator';
+import { validateXHTMLResource } from './utils';
 
 const enum SEARCH_PAGINATION_PARAMS {
     PAGES_OFFSET = '_getpagesoffset',
@@ -1059,5 +1060,34 @@ describe('Testing history', () => {
                 },
             ]);
         });
+    });
+});
+
+describe('Testing xhtml validation', () => {
+    test('valid patient resource is not affected', () => {
+        // BUILD & OPERATE
+        const validatedPatient = validateXHTMLResource(validPatient);
+
+        // CHECK
+        expect(validatedPatient).toBe(true);
+    });
+
+    test('invalid patient resource is filtered', () => {
+        // BUILD
+        const scriptedPatient = {
+            ...validPatient,
+            name: [
+                {
+                    family: '<script>alert(123);</script>Levin',
+                    given: ['Henry'],
+                },
+            ],
+        };
+        scriptedPatient.name[0].family = '<script>alert(123);</script>Levin';
+        // OPERATE
+        const validatedPatient = validateXHTMLResource(scriptedPatient);
+
+        // CHECK
+        expect(validatedPatient).toBe(false);
     });
 });
