@@ -7,7 +7,7 @@ import {
     captureFullUrlParts,
     dateTimeWithTimeZoneRegExp,
     captureResourceTypeRegExp,
-    captureResourceIdRegExp
+    captureResourceIdRegExp,
 } from './regExpressions';
 
 describe('captureFullUrlParts', () => {
