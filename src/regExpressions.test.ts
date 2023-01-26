@@ -85,7 +85,6 @@ describe('captureResourceTypeRegExp', () => {
     });
     test('Extra long resource type fail to match', () => {
         const resourceString = `${'Patient'.repeat(30)}/12345678`;
-        console.log(resourceString);
         expect(resourceString.match(captureResourceTypeRegExp)).toBeNull();
     });
 });
@@ -104,7 +103,6 @@ describe('captureResourceIdRegExp', () => {
     });
     test('Extra long resource id fail to match', () => {
         const resourceString = `Patient/${'12345678'.repeat(14)}`;
-        console.log(resourceString);
         expect(resourceString.match(captureResourceTypeRegExp)).toBeNull();
     });
 });
