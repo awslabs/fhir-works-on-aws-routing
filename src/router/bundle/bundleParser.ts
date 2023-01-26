@@ -17,6 +17,8 @@ import {
     getRequestInformation,
 } from 'fhir-works-on-aws-interface';
 
+import { MAX_BUNDLE_ENTRY_URL_LENGTH, MAX_REFERENCE_URL_LENGTH } from '../../constants';
+
 import {
     captureFullUrlParts,
     captureIdFromUrn,
@@ -334,6 +336,9 @@ export default class BundleParser {
 
         const references: Reference[] = referencePaths.map((referencePath) => {
             const entryReference = get(entry.resource, referencePath);
+            if (entryReference.length > MAX_REFERENCE_URL_LENGTH) {
+                throw new Error(`Reference URL exceeds length limit of ${MAX_REFERENCE_URL_LENGTH}`);
+            }
             const idFromUrnMatch = entryReference.match(captureIdFromUrn);
             if (idFromUrnMatch) {
                 const urlRoot = idFromUrnMatch[1];
@@ -353,9 +358,16 @@ export default class BundleParser {
                 let rootUrl = fullUrlMatch[1];
                 // If the reference doesn't have a urlRoot, check if the entry's fullUrl has a urlRoot
                 if (rootUrl === undefined) {
-                    if (entry.fullUrl && entry.fullUrl.match(captureFullUrlParts)) {
+                    if (entry.fullUrl) {
+                        if (entry.fullUrl.length > MAX_BUNDLE_ENTRY_URL_LENGTH) {
+                            throw new Error(
+                                `Entry full URL length exceeds length limit of ${MAX_BUNDLE_ENTRY_URL_LENGTH}`,
+                            );
+                        }
                         // eslint-disable-next-line prefer-destructuring
-                        rootUrl = entry.fullUrl.match(captureFullUrlParts)[1];
+                        rootUrl = entry.fullUrl.match(captureFullUrlParts)
+                            ? entry.fullUrl.match(captureFullUrlParts)[1]
+                            : undefined;
                     }
                 }
                 const resourceType = fullUrlMatch[2];
